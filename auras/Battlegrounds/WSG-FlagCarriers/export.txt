@@ -1,0 +1,1 @@
+PENDING IN-GAME BUILD. Follow the build steps in aura.md, then export the Dynamic Group and paste the single-line !WA:2! string here (replacing this text). This string is the source of truth for importing the aura and must stay in sync with code/tsu.lua.
