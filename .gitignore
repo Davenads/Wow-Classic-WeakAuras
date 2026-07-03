@@ -1,0 +1,17 @@
+# OS / editor cruft
+Thumbs.db
+Desktop.ini
+.DS_Store
+*.swp
+*~
+
+# Node / tooling (only if you add JS-based encode/decode tooling)
+node_modules/
+package-lock.json
+
+# Local scratch — decoded/expanded aura tables you don't want to commit
+scratch/
+*.local.lua
+
+# Screenshots referenced during authoring (keep the repo lean)
+Screenshots/

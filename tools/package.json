@@ -1,0 +1,14 @@
+{
+  "name": "wa-classic-tools",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Decode/encode WeakAuras !WA:2! export strings for version control.",
+  "type": "commonjs",
+  "scripts": {
+    "decode": "node decode.js",
+    "encode": "node encode.js"
+  },
+  "dependencies": {
+    "node-weakauras-parser": "^4.0.0"
+  }
+}

@@ -1,0 +1,9 @@
+## Interface: 11508
+## Title: WeakAuras Workshop (stub)
+## Notes: Empty stub .toc so Ketho's vscode-wow-api extension activates and provides
+##  WoW API autocomplete/diagnostics for the Lua in this repo. Not a real addon — do
+##  not load in-game. Update the Interface number to match your client (see
+##  docs/classic-api.md §4).
+## Version: 0.0.0
+
+# (intentionally lists no .lua files)

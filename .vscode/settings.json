@@ -1,0 +1,23 @@
+{
+  "// Lua Language Server (LuaLS) + Ketho vscode-wow-api": "see docs/workflow.md §5",
+  "Lua.runtime.version": "Lua 5.1",
+  "Lua.diagnostics.globals": [
+    "aura_env",
+    "WeakAuras",
+    "Private",
+    "OptionsPrivate"
+  ],
+  "Lua.diagnostics.disable": [
+    "lowercase-global"
+  ],
+  "Lua.workspace.library": [],
+  "Lua.telemetry.enable": false,
+  "files.associations": {
+    "*.toc": "toc"
+  },
+  "[lua]": {
+    "editor.tabSize": 4,
+    "editor.insertSpaces": true
+  },
+  "editorconfig.generateAuto": false
+}

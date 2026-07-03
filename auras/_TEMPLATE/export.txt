@@ -1,0 +1,1 @@
+Paste the WeakAuras export string here on a single line (it starts with !WA:2!). Replace this placeholder entirely. This string is the source of truth for reimporting the whole aura — keep it in sync with the code/ files whenever either changes.
