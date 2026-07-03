@@ -1,0 +1,125 @@
+{
+  "m": "d",
+  "s": "5.20.6",
+  "d": {
+    "yOffset": -20,
+    "outline": "OUTLINE",
+    "desaturate": false,
+    "font": "Friz Quadrata TT",
+    "anchorFrameType": "SCREEN",
+    "animation": {
+      "main": {
+        "type": "none",
+        "duration_type": "seconds",
+        "easeType": "none",
+        "easeStrength": 3
+      },
+      "start": {
+        "type": "none",
+        "duration_type": "seconds",
+        "easeType": "none",
+        "easeStrength": 3
+      },
+      "finish": {
+        "type": "none",
+        "duration_type": "seconds",
+        "easeType": "none",
+        "easeStrength": 3
+      }
+    },
+    "keepAspectRatio": false,
+    "selfPoint": "TOP",
+    "cooldownEdge": false,
+    "xOffset": 0,
+    "zoom": 0,
+    "desc": "Shows the current flag carrier for each team in Warsong Gulch, top-center.",
+    "authorOptions": [],
+    "wordWrap": "WordWrap",
+    "width": 64,
+    "height": 64,
+    "config": {},
+    "shadowXOffset": 1,
+    "uid": "wsgFC000001",
+    "color": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "fixedWidth": 200,
+    "tocversion": 11508,
+    "customTextUpdate": "update",
+    "internalVersion": 33,
+    "subRegions": [],
+    "shadowYOffset": -1,
+    "anchorPoint": "TOP",
+    "justify": "CENTER",
+    "shadowColor": [
+      0,
+      0,
+      0,
+      1
+    ],
+    "regionType": "text",
+    "auto": true,
+    "actions": {
+      "init": {
+        "do_custom": true,
+        "custom": "-- WSG Flag Carriers — Actions → On Init (actions.init.custom)\n-- Initializes the carrier table this aura reads/writes.\n--   aura_env.fc.horde    = who is carrying the HORDE flag    (an Alliance player)\n--   aura_env.fc.alliance = who is carrying the ALLIANCE flag (a Horde player)\n\naura_env.fc = {}"
+      },
+      "start": {},
+      "finish": {}
+    },
+    "frameStrata": 1,
+    "icon": true,
+    "conditions": [],
+    "customText": "-- WSG Flag Carriers — Display → Text → custom \"%c\" function.\n-- Set the region's Display Text to \"%c\". Renders both carriers, colored:\n--   left  = Alliance player holding the Horde flag    → Alliance blue\n--   right = Horde player holding the Alliance flag     → Horde red\n-- (Left/right pairs each name with its team's score, since a team scores by capping the\n-- enemy flag its own player carries.)\n\nfunction()\n    local fc = aura_env.fc or {}\n    local left  = fc.horde    and (\"|cff3399ff\" .. fc.horde    .. \"|r\") or \"\"\n    local right = fc.alliance and (\"|cffff3333\" .. fc.alliance .. \"|r\") or \"\"\n    if left ~= \"\" and right ~= \"\" then\n        return left .. \"          \" .. right\n    end\n    return left .. right\nend",
+    "cooldownSwipe": true,
+    "cooldownTextDisabled": false,
+    "inverse": false,
+    "load": {
+      "use_zone": true,
+      "zone": "Warsong Gulch",
+      "use_never": false,
+      "class": {
+        "multi": {}
+      },
+      "spec": {
+        "multi": {}
+      },
+      "size": {
+        "multi": {}
+      },
+      "talent": {}
+    },
+    "alpha": 1,
+    "triggers": {
+      "1": {
+        "untrigger": {},
+        "trigger": {
+          "type": "custom",
+          "custom_type": "status",
+          "custom": "-- WSG Flag Carriers — Trigger 1 → Type: Custom → Custom Trigger: \"Status\"\n-- \"Check On:\" = Event(s). Events box (comma-separated):\n--   CHAT_MSG_BG_SYSTEM_ALLIANCE, CHAT_MSG_BG_SYSTEM_HORDE, CHAT_MSG_BG_SYSTEM_NEUTRAL, PLAYER_ENTERING_WORLD\n--\n-- Parses Warsong Gulch flag system messages (enUS) and updates aura_env.fc, then\n-- returns whether either flag is currently being carried (controls show/hide).\n-- The text itself is rendered by the \"%c\" custom-text function (see custom_text.lua).\n--\n-- Why chat parsing: you can only scan auras on your own team, so the enemy carrier is\n-- invisible to UnitAura across the map. The game announces every pickup/drop/return/\n-- capture to everyone via CHAT_MSG_BG_SYSTEM_* (arg1 = the message text). The patterns\n-- below are the only locale-specific part — edit them for non-enUS clients.\n\nfunction(event, msg)\n    local fc = aura_env.fc\n    if not fc then fc = {}; aura_env.fc = fc end\n\n    if event == \"PLAYER_ENTERING_WORLD\" then\n        fc.alliance, fc.horde = nil, nil                     -- new match / zoning: reset\n    elseif type(msg) == \"string\" then\n        local faction = msg:match(\"The (%a+) [Ff]lag\")       -- \"Alliance\" or \"Horde\"\n        local picked  = msg:match(\"[Ff]lag was picked up by (.-)!\")\n        if picked and faction then\n            picked = picked:gsub(\"%-.*$\", \"\")                -- strip \"-Realm\" (cross-realm BGs)\n            if faction == \"Alliance\" then\n                fc.alliance = picked                         -- Horde player took the Alliance flag\n            elseif faction == \"Horde\" then\n                fc.horde = picked                            -- Alliance player took the Horde flag\n            end\n        elseif msg:find(\"was dropped by\") or msg:find(\"was returned\") then\n            if faction == \"Alliance\" then fc.alliance = nil\n            elseif faction == \"Horde\" then fc.horde = nil end\n        elseif msg:find(\"[Cc]aptured\") or msg:find(\"[Ff]lags are reset\")\n            or msg:find(\"flags are now placed\") or msg:find(\"battle has begun\") then\n            -- A capture requires your own flag home, so only one flag is carried at\n            -- capture time — clearing both is safe and self-correcting.\n            fc.alliance, fc.horde = nil, nil\n        end\n    end\n\n    return (fc.alliance ~= nil) or (fc.horde ~= nil)\nend",
+          "check": "event",
+          "events": "CHAT_MSG_BG_SYSTEM_ALLIANCE, CHAT_MSG_BG_SYSTEM_HORDE, CHAT_MSG_BG_SYSTEM_NEUTRAL, PLAYER_ENTERING_WORLD",
+          "custom_hide": "custom",
+          "debuffType": "HELPFUL",
+          "event": "Health",
+          "subeventPrefix": "SPELL",
+          "subeventSuffix": "_CAST_START",
+          "unevent": "auto",
+          "spellIds": {},
+          "names": {},
+          "unit": "player"
+        }
+      },
+      "disjunctive": "all",
+      "activeTriggerMode": 1
+    },
+    "automaticWidth": "Auto",
+    "displayText": "%c",
+    "id": "WSG Flag Carriers",
+    "fontSize": 16
+  },
+  "v": 1421
+}
