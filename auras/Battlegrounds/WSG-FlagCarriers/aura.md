@@ -1,8 +1,10 @@
 # WSG Flag Carriers
 
-Shows the name of the player currently carrying each flag in Warsong Gulch, at top-center
-of the screen next to the capture scores. The Alliance player holding the Horde flag shows
-on the left in blue; the Horde player holding the Alliance flag shows on the right in red.
+Shows the name of the player currently carrying each flag in Warsong Gulch, stacked beside
+the top-center capture counters. The Alliance player holding the Horde flag shows on the
+**top** line in blue; the Horde player holding the Alliance flag shows on the **bottom**
+line in red. The names render as two right-justified lines anchored just left of the
+counter column, so each sits beside its own counter row without covering the flag icons.
 Names appear only while a flag is actually being carried.
 
 | Field | Value |
@@ -29,17 +31,20 @@ the map. The game instead announces every flag pickup/drop/return/capture to eve
 `CHAT_MSG_BG_SYSTEM_*` system messages (arg1 = the text). This aura parses those messages
 and displays both carriers' names.
 
-Left/right pairs each name with its team's score: a team's score increments from capturing
-the enemy flag its own player carries, so the **Alliance** score (left) pairs with the
-Alliance player holding the **Horde** flag, and the **Horde** score (right) pairs with the
-Horde player holding the **Alliance** flag.
+Each name pairs with its team's counter row: a team's score increments from capturing the
+enemy flag its own player carries, so the **Alliance** counter pairs with the Alliance
+player holding the **Horde** flag (top line), and the **Horde** counter pairs with the
+Horde player holding the **Alliance** flag (bottom line). Which name lands on the top vs
+bottom row is a one-line swap in `code/custom_text.lua` — verify against your client's
+counter order in-game.
 
 ## Import
 
 1. In-game: `/wa` → **Import**, paste the contents of `export.txt`.
 2. It loads only in Warsong Gulch (Load → Zone = Warsong Gulch). Join WSG to see it.
-3. Nudge position if needed: it anchors to screen TOP with a small offset; drag/adjust so
-   it sits right by the `0/3 · 0/3` counters.
+3. Nudge position if needed: it anchors to screen TOP-center, offset left of the counters
+   (`xOffset -40`, right-justified); drag/adjust so the two stacked names sit right beside
+   the `0/3` counter rows.
 
 ## How it works (code)
 
@@ -51,7 +56,9 @@ Single `text` region with one **custom Status trigger** and a **`%c` custom-text
   Parses the messages into `aura_env.fc.alliance` / `aura_env.fc.horde` and returns whether
   either flag is carried (show/hide).
 - `code/custom_text.lua` → **Display → Text → `%c`** (Display Text is `%c`). Renders the two
-  colored names.
+  colored names as **two stacked lines** (top = Horde-flag carrier/blue, bottom =
+  Alliance-flag carrier/red); both lines are always emitted so the shown name stays pinned
+  to its counter row. Region is right-justified, `selfPoint TOPRIGHT`, `xOffset -40`.
 
 These files are the source of truth for the logic; `export.txt` is regenerated from them
 (they are kept in sync — see below).
@@ -85,3 +92,8 @@ ask to re-materialize it, or rebuild via `tools/` following these steps).
 
 - 2026-07-03 — Initial implementation: single text region, chat-parser status trigger +
   `%c` renderer. Import string generated and round-trip-verified; pending in-game test.
+- 2026-07-04 — Fix overlap with the native WSG counters: render carriers as two stacked,
+  right-justified lines anchored left of the counter column (was one centered line sitting
+  over the flag icons). Geometry: `justify RIGHT`, `selfPoint TOPRIGHT`, `xOffset -40`;
+  `custom_text.lua` now emits both rows always. Export regenerated and round-trip-verified;
+  pending in-game test.
