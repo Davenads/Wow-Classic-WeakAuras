@@ -44,6 +44,7 @@ read_globals = {
     -- Items / equipment
     "GetItemInfo", "GetItemCooldown", "GetInventoryItemID", "GetInventoryItemLink",
     "GetInventoryItemTexture", "GetInventoryItemCooldown", "IsEquippedItem", "GetItemCount",
+    "GetItemIcon",
     "GetWeaponEnchantInfo", "EquipItemByName", "C_Container",
     -- Combat log
     "CombatLogGetCurrentEventInfo", "CombatLogGetCurrentEntry",
