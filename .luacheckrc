@@ -43,7 +43,8 @@ read_globals = {
     "GetNumTalentTabs", "GetActiveTalentGroup",
     -- Items / equipment
     "GetItemInfo", "GetItemCooldown", "GetInventoryItemID", "GetInventoryItemLink",
-    "GetInventoryItemTexture", "IsEquippedItem", "GetItemCount", "GetWeaponEnchantInfo",
+    "GetInventoryItemTexture", "GetInventoryItemCooldown", "IsEquippedItem", "GetItemCount",
+    "GetWeaponEnchantInfo", "EquipItemByName", "C_Container",
     -- Combat log
     "CombatLogGetCurrentEventInfo", "CombatLogGetCurrentEntry",
     -- Misc info

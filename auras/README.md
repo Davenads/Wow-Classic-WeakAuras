@@ -7,6 +7,7 @@ scaffold to copy for a new aura — it is not a real aura and has no catalog row
 |---|---|---|---|---|---|
 | WSG Flag Carriers | [Battlegrounds/WSG-FlagCarriers](Battlegrounds/WSG-FlagCarriers) | Era / SoD / HC | text | — | Import-ready (generated string); pending in-game test |
 | WSG Enemy FC Announcer | [Battlegrounds/WSG-EnemyFCAnnouncer](Battlegrounds/WSG-EnemyFCAnnouncer) | Era / SoD / HC (+ Cata/MoP) | text | — | Import-ready (generated string); pending in-game test |
+| PvP Trinket Auto-Swap | [PvP/TrinketAutoSwap](PvP/TrinketAutoSwap) | Era (+ Cata/MoP) | text (controller) | — | Controller import-ready; pending sandbox + in-game test |
 
 ## How to add an aura
 
