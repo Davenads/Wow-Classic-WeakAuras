@@ -100,7 +100,11 @@ end
 -- Apply the desired loadout (OUT OF COMBAT ONLY). One swap per call; events reconverge.
 function aura_env.Apply()
     local c = aura_env.cfg
-    if not c.enabled then return end
+    -- TRK_PAUSED is a plain global toggled by an out-of-sandbox macro (the sandbox blocks
+    -- SlashCmdList, so the aura can't register its own /command):
+    --   /run TRK_PAUSED = not TRK_PAUSED; print("[Trinket Swap] "..(TRK_PAUSED and "PAUSED" or "ACTIVE"))
+    -- Resets to ACTIVE on /reload or login (default-on). For a persistent off, disable the aura.
+    if not c.enabled or TRK_PAUSED then aura_env.pending = false; return end
     if InCombatLockdown() then aura_env.pending = true; return end
     if not EquipItemByName then return end  -- sandbox blocked equipping
 

@@ -62,6 +62,18 @@ Optionally drag all three into a WA group for tidy management.
 Defaults are baked into `init.lua`, so it works with **zero options set**; add options only to
 override (e.g. a Horde twink's Insignia ID).
 
+## Toggle on/off (macro)
+
+The sandbox blocks `SlashCmdList`, so the aura can't register its own `/command`. Instead it
+honors a plain global `TRK_PAUSED` that an out-of-sandbox macro flips. Make one macro:
+
+```
+/run TRK_PAUSED = not TRK_PAUSED; print("|cff66ccff[Trinket Swap]|r "..(TRK_PAUSED and "PAUSED" or "ACTIVE"))
+```
+
+Click / keybind it to pause & resume. It resets to **ACTIVE** on `/reload` or login (default-on).
+For a persistent off, disable the aura in `/wa` (right-click ▸ Disable).
+
 ---
 
 ## Code blocks (`code/`)
@@ -93,3 +105,5 @@ Resolver = the §3 table in `plan.md`. AGM 20 s lock + out-of-combat gate + no-o
 - **2026-07-05** — Initial build. Controller (5 code blocks) + native slot-display recipe.
   Item IDs verified (AGM 19024, MR 4381 on Wowhead; Insignia 18864 in-game). Export round-trip
   verified (4522 bytes). Untested in-game.
+- **2026-07-05** — Added `TRK_PAUSED` macro toggle (sandbox blocks self-registered slash
+  commands). Rebuilt export (4773 bytes). Untested in-game.
