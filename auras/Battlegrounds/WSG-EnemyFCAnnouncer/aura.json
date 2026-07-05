@@ -1,0 +1,131 @@
+{
+  "m": "d",
+  "s": "5.20.6",
+  "d": {
+    "yOffset": 140,
+    "outline": "OUTLINE",
+    "desaturate": false,
+    "font": "Friz Quadrata TT",
+    "anchorFrameType": "SCREEN",
+    "animation": {
+      "main": {
+        "type": "none",
+        "duration_type": "seconds",
+        "easeType": "none",
+        "easeStrength": 3
+      },
+      "start": {
+        "type": "none",
+        "duration_type": "seconds",
+        "easeType": "none",
+        "easeStrength": 3
+      },
+      "finish": {
+        "type": "none",
+        "duration_type": "seconds",
+        "easeType": "none",
+        "easeStrength": 3
+      }
+    },
+    "keepAspectRatio": false,
+    "selfPoint": "CENTER",
+    "cooldownEdge": false,
+    "xOffset": 0,
+    "zoom": 0,
+    "desc": "Announces the enemy flag carrier low health (tiers + periodic) and key debuffs to /bg in Warsong Gulch.",
+    "authorOptions": [],
+    "wordWrap": "WordWrap",
+    "width": 64,
+    "height": 64,
+    "config": {},
+    "shadowXOffset": 1,
+    "uid": "wsgEFCanno01",
+    "color": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "fixedWidth": 200,
+    "tocversion": 11508,
+    "customTextUpdate": "update",
+    "internalVersion": 33,
+    "subRegions": [],
+    "shadowYOffset": -1,
+    "anchorPoint": "CENTER",
+    "justify": "CENTER",
+    "shadowColor": [
+      0,
+      0,
+      0,
+      1
+    ],
+    "regionType": "text",
+    "auto": true,
+    "actions": {
+      "init": {
+        "do_custom": true,
+        "custom": "-- WSG Enemy FC Announcer — Actions → On Init (actions.init.custom)\n-- Sets up state, config, watchlists, chat channel, and every helper function on\n-- aura_env. The trigger / on_show / on_hide blocks only CALL into these helpers.\n-- Target: WoW Classic (Era/SoD/HC + Cata/MoP Classic). enUS system/spell strings.\n--\n-- \"Enemy flag carrier\" (EFC) = the enemy player carrying YOUR flag (the one you want\n-- dead). Identity comes from WSG system messages; live HP/debuffs need a unit token\n-- (target/focus/mouseover/nameplate) — so announcements only fire while the EFC is\n-- near you or targeted. That range limit is a hard WoW-client constraint.\n\nlocal c = aura_env.config or {}\naura_env.cfg = {\n    enabled  = (c.enabled ~= false),               -- master switch\n    mode     = c.channel or \"BG\",                  -- \"BG\" = /bg, \"SELF\" = local print (safe testing)\n    prefix   = c.messagePrefix or \"EFC\",\n    minGap   = tonumber(c.minGap) or 3,            -- hard throttle between ANY two sends (s)\n    periodic = tonumber(c.periodicInterval) or 5,  -- HP reminder cadence while low (s)\n    hpThresh = tonumber(c.hpThreshold) or 65,      -- gate for periodic + snare debuffs (%)\n    debuffs  = (c.announceDebuffs ~= false),\n}\n\n-- HP milestones (descending). Each announced ONCE on crossing down; re-armed only\n-- after the carrier heals back above tier + REARM. Edit to taste.\naura_env.TIERS = { 65, 50, 35, 20 }\nlocal REARM = 5\n\n-- BG chat was renamed INSTANCE_CHAT in patch 4.0, so Cata/MoP Classic differ from Era.\nlocal pid = WOW_PROJECT_ID\naura_env.channel = (pid == WOW_PROJECT_CATACLYSM_CLASSIC or pid == WOW_PROJECT_MISTS_CLASSIC)\n    and \"INSTANCE_CHAT\" or \"BATTLEGROUND\"\n\n-- Enemy carries OUR flag, so the enemy FC is whoever picked up our own faction's flag.\naura_env.myFlag = UnitFactionGroup(\"player\")       -- \"Alliance\" / \"Horde\"\n\n-- Debuff watchlists, keyed by LOWERCASE enUS spell name. Matching by name (not ID)\n-- auto-handles Classic's per-rank spell IDs. HARD_CC announces regardless of HP (the\n-- team can catch the carrier NOW); SNARE announces only while HP <= hpThresh. enUS only\n-- — edit the keys for other locales. Trim/extend these lists freely.\nlocal HARD_CC = {\n    [\"hammer of justice\"]=true, [\"kidney shot\"]=true, [\"cheap shot\"]=true,\n    [\"bash\"]=true, [\"concussion blow\"]=true, [\"intimidation\"]=true, [\"war stomp\"]=true,\n    [\"frost nova\"]=true, [\"entangling roots\"]=true, [\"counterattack\"]=true, [\"frostbite\"]=true,\n    [\"polymorph\"]=true, [\"freezing trap effect\"]=true, [\"blind\"]=true, [\"gouge\"]=true,\n    [\"sap\"]=true, [\"fear\"]=true, [\"psychic scream\"]=true, [\"seduction\"]=true,\n    [\"howl of terror\"]=true, [\"scatter shot\"]=true,\n}\nlocal SNARE = {\n    [\"hamstring\"]=true, [\"crippling poison\"]=true, [\"wing clip\"]=true,\n    [\"concussive shot\"]=true, [\"frost shock\"]=true, [\"curse of exhaustion\"]=true,\n    [\"piercing howl\"]=true, [\"mind flay\"]=true, [\"cone of cold\"]=true,\n    [\"blast wave\"]=true, [\"chilled\"]=true, [\"frostbolt\"]=true, [\"earthbind\"]=true,\n}\n\nlocal function strip(name) return name and (name:gsub(\"%-.*$\", \"\")) or name end\n\n-- ── state ─────────────────────────────────────────────────────────────────────\nlocal function newState()\n    return { name=nil, guid=nil, unit=nil, hp=nil,\n             lastSent=0, lastPeriodic=0, seen={}, tier={} }\nend\naura_env.efc = aura_env.efc or newState()\n\nfunction aura_env.Reset()\n    aura_env.efc = newState()\nend\n\nfunction aura_env.SetEFC(name)\n    local e = aura_env.efc\n    e.name, e.guid, e.unit, e.hp = name, nil, nil, nil\n    e.lastPeriodic = 0\n    wipe(e.seen); wipe(e.tier)\n    aura_env.ResolveUnit()\nend\n\nfunction aura_env.ClearEFC()\n    local e = aura_env.efc\n    e.name, e.guid, e.unit, e.hp = nil, nil, nil, nil\n    wipe(e.seen); wipe(e.tier)\nend\n\n-- ── send (with global anti-spam throttle) ─────────────────────────────────────\nfunction aura_env.Announce(body)\n    local cfg, e = aura_env.cfg, aura_env.efc\n    if not cfg.enabled then return end\n    local now = GetTime()\n    if now - e.lastSent < cfg.minGap then return end       -- drop: too soon\n    if cfg.mode == \"SELF\" then\n        print(\"|cff33ff99[EFC]|r \" .. body)                -- local only (safe testing)\n    else\n        SendChatMessage(cfg.prefix .. \" \" .. body, aura_env.channel)\n    end\n    e.lastSent = now\nend\n\n-- ── unit acquisition (target/focus/mouseover/nameplate → GUID lock) ───────────\nlocal function matches(u)\n    local e = aura_env.efc\n    if not u or not UnitExists(u) then return false end\n    if e.guid then return UnitGUID(u) == e.guid end\n    if not e.name then return false end\n    return strip(UnitName(u)) == e.name and UnitCanAttack(\"player\", u)\nend\n\nfunction aura_env.ResolveUnit()\n    local e = aura_env.efc\n    if not e.name then e.unit = nil; return nil end\n    if matches(e.unit) then return e.unit end\n    local cands = { \"target\", \"focus\", \"mouseover\" }\n    for _, u in ipairs(cands) do\n        if matches(u) then e.unit = u; e.guid = e.guid or UnitGUID(u); return u end\n    end\n    for i = 1, 40 do\n        local u = \"nameplate\" .. i\n        if matches(u) then e.unit = u; e.guid = e.guid or UnitGUID(u); return u end\n    end\n    e.unit = nil\n    return nil\nend\n\n-- ── periodic HP tick (driven by on_show's 1s ticker + UNIT_HEALTH) ────────────\nlocal function fmtHP(hp) return aura_env.efc.name .. \" \" .. math.floor(hp + 0.5) .. \"%\" end\n\nfunction aura_env.Tick()\n    local e, cfg = aura_env.efc, aura_env.cfg\n    if not e.name then return end\n    local u = aura_env.ResolveUnit()\n    if not u or UnitIsDeadOrGhost(u) then return end\n    local maxhp = UnitHealthMax(u)\n    if not maxhp or maxhp <= 0 then return end\n    local hp = UnitHealth(u) / maxhp * 100\n    e.hp = hp\n    for _, t in ipairs(aura_env.TIERS) do\n        if hp <= t then\n            if not e.tier[t] then e.tier[t] = true; aura_env.Announce(fmtHP(hp)) end\n        elseif hp > t + REARM then\n            e.tier[t] = nil\n        end\n    end\n    if hp <= cfg.hpThresh and (GetTime() - e.lastPeriodic) >= cfg.periodic then\n        e.lastPeriodic = GetTime()\n        aura_env.Announce(fmtHP(hp))\n    end\nend\n\n-- ── system-message parser (identity of the enemy flag carrier) ────────────────\nfunction aura_env.OnSystem(msg)\n    if type(msg) ~= \"string\" then return end\n    local faction = msg:match(\"The (%a+) [Ff]lag\")\n    local picked  = msg:match(\"[Ff]lag was picked up by (.-)!\")\n    if picked and faction == aura_env.myFlag then\n        aura_env.SetEFC(strip(picked))\n    elseif faction == aura_env.myFlag and (msg:find(\"was dropped by\") or msg:find(\"was returned\")) then\n        aura_env.ClearEFC()\n    elseif msg:find(\"[Cc]aptured\") or msg:find(\"flags are reset\")\n        or msg:find(\"flags are now placed\") or msg:find(\"battle has begun\") then\n        aura_env.ClearEFC()\n    end\nend\n\n-- ── combat log (new debuffs + death) ──────────────────────────────────────────\nfunction aura_env.OnCLEU()\n    local e = aura_env.efc\n    if not e.name then return end\n    local _, sub, _, _, _, _, _, dstGUID, dstName, _, _, _, spellName, _, auraType =\n        CombatLogGetCurrentEventInfo()\n    if e.guid then\n        if dstGUID ~= e.guid then return end\n    else\n        if strip(dstName) ~= e.name then return end\n        e.guid = dstGUID                                    -- lock onto GUID once seen\n    end\n    if sub == \"UNIT_DIED\" then\n        aura_env.Announce(e.name .. \" is DOWN\")\n        aura_env.ClearEFC()                                 -- flag drops on death anyway\n        return\n    end\n    if not aura_env.cfg.debuffs then return end\n    if sub == \"SPELL_AURA_APPLIED\" or sub == \"SPELL_AURA_REFRESH\" then\n        if auraType ~= \"DEBUFF\" or not spellName then return end\n        local key = spellName:lower()\n        local hard, snare = HARD_CC[key], SNARE[key]\n        if (not hard and not snare) or e.seen[key] then return end\n        if hard then\n            e.seen[key] = true\n            local hp = e.hp and (\" \" .. math.floor(e.hp + 0.5) .. \"%\") or \"\"\n            aura_env.Announce(e.name .. hp .. \" — \" .. spellName)\n        elseif e.hp and e.hp <= aura_env.cfg.hpThresh then\n            e.seen[key] = true\n            aura_env.Announce(e.name .. \" \" .. math.floor(e.hp + 0.5) .. \"% — \" .. spellName)\n        end\n    elseif sub == \"SPELL_AURA_REMOVED\" then\n        if spellName then e.seen[spellName:lower()] = nil end  -- allow re-announce on reapply\n    end\nend"
+      },
+      "start": {
+        "do_custom": true,
+        "custom": "-- WSG Enemy FC Announcer — Actions → On Show (actions.start.custom)\n-- Arms the announcer: starts a 1s ticker that drives periodic HP checks (so reminders\n-- fire even when the carrier's health is static / no UNIT_HEALTH events), and warns\n-- once if enemy nameplates are disabled (needed to read HP when you can't target them).\n\nif aura_env.ticker then aura_env.ticker:Cancel() end\naura_env.ticker = C_Timer.NewTicker(1, function() aura_env.Tick() end)\n\nif GetCVar and GetCVar(\"nameplateShowEnemies\") == \"0\" then\n    print(\"|cffffcc00[EFC Announcer]|r Enemy nameplates are OFF — press V (or run \"\n        .. \"/console nameplateShowEnemies 1) so the announcer can read the flag \"\n        .. \"carrier's health when you're not targeting them.\")\nend"
+      },
+      "finish": {
+        "do_custom": true,
+        "custom": "-- WSG Enemy FC Announcer — Actions → On Hide (actions.finish.custom)\n-- Disarms: cancel the ticker so it doesn't leak across /reload or zone changes.\n\nif aura_env.ticker then aura_env.ticker:Cancel(); aura_env.ticker = nil end"
+      }
+    },
+    "frameStrata": 1,
+    "icon": true,
+    "conditions": [],
+    "customText": "-- WSG Enemy FC Announcer — Display → Text → custom \"%c\" (Display Text is \"%c\").\n-- Local readout of the tracked enemy flag carrier + last-known HP; blank when none.\n-- Purely informational for you; the /bg messages are sent from the trigger helpers.\n\nfunction()\n    local e = aura_env.efc\n    if not e or not e.name then return \"\" end\n    local hp = e.hp and (\" \" .. math.floor(e.hp + 0.5) .. \"%\") or \"\"\n    return \"|cffff5555EFC|r \" .. e.name .. hp\nend",
+    "cooldownSwipe": true,
+    "cooldownTextDisabled": false,
+    "inverse": false,
+    "load": {
+      "use_zone": true,
+      "zone": "Warsong Gulch",
+      "use_never": false,
+      "class": {
+        "multi": {}
+      },
+      "spec": {
+        "multi": {}
+      },
+      "size": {
+        "multi": {}
+      },
+      "talent": {}
+    },
+    "alpha": 1,
+    "triggers": {
+      "1": {
+        "untrigger": {},
+        "trigger": {
+          "type": "custom",
+          "custom_type": "status",
+          "custom": "-- WSG Enemy FC Announcer — Trigger 1 → Custom → Status (Check On: Event)\n-- Events box (comma-separated):\n--   CHAT_MSG_BG_SYSTEM_ALLIANCE, CHAT_MSG_BG_SYSTEM_HORDE, CHAT_MSG_BG_SYSTEM_NEUTRAL,\n--   COMBAT_LOG_EVENT_UNFILTERED, NAME_PLATE_UNIT_ADDED, NAME_PLATE_UNIT_REMOVED,\n--   PLAYER_TARGET_CHANGED, PLAYER_FOCUS_CHANGED, UPDATE_MOUSEOVER_UNIT, UNIT_HEALTH,\n--   PLAYER_ENTERING_WORLD\n--\n-- All real work is side effects (announcing) done in aura_env helpers. Returning true\n-- keeps the status region shown for the whole match so custom_text can display the EFC\n-- and so On Show/On Hide fire once per load (arming/canceling the ticker cleanly).\n\nfunction(event, ...)\n    local e = aura_env.efc\n    if not e then return false end\n\n    if event == \"PLAYER_ENTERING_WORLD\" then\n        aura_env.Reset()\n    elseif event == \"CHAT_MSG_BG_SYSTEM_ALLIANCE\"\n        or event == \"CHAT_MSG_BG_SYSTEM_HORDE\"\n        or event == \"CHAT_MSG_BG_SYSTEM_NEUTRAL\" then\n        aura_env.OnSystem(...)\n    elseif event == \"COMBAT_LOG_EVENT_UNFILTERED\" then\n        aura_env.OnCLEU()\n    elseif event == \"NAME_PLATE_UNIT_REMOVED\" then\n        if (...) == e.unit then e.unit = nil end\n    elseif event == \"NAME_PLATE_UNIT_ADDED\"\n        or event == \"PLAYER_TARGET_CHANGED\"\n        or event == \"PLAYER_FOCUS_CHANGED\"\n        or event == \"UPDATE_MOUSEOVER_UNIT\" then\n        aura_env.ResolveUnit()\n    elseif event == \"UNIT_HEALTH\" then\n        if (...) == e.unit then aura_env.Tick() end\n    end\n\n    return true\nend",
+          "check": "event",
+          "events": "CHAT_MSG_BG_SYSTEM_ALLIANCE, CHAT_MSG_BG_SYSTEM_HORDE, CHAT_MSG_BG_SYSTEM_NEUTRAL, COMBAT_LOG_EVENT_UNFILTERED, NAME_PLATE_UNIT_ADDED, NAME_PLATE_UNIT_REMOVED, PLAYER_TARGET_CHANGED, PLAYER_FOCUS_CHANGED, UPDATE_MOUSEOVER_UNIT, UNIT_HEALTH, PLAYER_ENTERING_WORLD",
+          "custom_hide": "custom",
+          "debuffType": "HELPFUL",
+          "event": "Health",
+          "subeventPrefix": "SPELL",
+          "subeventSuffix": "_CAST_START",
+          "unevent": "auto",
+          "spellIds": {},
+          "names": {},
+          "unit": "player"
+        }
+      },
+      "disjunctive": "all",
+      "activeTriggerMode": 1
+    },
+    "automaticWidth": "Auto",
+    "displayText": "%c",
+    "id": "WSG Enemy FC Announcer",
+    "fontSize": 16
+  },
+  "v": 1421
+}
