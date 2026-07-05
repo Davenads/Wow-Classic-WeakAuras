@@ -120,3 +120,6 @@ Resolver = the §3 table in `plan.md`. AGM 20 s lock + out-of-combat gate + no-o
 - **2026-07-05** — Added movable "Trinket Display" group (`display.txt`, 2594 bytes): 3 custom-TSU
   icons for slots 13/14 + a smaller bench icon for the unequipped tracked trinket, each with live
   cooldown swipe/number. Round-trip verified. Untested in-game.
+- **2026-07-05** — Fix: `Owned()` ignored equipped copies (`GetItemCount` excludes equipped items),
+  so a ready-but-equipped Minor Recombobulator read as unavailable and got swapped out for AGM.
+  Now falls back to `SlotOf()`. Rebuilt export (4840 bytes). Round-trip verified.

@@ -38,7 +38,10 @@ function aura_env.IsReady(itemId)
 end
 
 function aura_env.Owned(itemId)
-    return itemId ~= nil and (GetItemCount(itemId) or 0) > 0
+    if itemId == nil then return false end
+    if (GetItemCount(itemId) or 0) > 0 then return true end
+    -- GetItemCount excludes EQUIPPED items; a trinket in slot 13/14 still counts as owned.
+    return aura_env.SlotOf(itemId) ~= nil
 end
 
 -- Which trinket slot (13/14) currently holds itemId, or nil.
