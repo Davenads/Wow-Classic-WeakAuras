@@ -73,6 +73,8 @@ it) — pick whichever layout you prefer; you don't need both.
 | `minGap` | number | 1.0 | Seconds between equip attempts (debounce). |
 | `agmLock` | number | 20 | Keep AGM equipped this long (s) after its on-use. |
 | `equipCd` | number | 30 | Ignore cooldowns ≤ this (s) — the trinket equip lockout, not a real CD. |
+| `swapBuffer` | number | 1 | 2-AGM mode: extra seconds added to `equipCd` for the pre-equip window (`swapBackAt`), so a swapped-in on-use's equip lockout fully overlaps its cooldown tail. |
+| `stackAgm` | toggle | on | If two AGMs are owned, wear **both** for +2% dodge while idle (2-AGM mode). Turn off to force single-AGM behavior. |
 | `debug` | toggle | off | Print each swap + show a slot readout in the controller text. |
 
 Defaults are baked into `init.lua`, so it works with **zero options set** on either faction — the
@@ -107,6 +109,9 @@ For a persistent off, disable the aura in `/wa` (right-click ▸ Disable).
 | `displays/benched.lua` | "Trinket Display" group ▸ Bench icon ▸ TSU |
 
 Resolver = the §3 table in `plan.md`. AGM 20 s lock + out-of-combat gate + no-op guard + debounce.
+Owning **two AGMs** enters **2-AGM mode** (`plan.md` §13): always keep ≥1 AGM worn, fill the other
+slot with the best on-use trinket that's ready/returning within `swapBackAt` (Insignia > MR), else
+the 2nd AGM for +2% total dodge. Single-AGM characters are unaffected.
 
 ---
 
@@ -176,3 +181,13 @@ Resolver = the §3 table in `plan.md`. AGM 20 s lock + out-of-combat gate + no-o
   any per-frame text. Set to `"event"` — the readout only needs refreshing on the inventory/cooldown
   events the trigger already registers. Applied to the standalone controller and the package engine;
   rebuilt `export.txt` (6112) + `package.txt` (8022). Round-trip verified.
+- **2026-07-06** — Added **2-AGM dodge-stacking mode** (`plan.md` §13). A character owning two Arena
+  Grand Masters now wears **both** for +2% total dodge whenever no on-use trinket is needed — the two
+  copies share one 30-min on-use CD (no absorb-chaining) so the 2nd AGM is pure passive value. Model B:
+  always keep ≥1 AGM worn; fill the other slot with the best on-use trinket ready/returning within
+  `swapBackAt` (Insignia > MR), else the 2nd AGM. `swapBackAt = equipCd + swapBuffer` (~31s) pre-equips
+  an on-use trinket so its equip lockout overlaps the CD tail (usable the instant it comes off CD).
+  `Desired()` now returns a duplicate-capable list `{id1,id2}`; `Apply()` does a multiset claim (two
+  worn AGMs required for `{AGM,AGM}`) + bag-copy guard for fresh equips. New options `swapBuffer`
+  (default 1) and `stackAgm` (default on); single-AGM characters unaffected. Bench display unchanged.
+  Rebuilt `export.txt` (7293) + `package.txt` (9230). Round-trip verified. Untested in-game.

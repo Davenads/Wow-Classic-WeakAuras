@@ -216,3 +216,52 @@ its **own** copy of the same name-scan instead of consuming a controller-publish
 slot icons never referenced item IDs (they read live slot contents), so they were already agnostic.
 
 **Net:** English Era = true zero-config on either faction. Off-locale = one `iotaId` override.
+
+---
+
+## 13. Two-AGM optimization ("dodge-stacking" mode) — implemented 2026-07-06
+
+**Goal:** a character that owns **two Arena Grand Masters** (item 19024) should wear **both**
+whenever neither on-use trinket is needed, so their **+1% dodge passives stack to +2% total**.
+AGM 19024 is **not Unique-Equipped**, so two copies can occupy slots 13 & 14 simultaneously.
+
+**The shared-cooldown constraint (why this is passive-only value):** two copies of the *same*
+item share **one** on-use cooldown keyed by item ID — firing either AGM puts **both** on the
+30-min CD. There is **no absorb-chaining**; the only benefit of the 2nd AGM is the extra +1%
+dodge. So the engine treats the 2nd AGM purely as a "best available passive" filler, never as a
+second on-use.
+
+**Detection:** `AgmCount()` = `GetItemCount(agmId)` (bags only) + a copy in slot 13 + a copy in
+slot 14. `AgmCount() >= 2` (and `cfg.stackAgm` on) enters 2-AGM mode. A 1-AGM character is
+**completely unaffected** — the original §3 table still runs.
+
+**Model B — always keep ≥1 AGM equipped** (chosen over "swap freely"). One slot is *always* an
+AGM; the engine only decides what fills the **other** slot:
+
+| Other-slot state | Fills with | Rationale |
+|---|---|---|
+| Insignia ready **or** returning within `swapBackAt` | **Insignia** | dispel is the priority on-use (Insignia > MR) |
+| else MR ready **or** returning within `swapBackAt` | **MR** | secondary dispel/heal |
+| else (both on-use trinkets >`swapBackAt` out) | **2nd AGM** | nothing useful returning soon → bank +2% dodge |
+
+Baseline (everything off cooldown) → **AGM + Insignia** (Insignia is "ready" ⇒ `usableSoon` true).
+
+**`swapBackAt` pre-equip window (the 31s buffer):** `swapBackAt = equipCd + swapBuffer`
+(default `30 + 1 = 31`). Equipping any trinket applies a ~30-s **equip lockout** on its use.
+By swapping the on-use trinket back in **~31 s before** its real cooldown expires, the equip
+lockout runs out in lock-step with the cooldown — the trinket is usable the **instant** it comes
+off CD, with no extra wait. `usableSoon(x) = Owned(x) and CdLeft(x) <= swapBackAt`.
+
+**Multiset apply:** `Desired()` now returns an ordered **list** `{ id1, id2 }` that may repeat
+(`{ AGM, AGM }`), replacing the old set. `Apply()` greedily **claims** each wanted slot with a
+*distinct* equipped copy, so `{ AGM, AGM }` requires two physically equipped AGMs (a single worn
+copy can't satisfy both). A fresh equip needs a **bag copy** (`GetItemCount(id) > 0`) because
+`EquipItemByName` pulls from bags — guaranteed for the 2nd AGM (the unequipped copy sits in bags).
+One equip per call; events reconverge.
+
+**Config additions:** `swapBuffer` (default 1) and `stackAgm` (default true — set false to force
+single-AGM behavior even when two are owned). AGM post-use lock is a no-op in 2-AGM mode (AGM is
+always worn), so the §3 override block is skipped by the early return.
+
+**Bench display:** unchanged — still **one** bench icon. `benched.lua` dedups by "not in slot
+13/14", which correctly handles two worn AGMs (both are in slots, so neither shows as benched).

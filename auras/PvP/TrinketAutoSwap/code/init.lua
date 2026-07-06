@@ -13,8 +13,13 @@ aura_env.cfg = {
     minGap  = tonumber(cfg.minGap)  or 1.0,   -- seconds between equip attempts (debounce)
     agmLock = tonumber(cfg.agmLock) or 20,    -- keep AGM equipped this long (s) after its on-use
     equipCd = tonumber(cfg.equipCd) or 30,    -- ignore cooldowns <= this (the trinket equip lockout)
+    swapBuffer = tonumber(cfg.swapBuffer) or 1, -- extra s so a swapped-in on-use's lockout fully covers its CD tail
+    stackAgm   = (cfg.stackAgm ~= false),     -- if 2 AGMs owned, wear both for +2% dodge while idle
     debug   = cfg.debug == true,
 }
+-- 2-AGM mode: pre-equip an on-use trinket once its remaining CD is within this window, so its
+-- ~30s equip lockout overlaps the CD tail and it's usable the instant the lockout ends.
+aura_env.cfg.swapBackAt = aura_env.cfg.equipCd + aura_env.cfg.swapBuffer
 -- true => user pinned iotaId in Custom Options; skip auto-detect and honor their value.
 aura_env.iotaLocked = iotaOverride ~= nil
 
@@ -58,6 +63,16 @@ function aura_env.SlotOf(itemId)
     if GetInventoryItemID("player", 13) == itemId then return 13 end
     if GetInventoryItemID("player", 14) == itemId then return 14 end
     return nil
+end
+
+-- Total AGM copies the character owns = bag copies (GetItemCount excludes equipped) plus any
+-- worn in slot 13/14. >=2 unlocks 2-AGM mode (wear both for +2% dodge; on-use shares one 30m CD).
+function aura_env.AgmCount()
+    local A = aura_env.cfg.agmId
+    local n = GetItemCount(A) or 0
+    if GetInventoryItemID("player", 13) == A then n = n + 1 end
+    if GetInventoryItemID("player", 14) == A then n = n + 1 end
+    return n
 end
 
 -- Flavor-aware bag readers (globals on Era; C_Container on Cata/MoP).
@@ -112,8 +127,8 @@ function aura_env.WatchAGM()
     aura_env.agmPrevReady = ready
 end
 
--- Resolve the desired 2-trinket set -> { [itemId]=true, [itemId]=true }.
--- Mirrors the §3 decision table in plan.md.
+-- Resolve the desired 2-trinket loadout -> an ordered list { id1, id2 } (may repeat, e.g.
+-- { agm, agm } in 2-AGM mode). Mirrors the §3 decision table in plan.md; §13 covers 2-AGM.
 function aura_env.Desired()
     local c = aura_env.cfg
     local A, I, M  = c.agmId, c.iotaId, c.mrId
@@ -124,26 +139,41 @@ function aura_env.Desired()
         return aura_env.CdLeft(a) <= aura_env.CdLeft(b) and a or b
     end
 
-    local pick = {}
+    -- 2-AGM mode (Model B): both AGMs share one 30m on-use CD, but their +1% dodge passives
+    -- stack, so keep >=1 AGM worn always. Fill the other slot with the best on-use trinket
+    -- that's ready or returning within swapBackAt (Insignia > MR); otherwise the 2nd AGM
+    -- (+2% total dodge) while both on-use trinkets are >30s out. AGM always worn => no lock.
+    if c.stackAgm and aura_env.AgmCount() >= 2 then
+        local function usableSoon(x)
+            return aura_env.Owned(x) and aura_env.CdLeft(x) <= c.swapBackAt
+        end
+        if usableSoon(I) then return { A, I }
+        elseif usableSoon(M) then return { A, M }
+        else return { A, A } end
+    end
+
+    local pick
     if Ir and Ar then
-        pick[I] = true; pick[A] = true                     -- rows 1,2
+        pick = { I, A }                                    -- rows 1,2
     elseif Ir then                                         -- IoTA up, AGM down
-        if mAvail then pick[I] = true; pick[M] = true      -- row 3
-        else           pick[I] = true; pick[A] = true end  -- row 4 (MR unavailable -> keep AGM)
+        if mAvail then pick = { I, M }                     -- row 3
+        else           pick = { I, A } end                 -- row 4 (MR unavailable -> keep AGM)
     elseif Ar then                                         -- AGM up, IoTA down
-        if mAvail then pick[A] = true; pick[M] = true      -- row 5
-        else           pick[A] = true; pick[I] = true end  -- row 6
+        if mAvail then pick = { A, M }                     -- row 5
+        else           pick = { A, I } end                 -- row 6
     else                                                   -- both down
-        if mAvail then pick[A] = true; pick[M] = true      -- row 7
-        else           pick[A] = true; pick[soonest(I, M)] = true end -- row 8
+        if mAvail then pick = { A, M }                     -- row 7
+        else           pick = { A, soonest(I, M) } end     -- row 8
     end
 
     -- AGM 20s post-use lock: force-keep AGM regardless of the table.
-    if aura_env.agmLockUntil and GetTime() < aura_env.agmLockUntil and not pick[A] then
-        pick = { [A] = true }
-        if Ir then pick[I] = true
-        elseif mAvail then pick[M] = true
-        else pick[soonest(I, M)] = true end
+    if aura_env.agmLockUntil and GetTime() < aura_env.agmLockUntil
+       and pick[1] ~= A and pick[2] ~= A then
+        local other
+        if Ir then other = I
+        elseif mAvail then other = M
+        else other = soonest(I, M) end
+        pick = { A, other }
     end
 
     return pick
@@ -160,28 +190,42 @@ function aura_env.Apply()
     if InCombatLockdown() then aura_env.pending = true; return end
     if not EquipItemByName then return end  -- sandbox blocked equipping
 
-    local want = aura_env.Desired()
+    local want = aura_env.Desired()       -- { id1, id2 } — may contain a duplicate (2x AGM)
     local id13 = GetInventoryItemID("player", 13)
     local id14 = GetInventoryItemID("player", 14)
 
-    -- Already correct? (both wanted ids equipped, any order.)
-    local correct = true
-    for id in pairs(want) do
-        if id ~= id13 and id ~= id14 then correct = false break end
+    -- Multiset compare {id13,id14} vs want: greedily claim each want slot with a distinct
+    -- equipped copy, so { AGM, AGM } needs two physically equipped AGMs (not one counted twice).
+    local matched = { false, false }
+    local function claim(equippedId)
+        if equippedId == nil then return false end
+        for i = 1, 2 do
+            if not matched[i] and want[i] == equippedId then matched[i] = true; return true end
+        end
+        return false
     end
-    if correct then aura_env.pending = false; return end
+    local ok13 = claim(id13)
+    local ok14 = claim(id14)
+    if ok13 and ok14 then aura_env.pending = false; return end  -- already correct
 
     local now = GetTime()
     if aura_env.lastEquip and (now - aura_env.lastEquip) < c.minGap then return end
 
-    for id in pairs(want) do
-        if id ~= id13 and id ~= id14 and (aura_env.Owned(id) or aura_env.SlotOf(id)) then
-            local target
-            if id13 and not want[id13] then target = 13
-            elseif id14 and not want[id14] then target = 14
-            elseif not id13 then target = 13
-            elseif not id14 then target = 14 end
-            if target then
+    -- Equip one unmet want entry per call (events reconverge). Overwrite a slot whose item
+    -- isn't needed, else an empty slot.
+    local target
+    if id13 and not ok13 then target = 13
+    elseif id14 and not ok14 then target = 14
+    elseif not id13 then target = 13
+    elseif not id14 then target = 14 end
+    if not target then aura_env.pending = false; return end
+
+    for i = 1, 2 do
+        if not matched[i] then
+            local id = want[i]
+            -- EquipItemByName pulls from BAGS, so a fresh equip needs a spare bag copy. For a
+            -- 2nd AGM this is guaranteed (AgmCount>=2 means the unequipped copy sits in bags).
+            if (GetItemCount(id) or 0) > 0 then
                 EquipItemByName(id, target)
                 aura_env.lastEquip = now
                 if c.debug then print("|cff66ccff[TRK]|r equip " .. id .. " -> slot " .. target) end
