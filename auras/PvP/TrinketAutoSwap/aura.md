@@ -54,6 +54,12 @@ edit. (Non-English clients: swap the `18864` fallback in `displays/benched.lua` 
 *Hand-fabricated icon/group regions:* the import IS the test. If any icon mis-imports, export me one
 native WA icon to clone the exact region schema from.
 
+**B-alt. "Betty's Trinket Bar" group** — import `display2.txt`. Same three TSUs
+(`displays/slot13.lua` / `slot14.lua` / `benched.lua`) laid out as a horizontal **bar**: two larger
+44px slot windows side by side + a 30px 3rd-trinket icon hugging slot 2, cooldown numbers overlaid
+on each. Independent `uid`s, so it imports **alongside** "Betty's Trinket Display" (doesn't overwrite
+it) — pick whichever layout you prefer; you don't need both.
+
 ---
 
 ## Custom Options (Author Mode → aura_env.config)
@@ -142,3 +148,7 @@ Resolver = the §3 table in `plan.md`. AGM 20 s lock + out-of-combat gate + no-o
   **Betty's Trinket Display** (child parents rewired, `controlledChildren` intact). Rewrote the
   controller/group `desc` to call out the Trinket-Menu-beating AGM-passive fallback. Rebuilt export
   (6114 bytes) + display (3186 bytes). Round-trip verified.
+- **2026-07-05** — Added alt layout **Betty's Trinket Bar** (`display2.txt`, 3169 bytes): the same
+  three TSUs as a horizontal bar (two 44px slot windows + a 30px 3rd hugging slot 2, cooldown
+  numbers overlaid), cloned from the verified icon schema with independent `uid`s so it coexists
+  with Betty's Trinket Display. Round-trip verified. Untested in-game.
