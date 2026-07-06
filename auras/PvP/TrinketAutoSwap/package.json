@@ -1,0 +1,515 @@
+{
+  "m": "d",
+  "s": "5.20.6",
+  "d": {
+    "id": "Betty's 19 Twink Trinket Manager",
+    "uid": "trkPkgGrp1",
+    "regionType": "group",
+    "internalVersion": 33,
+    "tocversion": 11508,
+    "anchorFrameType": "SCREEN",
+    "anchorPoint": "CENTER",
+    "selfPoint": "CENTER",
+    "xOffset": 0,
+    "yOffset": -120,
+    "scale": 1,
+    "controlledChildren": [
+      "Trinket Swap Engine",
+      "Trinket Bar 1",
+      "Trinket Bar 2",
+      "Trinket Bar 3"
+    ],
+    "borderColor": [
+      0,
+      0,
+      0,
+      1
+    ],
+    "backdropColor": [
+      1,
+      1,
+      1,
+      0.5
+    ],
+    "config": {},
+    "authorOptions": [],
+    "conditions": [],
+    "subRegions": [],
+    "animation": {
+      "main": {
+        "type": "none",
+        "duration_type": "seconds",
+        "easeType": "none",
+        "easeStrength": 3
+      },
+      "start": {
+        "type": "none",
+        "duration_type": "seconds",
+        "easeType": "none",
+        "easeStrength": 3
+      },
+      "finish": {
+        "type": "none",
+        "duration_type": "seconds",
+        "easeType": "none",
+        "easeStrength": 3
+      }
+    },
+    "load": {
+      "use_never": false,
+      "class": {
+        "multi": {}
+      },
+      "spec": {
+        "multi": {}
+      },
+      "size": {
+        "multi": {}
+      },
+      "talent": {}
+    },
+    "actions": {
+      "init": {},
+      "start": {},
+      "finish": {}
+    },
+    "triggers": {
+      "1": {
+        "trigger": {
+          "type": "custom",
+          "custom_type": "event",
+          "check": "event",
+          "custom": "function() return true end",
+          "events": "",
+          "custom_hide": "custom"
+        },
+        "untrigger": {}
+      },
+      "disjunctive": "all",
+      "activeTriggerMode": 1
+    },
+    "desc": "Betty's 19 Twink Trinket Manager (complete package): the out-of-combat auto-swap engine plus a live icon bar for both equipped trinkets and the benched third, each with its cooldown. Keeps the best 2-of-3 (Arena Grand Master / Insignia / Minor Recombobulator) slotted by cooldown, and unlike Trinket Menu keeps AGM equipped for its +1% dodge passive even when it's front of the priority queue. Insignia auto-detected -> zero config on Alliance + Horde. English clients only (non-English pin iotaId)."
+  },
+  "c": [
+    {
+      "yOffset": 0,
+      "outline": "OUTLINE",
+      "desaturate": false,
+      "font": "Friz Quadrata TT",
+      "anchorFrameType": "SCREEN",
+      "animation": {
+        "main": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "start": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "finish": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        }
+      },
+      "keepAspectRatio": false,
+      "selfPoint": "CENTER",
+      "cooldownEdge": false,
+      "xOffset": 0,
+      "zoom": 0,
+      "desc": "Betty's 19 Twink Trinket Manager - an out-of-combat optimizer that keeps the best 2-of-3 trinkets (Arena Grand Master, Insignia, Minor Recombobulator) in slots 13/14 by live cooldown. It does what Trinket Menu can't: it treats Arena Grand Master as a persistent fallback so its +1% dodge equip passive is always active - keeping AGM slotted for the passive even when a higher-priority trinket is front of the queue, instead of dropping it. The Insignia is auto-detected by name, so it works on both Alliance and Horde with no config. Pairs with the companion group \"Betty's Trinket Display\".",
+      "authorOptions": [],
+      "wordWrap": "WordWrap",
+      "width": 64,
+      "height": 64,
+      "config": {},
+      "shadowXOffset": 1,
+      "uid": "trkPkgEng1",
+      "color": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "fixedWidth": 200,
+      "tocversion": 11508,
+      "customTextUpdate": "update",
+      "internalVersion": 33,
+      "subRegions": [],
+      "shadowYOffset": -1,
+      "anchorPoint": "CENTER",
+      "justify": "CENTER",
+      "shadowColor": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "regionType": "text",
+      "auto": true,
+      "actions": {
+        "init": {
+          "do_custom": true,
+          "custom": "-- PvP Trinket Auto-Swap — Controller — Actions ▸ On Init\n-- Builds aura_env state + all helpers for the AGM / Insignia / MR resolver.\n-- Item IDs (Classic Era, verified): AGM 19024, Insignia(Ally Pala) 18864, Minor Recombobulator 4381.\n\nlocal cfg = aura_env.config or {}\nlocal iotaOverride = tonumber(cfg.iotaId)     -- explicit Insignia id; nil => auto-detect at runtime\n\naura_env.cfg = {\n    enabled = (cfg.enabled ~= false),         -- master on/off (Custom Option)\n    agmId   = tonumber(cfg.agmId)   or 19024, -- Arena Grand Master  https://www.wowhead.com/classic/item=19024\n    iotaId  = iotaOverride           or 18864, -- Insignia — auto-detected unless pinned (default Ally Pala)\n    mrId    = tonumber(cfg.mrId)    or 4381,  -- Minor Recombobulator  https://www.wowhead.com/classic/item=4381\n    minGap  = tonumber(cfg.minGap)  or 1.0,   -- seconds between equip attempts (debounce)\n    agmLock = tonumber(cfg.agmLock) or 20,    -- keep AGM equipped this long (s) after its on-use\n    equipCd = tonumber(cfg.equipCd) or 30,    -- ignore cooldowns <= this (the trinket equip lockout)\n    debug   = cfg.debug == true,\n}\n-- true => user pinned iotaId in Custom Options; skip auto-detect and honor their value.\naura_env.iotaLocked = iotaOverride ~= nil\n\n-- Flavor-aware item-cooldown getter (global on Era; C_Container/C_Item on Cata/MoP).\nlocal function itemCooldown(itemId)\n    if C_Container and C_Container.GetItemCooldown then\n        return C_Container.GetItemCooldown(itemId)\n    elseif C_Item and C_Item.GetItemCooldown then\n        return C_Item.GetItemCooldown(itemId)\n    end\n    return GetItemCooldown(itemId)\nend\n\n-- Remaining cooldown (seconds) for an item id; 0 = ready.\n-- Equipping a trinket triggers a ~30s equip lockout (anti hot-swap). That is NOT the item's\n-- real use cooldown, so ignore any cooldown whose duration is <= cfg.equipCd — otherwise a\n-- freshly equipped trinket reads as \"on CD\" and the resolver swaps it straight back out.\nfunction aura_env.CdLeft(itemId)\n    if not itemId then return 0 end\n    local start, dur = itemCooldown(itemId)\n    if not start or start == 0 or not dur or dur == 0 then return 0 end\n    if dur <= aura_env.cfg.equipCd then return 0 end  -- equip lockout, not the real use CD\n    local left = (start + dur) - GetTime()\n    return left > 0 and left or 0\nend\n\nfunction aura_env.IsReady(itemId)\n    return aura_env.CdLeft(itemId) <= 0\nend\n\nfunction aura_env.Owned(itemId)\n    if itemId == nil then return false end\n    if (GetItemCount(itemId) or 0) > 0 then return true end\n    -- GetItemCount excludes EQUIPPED items; a trinket in slot 13/14 still counts as owned.\n    return aura_env.SlotOf(itemId) ~= nil\nend\n\n-- Which trinket slot (13/14) currently holds itemId, or nil.\nfunction aura_env.SlotOf(itemId)\n    if itemId == nil then return nil end\n    if GetInventoryItemID(\"player\", 13) == itemId then return 13 end\n    if GetInventoryItemID(\"player\", 14) == itemId then return 14 end\n    return nil\nend\n\n-- Flavor-aware bag readers (globals on Era; C_Container on Cata/MoP).\nlocal function bagSlots(bag)\n    if C_Container and C_Container.GetContainerNumSlots then return C_Container.GetContainerNumSlots(bag) end\n    return GetContainerNumSlots(bag)\nend\nlocal function bagItemID(bag, slot)\n    if C_Container and C_Container.GetContainerItemID then return C_Container.GetContainerItemID(bag, slot) end\n    return GetContainerItemID(bag, slot)\nend\n\n-- Auto-detect the PvP Insignia by name (\"Insignia of the ...\") so the aura is faction/class-\n-- agnostic with zero config. Scans worn trinket slots first, then bags. English clients only;\n-- other locales pin iotaId. Returns an item id or nil.\nfunction aura_env.DetectInsignia()\n    local function isInsignia(itemId)\n        if not itemId then return false end\n        local n = GetItemInfo(itemId)\n        return n ~= nil and n:find(\"Insignia of the\", 1, true) ~= nil\n    end\n    for _, s in ipairs({ 13, 14 }) do\n        local id = GetInventoryItemID(\"player\", s)\n        if isInsignia(id) then return id end\n    end\n    for bag = 0, 4 do\n        for slot = 1, (bagSlots(bag) or 0) do\n            if isInsignia(bagItemID(bag, slot)) then return bagItemID(bag, slot) end\n        end\n    end\n    return nil\nend\n\n-- Point cfg.iotaId at the detected Insignia unless the user pinned it. Cheap; safe to call often.\nfunction aura_env.RefreshInsignia()\n    if aura_env.iotaLocked then return end\n    local found = aura_env.DetectInsignia()\n    if found and found ~= aura_env.cfg.iotaId then\n        aura_env.cfg.iotaId = found\n        if aura_env.cfg.debug then print(\"|cff66ccff[TRK]|r insignia detected: \" .. found) end\n    end\nend\n\n-- Detect AGM's on-use firing (ready -> not ready) and start the keep-equipped lock.\nfunction aura_env.WatchAGM()\n    local ready = aura_env.IsReady(aura_env.cfg.agmId)\n    if aura_env.agmPrevReady == nil then\n        aura_env.agmPrevReady = ready\n    elseif aura_env.agmPrevReady and not ready then\n        aura_env.agmLockUntil = GetTime() + aura_env.cfg.agmLock\n    end\n    aura_env.agmPrevReady = ready\nend\n\n-- Resolve the desired 2-trinket set -> { [itemId]=true, [itemId]=true }.\n-- Mirrors the §3 decision table in plan.md.\nfunction aura_env.Desired()\n    local c = aura_env.cfg\n    local A, I, M  = c.agmId, c.iotaId, c.mrId\n    local Ir, Ar   = aura_env.IsReady(I), aura_env.IsReady(A)\n    local mAvail   = aura_env.IsReady(M) and aura_env.Owned(M)\n\n    local function soonest(a, b)\n        return aura_env.CdLeft(a) <= aura_env.CdLeft(b) and a or b\n    end\n\n    local pick = {}\n    if Ir and Ar then\n        pick[I] = true; pick[A] = true                     -- rows 1,2\n    elseif Ir then                                         -- IoTA up, AGM down\n        if mAvail then pick[I] = true; pick[M] = true      -- row 3\n        else           pick[I] = true; pick[A] = true end  -- row 4 (MR unavailable -> keep AGM)\n    elseif Ar then                                         -- AGM up, IoTA down\n        if mAvail then pick[A] = true; pick[M] = true      -- row 5\n        else           pick[A] = true; pick[I] = true end  -- row 6\n    else                                                   -- both down\n        if mAvail then pick[A] = true; pick[M] = true      -- row 7\n        else           pick[A] = true; pick[soonest(I, M)] = true end -- row 8\n    end\n\n    -- AGM 20s post-use lock: force-keep AGM regardless of the table.\n    if aura_env.agmLockUntil and GetTime() < aura_env.agmLockUntil and not pick[A] then\n        pick = { [A] = true }\n        if Ir then pick[I] = true\n        elseif mAvail then pick[M] = true\n        else pick[soonest(I, M)] = true end\n    end\n\n    return pick\nend\n\n-- Apply the desired loadout (OUT OF COMBAT ONLY). One swap per call; events reconverge.\nfunction aura_env.Apply()\n    local c = aura_env.cfg\n    -- TRK_PAUSED is a plain global toggled by an out-of-sandbox macro (the sandbox blocks\n    -- SlashCmdList, so the aura can't register its own /command):\n    --   /run TRK_PAUSED = not TRK_PAUSED; print(\"[Trinket Swap] \"..(TRK_PAUSED and \"PAUSED\" or \"ACTIVE\"))\n    -- Resets to ACTIVE on /reload or login (default-on). For a persistent off, disable the aura.\n    if not c.enabled or TRK_PAUSED then aura_env.pending = false; return end\n    if InCombatLockdown() then aura_env.pending = true; return end\n    if not EquipItemByName then return end  -- sandbox blocked equipping\n\n    local want = aura_env.Desired()\n    local id13 = GetInventoryItemID(\"player\", 13)\n    local id14 = GetInventoryItemID(\"player\", 14)\n\n    -- Already correct? (both wanted ids equipped, any order.)\n    local correct = true\n    for id in pairs(want) do\n        if id ~= id13 and id ~= id14 then correct = false break end\n    end\n    if correct then aura_env.pending = false; return end\n\n    local now = GetTime()\n    if aura_env.lastEquip and (now - aura_env.lastEquip) < c.minGap then return end\n\n    for id in pairs(want) do\n        if id ~= id13 and id ~= id14 and (aura_env.Owned(id) or aura_env.SlotOf(id)) then\n            local target\n            if id13 and not want[id13] then target = 13\n            elseif id14 and not want[id14] then target = 14\n            elseif not id13 then target = 13\n            elseif not id14 then target = 14 end\n            if target then\n                EquipItemByName(id, target)\n                aura_env.lastEquip = now\n                if c.debug then print(\"|cff66ccff[TRK]|r equip \" .. id .. \" -> slot \" .. target) end\n                return\n            end\n        end\n    end\n    aura_env.pending = false\nend\n\n-- Seed the Insignia id from current bags/equipment on load (re-checked each tick in on_show).\naura_env.RefreshInsignia()"
+        },
+        "start": {
+          "do_custom": true,
+          "custom": "-- PvP Trinket Auto-Swap — Controller — Actions ▸ On Show\n-- 1s ticker handles AGM-lock expiry and \"soonest returning\" re-ordering (rows 6/8).\nif aura_env.ticker then aura_env.ticker:Cancel() end\naura_env.ticker = C_Timer.NewTicker(1, function()\n    aura_env.WatchAGM()\n    aura_env.Apply()\nend)"
+        },
+        "finish": {
+          "do_custom": true,
+          "custom": "-- PvP Trinket Auto-Swap — Controller — Actions ▸ On Hide\nif aura_env.ticker then aura_env.ticker:Cancel(); aura_env.ticker = nil end"
+        }
+      },
+      "frameStrata": 1,
+      "icon": true,
+      "conditions": [],
+      "customText": "-- PvP Trinket Auto-Swap — Controller — Display ▸ text %c (optional debug readout)\n-- Returns \"\" unless the debug Custom Option is on, so the controller can stay invisible.\nfunction()\n    local e = aura_env\n    if not e.cfg or not e.cfg.debug then return \"\" end\n    local function nm(slot)\n        local id = GetInventoryItemID(\"player\", slot)\n        if not id then return \"-\" end\n        return (GetItemInfo(id)) or tostring(id)\n    end\n    return \"T1 \" .. nm(13) .. \" | T2 \" .. nm(14) .. (e.pending and \"  (pending OOC)\" or \"\")\nend",
+      "cooldownSwipe": true,
+      "cooldownTextDisabled": false,
+      "inverse": false,
+      "load": {
+        "use_never": false,
+        "class": {
+          "multi": {}
+        },
+        "spec": {
+          "multi": {}
+        },
+        "size": {
+          "multi": {}
+        },
+        "talent": {}
+      },
+      "alpha": 1,
+      "triggers": {
+        "1": {
+          "untrigger": {},
+          "trigger": {
+            "type": "custom",
+            "custom_type": "status",
+            "custom": "-- PvP Trinket Auto-Swap — Controller — Trigger ▸ Custom ▸ Status\n-- Events box (Trigger ▸ Custom ▸ Events):\n--   PLAYER_ENTERING_WORLD PLAYER_REGEN_ENABLED PLAYER_REGEN_DISABLED\n--   BAG_UPDATE_COOLDOWN SPELL_UPDATE_COOLDOWN UNIT_INVENTORY_CHANGED\n--   PLAYER_EQUIPMENT_CHANGED BAG_UPDATE\nfunction(event, arg1)\n    local e = aura_env\n    if not e.cfg then return false end\n\n    if event == \"PLAYER_REGEN_ENABLED\" then\n        e.pending = false\n        e.Apply()                       -- left combat: apply any pending swap\n    elseif event == \"PLAYER_REGEN_DISABLED\" then\n        -- entered combat: equipment is locked; wait for combat end\n    elseif event == \"UNIT_INVENTORY_CHANGED\" then\n        if arg1 == \"player\" then e.Apply() end\n    elseif event == \"BAG_UPDATE_COOLDOWN\" or event == \"SPELL_UPDATE_COOLDOWN\" then\n        e.WatchAGM()\n        e.Apply()\n    else\n        -- PLAYER_ENTERING_WORLD, PLAYER_EQUIPMENT_CHANGED, BAG_UPDATE\n        e.Apply()\n    end\n\n    return e.cfg.enabled == true         -- shown while enabled -> On Show/Hide drive the ticker\nend",
+            "check": "event",
+            "events": "PLAYER_ENTERING_WORLD, PLAYER_REGEN_ENABLED, PLAYER_REGEN_DISABLED, BAG_UPDATE_COOLDOWN, SPELL_UPDATE_COOLDOWN, UNIT_INVENTORY_CHANGED, PLAYER_EQUIPMENT_CHANGED, BAG_UPDATE",
+            "custom_hide": "custom",
+            "debuffType": "HELPFUL",
+            "event": "Health",
+            "subeventPrefix": "SPELL",
+            "subeventSuffix": "_CAST_START",
+            "unevent": "auto",
+            "spellIds": {},
+            "names": {},
+            "unit": "player"
+          }
+        },
+        "disjunctive": "all",
+        "activeTriggerMode": 1
+      },
+      "automaticWidth": "Auto",
+      "displayText": "%c",
+      "id": "Trinket Swap Engine",
+      "fontSize": 12,
+      "parent": "Betty's 19 Twink Trinket Manager"
+    },
+    {
+      "id": "Trinket Bar 1",
+      "uid": "trkPkgB13",
+      "parent": "Betty's 19 Twink Trinket Manager",
+      "regionType": "icon",
+      "internalVersion": 33,
+      "tocversion": 11508,
+      "anchorFrameType": "SCREEN",
+      "anchorPoint": "CENTER",
+      "selfPoint": "CENTER",
+      "xOffset": -50,
+      "yOffset": 0,
+      "width": 44,
+      "height": 44,
+      "cooldown": true,
+      "cooldownSwipe": true,
+      "cooldownEdge": false,
+      "cooldownTextDisabled": false,
+      "inverse": false,
+      "icon": true,
+      "iconSource": -1,
+      "desaturate": false,
+      "keepAspectRatio": false,
+      "zoom": 0,
+      "color": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "alpha": 1,
+      "frameStrata": 1,
+      "auto": true,
+      "config": {},
+      "authorOptions": [],
+      "conditions": [],
+      "subRegions": [
+        {
+          "type": "subbackground"
+        },
+        {
+          "type": "subforeground"
+        }
+      ],
+      "animation": {
+        "main": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "start": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "finish": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        }
+      },
+      "load": {
+        "use_never": false,
+        "class": {
+          "multi": {}
+        },
+        "spec": {
+          "multi": {}
+        },
+        "size": {
+          "multi": {}
+        },
+        "talent": {}
+      },
+      "actions": {
+        "init": {},
+        "start": {},
+        "finish": {}
+      },
+      "triggers": {
+        "1": {
+          "trigger": {
+            "type": "custom",
+            "custom_type": "stateupdate",
+            "check": "event",
+            "custom": "-- Trinket Display — Slot 1 (inventory slot 13) — Trigger ▸ Custom ▸ Trigger State Updater\n-- Shows the live-equipped trinket in slot 13 with its cooldown swipe + number.\n-- Events box: UNIT_INVENTORY_CHANGED PLAYER_EQUIPMENT_CHANGED BAG_UPDATE_COOLDOWN\n--             SPELL_UPDATE_COOLDOWN PLAYER_ENTERING_WORLD\nfunction(allstates)\n    local slot = 13\n    local id = GetInventoryItemID(\"player\", slot)\n    if not id then\n        allstates[\"\"] = { show = false, changed = true }\n        return true\n    end\n    local start, dur = GetInventoryItemCooldown(\"player\", slot)\n    local st = allstates[\"\"] or {}\n    st.show = true\n    st.changed = true\n    st.icon = GetInventoryItemTexture(\"player\", slot)\n    st.name = (GetItemInfo(id)) or tostring(id)\n    if start and dur and dur > 1.5 then\n        st.progressType = \"timed\"\n        st.duration = dur\n        st.expirationTime = start + dur\n    else\n        st.progressType = \"static\"\n        st.value, st.total = 1, 1\n    end\n    allstates[\"\"] = st\n    return true\nend",
+            "events": "UNIT_INVENTORY_CHANGED, PLAYER_EQUIPMENT_CHANGED, BAG_UPDATE_COOLDOWN, SPELL_UPDATE_COOLDOWN, PLAYER_ENTERING_WORLD",
+            "custom_hide": "custom"
+          },
+          "untrigger": {}
+        },
+        "disjunctive": "all",
+        "activeTriggerMode": 1
+      }
+    },
+    {
+      "id": "Trinket Bar 2",
+      "uid": "trkPkgB14",
+      "parent": "Betty's 19 Twink Trinket Manager",
+      "regionType": "icon",
+      "internalVersion": 33,
+      "tocversion": 11508,
+      "anchorFrameType": "SCREEN",
+      "anchorPoint": "CENTER",
+      "selfPoint": "CENTER",
+      "xOffset": 0,
+      "yOffset": 0,
+      "width": 44,
+      "height": 44,
+      "cooldown": true,
+      "cooldownSwipe": true,
+      "cooldownEdge": false,
+      "cooldownTextDisabled": false,
+      "inverse": false,
+      "icon": true,
+      "iconSource": -1,
+      "desaturate": false,
+      "keepAspectRatio": false,
+      "zoom": 0,
+      "color": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "alpha": 1,
+      "frameStrata": 1,
+      "auto": true,
+      "config": {},
+      "authorOptions": [],
+      "conditions": [],
+      "subRegions": [
+        {
+          "type": "subbackground"
+        },
+        {
+          "type": "subforeground"
+        }
+      ],
+      "animation": {
+        "main": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "start": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "finish": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        }
+      },
+      "load": {
+        "use_never": false,
+        "class": {
+          "multi": {}
+        },
+        "spec": {
+          "multi": {}
+        },
+        "size": {
+          "multi": {}
+        },
+        "talent": {}
+      },
+      "actions": {
+        "init": {},
+        "start": {},
+        "finish": {}
+      },
+      "triggers": {
+        "1": {
+          "trigger": {
+            "type": "custom",
+            "custom_type": "stateupdate",
+            "check": "event",
+            "custom": "-- Trinket Display — Slot 2 (inventory slot 14) — Trigger ▸ Custom ▸ Trigger State Updater\n-- Shows the live-equipped trinket in slot 14 with its cooldown swipe + number.\n-- Events box: UNIT_INVENTORY_CHANGED PLAYER_EQUIPMENT_CHANGED BAG_UPDATE_COOLDOWN\n--             SPELL_UPDATE_COOLDOWN PLAYER_ENTERING_WORLD\nfunction(allstates)\n    local slot = 14\n    local id = GetInventoryItemID(\"player\", slot)\n    if not id then\n        allstates[\"\"] = { show = false, changed = true }\n        return true\n    end\n    local start, dur = GetInventoryItemCooldown(\"player\", slot)\n    local st = allstates[\"\"] or {}\n    st.show = true\n    st.changed = true\n    st.icon = GetInventoryItemTexture(\"player\", slot)\n    st.name = (GetItemInfo(id)) or tostring(id)\n    if start and dur and dur > 1.5 then\n        st.progressType = \"timed\"\n        st.duration = dur\n        st.expirationTime = start + dur\n    else\n        st.progressType = \"static\"\n        st.value, st.total = 1, 1\n    end\n    allstates[\"\"] = st\n    return true\nend",
+            "events": "UNIT_INVENTORY_CHANGED, PLAYER_EQUIPMENT_CHANGED, BAG_UPDATE_COOLDOWN, SPELL_UPDATE_COOLDOWN, PLAYER_ENTERING_WORLD",
+            "custom_hide": "custom"
+          },
+          "untrigger": {}
+        },
+        "disjunctive": "all",
+        "activeTriggerMode": 1
+      }
+    },
+    {
+      "id": "Trinket Bar 3",
+      "uid": "trkPkgBBn",
+      "parent": "Betty's 19 Twink Trinket Manager",
+      "regionType": "icon",
+      "internalVersion": 33,
+      "tocversion": 11508,
+      "anchorFrameType": "SCREEN",
+      "anchorPoint": "CENTER",
+      "selfPoint": "CENTER",
+      "xOffset": 42,
+      "yOffset": 0,
+      "width": 30,
+      "height": 30,
+      "cooldown": true,
+      "cooldownSwipe": true,
+      "cooldownEdge": false,
+      "cooldownTextDisabled": false,
+      "inverse": false,
+      "icon": true,
+      "iconSource": -1,
+      "desaturate": false,
+      "keepAspectRatio": false,
+      "zoom": 0,
+      "color": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "alpha": 1,
+      "frameStrata": 1,
+      "auto": true,
+      "config": {},
+      "authorOptions": [],
+      "conditions": [],
+      "subRegions": [
+        {
+          "type": "subbackground"
+        },
+        {
+          "type": "subforeground"
+        }
+      ],
+      "animation": {
+        "main": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "start": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "finish": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        }
+      },
+      "load": {
+        "use_never": false,
+        "class": {
+          "multi": {}
+        },
+        "spec": {
+          "multi": {}
+        },
+        "size": {
+          "multi": {}
+        },
+        "talent": {}
+      },
+      "actions": {
+        "init": {},
+        "start": {},
+        "finish": {}
+      },
+      "triggers": {
+        "1": {
+          "trigger": {
+            "type": "custom",
+            "custom_type": "stateupdate",
+            "check": "event",
+            "custom": "-- Trinket Display — Bench — Trigger ▸ Custom ▸ Trigger State Updater\n-- Shows whichever of the 3 tracked trinkets is NOT in slot 13/14, with its live cooldown.\n-- If two are benched, shows the one coming off cooldown soonest. Blank if none benched/owned.\n-- Events box: UNIT_INVENTORY_CHANGED PLAYER_EQUIPMENT_CHANGED BAG_UPDATE_COOLDOWN\n--             SPELL_UPDATE_COOLDOWN BAG_UPDATE PLAYER_ENTERING_WORLD\nfunction(allstates)\n    -- AGM (19024) + MR (4381) are faction-neutral (fixed ids). The Insignia is faction/class-\n    -- specific, so auto-detect it by name (\"Insignia of the ...\") => zero config on either faction.\n    -- English clients only; other locales: replace the 18864 fallback with your Insignia id.\n    local function bagSlots(bag)\n        if C_Container and C_Container.GetContainerNumSlots then return C_Container.GetContainerNumSlots(bag) end\n        return GetContainerNumSlots(bag)\n    end\n    local function bagItemID(bag, slot)\n        if C_Container and C_Container.GetContainerItemID then return C_Container.GetContainerItemID(bag, slot) end\n        return GetContainerItemID(bag, slot)\n    end\n    local function detectInsignia()\n        local function isIns(itemId)\n            if not itemId then return false end\n            local n = GetItemInfo(itemId)\n            return n ~= nil and n:find(\"Insignia of the\", 1, true) ~= nil\n        end\n        for _, s in ipairs({ 13, 14 }) do\n            local id = GetInventoryItemID(\"player\", s)\n            if isIns(id) then return id end\n        end\n        for bag = 0, 4 do\n            for slot = 1, (bagSlots(bag) or 0) do\n                if isIns(bagItemID(bag, slot)) then return bagItemID(bag, slot) end\n            end\n        end\n        return nil\n    end\n    local IDS = { 19024, detectInsignia() or 18864, 4381 }  -- AGM, Insignia (auto), Minor Recombobulator\n\n    local function itemCd(itemId)\n        if C_Container and C_Container.GetItemCooldown then return C_Container.GetItemCooldown(itemId) end\n        if C_Item and C_Item.GetItemCooldown then return C_Item.GetItemCooldown(itemId) end\n        return GetItemCooldown(itemId)\n    end\n\n    local id13 = GetInventoryItemID(\"player\", 13)\n    local id14 = GetInventoryItemID(\"player\", 14)\n\n    local best, bestStart, bestDur, bestLeft\n    for _, id in ipairs(IDS) do\n        if id ~= id13 and id ~= id14 and (GetItemCount(id) or 0) > 0 then\n            local s, d = itemCd(id)\n            local left = (s and d and d > 0) and ((s + d) - GetTime()) or 0\n            if left < 0 then left = 0 end\n            if not best or left < bestLeft then\n                best, bestStart, bestDur, bestLeft = id, s, d, left\n            end\n        end\n    end\n\n    if not best then\n        allstates[\"\"] = { show = false, changed = true }\n        return true\n    end\n\n    local st = allstates[\"\"] or {}\n    st.show = true\n    st.changed = true\n    st.icon = (select(10, GetItemInfo(best))) or GetItemIcon(best)\n    st.name = (GetItemInfo(best)) or tostring(best)\n    if bestStart and bestDur and bestDur > 1.5 then\n        st.progressType = \"timed\"\n        st.duration = bestDur\n        st.expirationTime = bestStart + bestDur\n    else\n        st.progressType = \"static\"\n        st.value, st.total = 1, 1\n    end\n    allstates[\"\"] = st\n    return true\nend",
+            "events": "UNIT_INVENTORY_CHANGED, PLAYER_EQUIPMENT_CHANGED, BAG_UPDATE_COOLDOWN, SPELL_UPDATE_COOLDOWN, PLAYER_ENTERING_WORLD, BAG_UPDATE",
+            "custom_hide": "custom"
+          },
+          "untrigger": {}
+        },
+        "disjunctive": "all",
+        "activeTriggerMode": 1
+      }
+    }
+  ],
+  "v": 1421
+}

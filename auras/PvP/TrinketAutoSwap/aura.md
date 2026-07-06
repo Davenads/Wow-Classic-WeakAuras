@@ -152,3 +152,17 @@ Resolver = the §3 table in `plan.md`. AGM 20 s lock + out-of-combat gate + no-o
   three TSUs as a horizontal bar (two 44px slot windows + a 30px 3rd hugging slot 2, cooldown
   numbers overlaid), cloned from the verified icon schema with independent `uid`s so it coexists
   with Betty's Trinket Display. Round-trip verified. Untested in-game.
+- **2026-07-06** — Fix (icons showed as "?" + per-event Lua errors): all six display TSUs had an
+  invalid `custom_type` of `"stateupdater"` instead of `"stateupdate"`. WA fell back to calling each
+  as a plain event trigger `function(event, ...)`, so `allstates` received the event-name string and
+  the first `allstates[""] = {…}` raised "attempt to index a string value" — no state ever built, so
+  the icon regions drew the default `?` placeholder. Corrected in `display.json`/`display2.json`,
+  rebuilt both strings (`display.txt` 3185 bytes, `display2.txt` 3169 bytes). Round-trip verified.
+- **2026-07-06** — Added all-in-one **`package.txt`** (8060 bytes) for end-user distribution: a single
+  group `Betty's 19 Twink Trinket Manager` containing the swap engine (the controller text region,
+  renamed child `Trinket Swap Engine`, invisible by default — `customText` returns "" unless `debug`)
+  plus the three Bar icons (`Trinket Bar 1/2/3`). One import string = engine + visuals. Fresh `uid`s
+  on every member (`trkPkgGrp1`/`trkPkgEng1`/`trkPkgB13/14/BBn`) so importing it does not clobber a
+  user's standalone auras — migrate by importing the package and deleting the separate ones. Engine
+  `init`/`start`/`status` blocks and all three `stateupdate` TSUs verified intact via round-trip.
+  Untested in-game.
