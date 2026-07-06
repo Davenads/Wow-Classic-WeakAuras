@@ -11,6 +11,7 @@ aura_env.cfg = {
     mrId    = tonumber(cfg.mrId)    or 4381,  -- Minor Recombobulator  https://www.wowhead.com/classic/item=4381
     minGap  = tonumber(cfg.minGap)  or 1.0,   -- seconds between equip attempts (debounce)
     agmLock = tonumber(cfg.agmLock) or 20,    -- keep AGM equipped this long (s) after its on-use
+    equipCd = tonumber(cfg.equipCd) or 30,    -- ignore cooldowns <= this (the trinket equip lockout)
     debug   = cfg.debug == true,
 }
 
@@ -25,10 +26,14 @@ local function itemCooldown(itemId)
 end
 
 -- Remaining cooldown (seconds) for an item id; 0 = ready.
+-- Equipping a trinket triggers a ~30s equip lockout (anti hot-swap). That is NOT the item's
+-- real use cooldown, so ignore any cooldown whose duration is <= cfg.equipCd — otherwise a
+-- freshly equipped trinket reads as "on CD" and the resolver swaps it straight back out.
 function aura_env.CdLeft(itemId)
     if not itemId then return 0 end
     local start, dur = itemCooldown(itemId)
     if not start or start == 0 or not dur or dur == 0 then return 0 end
+    if dur <= aura_env.cfg.equipCd then return 0 end  -- equip lockout, not the real use CD
     local left = (start + dur) - GetTime()
     return left > 0 and left or 0
 end

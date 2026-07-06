@@ -63,6 +63,7 @@ native WA icon to clone the exact region schema from.
 | `mrId` | number | 4381 | Minor Recombobulator item ID. |
 | `minGap` | number | 1.0 | Seconds between equip attempts (debounce). |
 | `agmLock` | number | 20 | Keep AGM equipped this long (s) after its on-use. |
+| `equipCd` | number | 30 | Ignore cooldowns ≤ this (s) — the trinket equip lockout, not a real CD. |
 | `debug` | toggle | off | Print each swap + show a slot readout in the controller text. |
 
 Defaults are baked into `init.lua`, so it works with **zero options set**; add options only to
@@ -123,3 +124,7 @@ Resolver = the §3 table in `plan.md`. AGM 20 s lock + out-of-combat gate + no-o
 - **2026-07-05** — Fix: `Owned()` ignored equipped copies (`GetItemCount` excludes equipped items),
   so a ready-but-equipped Minor Recombobulator read as unavailable and got swapped out for AGM.
   Now falls back to `SlotOf()`. Rebuilt export (4840 bytes). Round-trip verified.
+- **2026-07-05** — Fix (oscillation): equipping a trinket triggers a ~30s equip lockout that
+  `CdLeft()` mistook for a real cooldown, so a just-equipped MR read as on-CD and got reverted to
+  AGM one tick later. `CdLeft()` now ignores cooldowns ≤ `cfg.equipCd` (default 30s); real use CDs
+  (300s/1800s) are unaffected. Rebuilt export (5090 bytes). Round-trip verified.
