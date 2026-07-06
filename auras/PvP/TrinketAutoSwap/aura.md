@@ -171,3 +171,8 @@ Resolver = the §3 table in `plan.md`. AGM 20 s lock + out-of-combat gate + no-o
   rejects on icon regions. Icons render texture + cooldown swipe/number natively (no sub-regions
   needed), so `subRegions` is now `[]` on every icon in `display.json`/`display2.json`/`package.json`.
   Rebuilt `display.txt` (3152), `display2.txt` (3134), `package.txt` (8025). Round-trip verified.
+- **2026-07-06** — Wago code-review fix (every-frame text alert): the engine's `customTextUpdate` was
+  `"update"` (updates `%c` every frame). Its `customText` returns "" unless `debug`, but Wago flags
+  any per-frame text. Set to `"event"` — the readout only needs refreshing on the inventory/cooldown
+  events the trigger already registers. Applied to the standalone controller and the package engine;
+  rebuilt `export.txt` (6112) + `package.txt` (8022). Round-trip verified.
