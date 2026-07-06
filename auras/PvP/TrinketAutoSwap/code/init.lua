@@ -236,12 +236,32 @@ function aura_env.Apply()
         return aura_env.CdLeft(incoming) <= (aura_env.CdLeft(displaced) - c.swapMargin)
     end
 
+    -- Multiset-aware re-equip guard (restores the pre-2-AGM guarantee). NEVER re-equip a trinket
+    -- that is already worn at (or above) its wanted multiplicity. Re-reads slots 13/14 FRESH so a
+    -- copy equipped since the top-of-Apply snapshot still counts — this is what makes an
+    -- already-worn item structurally untouchable and kills the 13<->14 re-equip thrash (the equip
+    -- lockout can never be restarted on an item that's already in place). For 1-AGM an already-worn
+    -- MR/Insignia is never touched; for 2-AGM the 2nd AGM still equips (1 worn < 2 wanted).
+    local function wantedCount(id)
+        local n = 0
+        if want[1] == id then n = n + 1 end
+        if want[2] == id then n = n + 1 end
+        return n
+    end
+    local function wornCount(id)
+        local n = 0
+        if GetInventoryItemID("player", 13) == id then n = n + 1 end
+        if GetInventoryItemID("player", 14) == id then n = n + 1 end
+        return n
+    end
+
     for i = 1, 2 do
         if not matched[i] then
             local id = want[i]
             -- EquipItemByName pulls from BAGS, so a fresh equip needs a spare bag copy. For a
             -- 2nd AGM this is guaranteed (AgmCount>=2 means the unequipped copy sits in bags).
-            if (GetItemCount(id) or 0) > 0 and okToSwap(id, target) then
+            if wornCount(id) < wantedCount(id)
+               and (GetItemCount(id) or 0) > 0 and okToSwap(id, target) then
                 EquipItemByName(id, target)
                 aura_env.lastEquip = now
                 if c.debug then print("|cff66ccff[TRK]|r equip " .. id .. " -> slot " .. target) end

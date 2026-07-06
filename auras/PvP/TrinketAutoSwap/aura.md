@@ -202,3 +202,12 @@ the 2nd AGM for +2% total dodge. Single-AGM characters are unaffected.
   loadout (no equip → no cascade → no thrash). Kept the soonest-returning preference (so leaving
   combat still swaps a sooner-returning IoTA in over a later MR, once). New option `swapMargin` (5).
   2-AGM mode unaffected. Rebuilt `export.txt` (7836) + `package.txt` (9760). Round-trip verified. Untested in-game.
+- **2026-07-06** — Fix (1-AGM re-equip thrash, regression from 2-AGM rewrite, `plan.md` §15): the slot
+  bounce persisted — MR (with bag spares) was re-equipped every tick, restarting its 30-s lockout,
+  while the lone AGM was dragged between slots. Cause: the 2-AGM rewrite dropped the pre-2-AGM hard
+  guard `id ~= id13 and id ~= id14` (which made an already-worn item impossible to re-equip) in favor
+  of a snapshot multiset claim + bag-only ownership test. Fix: restored the guarantee in multiset-aware
+  form — skip equipping any `id` whose fresh worn count in slots 13/14 already meets its wanted count.
+  1-AGM never re-equips a worn MR/Insignia; 2-AGM still equips a 2nd AGM (1 worn < 2 wanted). Kept the
+  §14 `okToSwap` hysteresis. Rebuilt `export.txt` (8240) + `package.txt` (10162).
+  Round-trip verified. Untested in-game.

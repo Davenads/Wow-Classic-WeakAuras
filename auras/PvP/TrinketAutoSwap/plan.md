@@ -305,3 +305,28 @@ that is already present. `minGap` (1 s) still debounces the same-frame event cas
 
 **Config addition:** `swapMargin` (default 5). 2-AGM mode is unaffected (its own `swapBackAt`
 gating already prevents churn; `okToSwap` allows AGM anchoring and ready/sooner on-use swaps).
+
+## 15. Multiset-aware re-equip guard (1-AGM thrash — regression fix) — implemented 2026-07-06
+
+**Symptom (persisted past §14):** on a 1-AGM character with MR + AGM worn and Insignia benched, the
+two equipped trinkets keep trading slots 13↔14 every ~1 s. MR (which has bag spares) is re-equipped
+each tick — its 30 s equip lockout resets and never counts down — while AGM (1 copy, no spare) is
+merely *dragged* between slots by `EquipItemByName` swapping it out.
+
+**Root cause — a regression from the 2-AGM rewrite (`d9ffe4f`).** The pre-2-AGM `Apply()` gated every
+equip with `id ~= id13 and id ~= id14`: **an item already worn was never a candidate for equipping.**
+That made re-equipping (and therefore restarting an equip lockout) *structurally impossible*. The
+2-AGM rewrite replaced that hard guard with a multiset `claim` over the top-of-`Apply` slot snapshot,
+and switched the ownership test to `GetItemCount(id) > 0` (bag-only). Consequences: (a) if the snapshot
+misses a worn copy, the item is re-equipped; (b) MR always has a bag spare so it is infinitely
+re-equippable, while a 1-AGM AGM (no spare) can only be dragged — exactly the observed picture. The
+old guard was dropped because it also blocked the legitimate 2-AGM `{A, A}` (equip a 2nd AGM while one
+is already worn).
+
+**Fix — restore the guarantee in multiset-aware form.** Before `EquipItemByName(id, target)`, skip if
+`wornCount(id) >= wantedCount(id)`, where `wornCount` re-reads slots 13/14 **fresh** (so a copy equipped
+since the snapshot still counts) and `wantedCount` counts `id` in the `want` list. For 1-AGM `{A, M}`
+with A+M worn, both counts are equal ⇒ neither is ever re-equipped (matches the bulletproof pre-2-AGM
+behavior). For 2-AGM `{A, A}` with one AGM worn, `1 < 2` ⇒ the 2nd AGM still equips. This composes
+with the §14 `okToSwap` hysteresis (both retained). No new config. 2-AGM path untested in-game (no
+2-AGM test character available); 1-AGM is the target of this fix.
