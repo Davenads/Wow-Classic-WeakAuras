@@ -74,6 +74,7 @@ it) — pick whichever layout you prefer; you don't need both.
 | `agmLock` | number | 20 | Keep AGM equipped this long (s) after its on-use. |
 | `equipCd` | number | 30 | Ignore cooldowns ≤ this (s) — the trinket equip lockout, not a real CD. |
 | `swapBuffer` | number | 1 | 2-AGM mode: extra seconds added to `equipCd` for the pre-equip window (`swapBackAt`), so a swapped-in on-use's equip lockout fully overlaps its cooldown tail. |
+| `swapMargin` | number | 5 | Anti-thrash hysteresis: only swap an equipped, on-cooldown on-use trinket out for a benched one that is ready now or at least this many seconds sooner. Prevents 13↔14 slot flicker. |
 | `stackAgm` | toggle | on | If two AGMs are owned, wear **both** for +2% dodge while idle (2-AGM mode). Turn off to force single-AGM behavior. |
 | `debug` | toggle | off | Print each swap + show a slot readout in the controller text. |
 
@@ -191,3 +192,13 @@ the 2nd AGM for +2% total dodge. Single-AGM characters are unaffected.
   worn AGMs required for `{AGM,AGM}`) + bag-copy guard for fresh equips. New options `swapBuffer`
   (default 1) and `stackAgm` (default on); single-AGM characters unaffected. Bench display unchanged.
   Rebuilt `export.txt` (7293) + `package.txt` (9230). Round-trip verified. Untested in-game.
+- **2026-07-06** — Fix (1-AGM slot flicker / thrash, `plan.md` §14): with an on-use build, two
+  equipped trinkets swapped between slots 13↔14 every ~1 s, re-firing the 30-s equip lockout (and
+  re-locking AGM). Cause: `Apply()` re-runs on a 1-s ticker plus a per-equip event fan-out, and the
+  `soonest`/`mAvail` pick can flip between two on-cooldown on-use trinkets on near-ties or when a
+  duplicate MR copy's readiness momentarily differs; MR's bag spares let it re-equip endlessly. Fix:
+  added `okToSwap` hysteresis — don't swap an equipped on-CD on-use trinket out for a benched one
+  unless the incoming is usable now or `>= swapMargin` (default 5 s) sooner; a blocked swap holds the
+  loadout (no equip → no cascade → no thrash). Kept the soonest-returning preference (so leaving
+  combat still swaps a sooner-returning IoTA in over a later MR, once). New option `swapMargin` (5).
+  2-AGM mode unaffected. Rebuilt `export.txt` (7836) + `package.txt` (9760). Round-trip verified. Untested in-game.

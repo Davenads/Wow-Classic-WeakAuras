@@ -265,3 +265,43 @@ always worn), so the §3 override block is skipped by the early return.
 
 **Bench display:** unchanged — still **one** bench icon. `benched.lua` dedups by "not in slot
 13/14", which correctly handles two worn AGMs (both are in slots, so neither shows as benched).
+
+---
+
+## 14. Anti-thrash hysteresis (1-AGM slot flicker fix) — implemented 2026-07-06
+
+**Symptom:** with Insignia (IoTA) build, MR + AGM equipped, MR used mid-fight — the two equipped
+trinkets flickered between slots 13↔14 every ~1 s, re-firing the 30-s equip lockout each swap
+(and re-locking AGM). Insignia never settled into the loadout.
+
+**Why it happened:** `Apply()` runs on a 1-s ticker **and** on a fan-out of events
+(`PLAYER_EQUIPMENT_CHANGED` + `BAG_UPDATE` + `BAG_UPDATE_COOLDOWN` + `UNIT_INVENTORY_CHANGED`),
+so every equip re-enters the resolver almost immediately. The `soonest()` pick in rows 6/8 (and
+the `mAvail` branch) can flip its choice between two **on-cooldown** on-use trinkets when their
+remaining CDs are close, or when a **duplicate MR copy's** readiness momentarily reads differently
+(most players carry several MRs). Because MR has bag spares, the bag-copy guard never blocks
+re-equipping it, so each flip produced a physical swap → visible flicker.
+
+**Design decision (do NOT `swapBackAt`-gate 1-AGM):** an earlier idea was to only equip an on-use
+trinket within `swapBackAt` (~31 s) of ready. That is **correct for 2-AGM** (there the alternative
+is the 2nd AGM's real +1% dodge passive) but **wrong for 1-AGM**: fielding the *soonest-returning*
+on-use makes it usable the earliest (a benched trinket coming off CD isn't usable until re-equipped
++ its 30-s lockout), at zero cost (IoTA/MR have no passive to lose while benched). Example the fix
+must preserve: leave combat with MR equipped (~4 m) and IoTA benched (~3 m) ⇒ swap IoTA in (it
+returns sooner), **once**, then hold.
+
+**Fix — hysteresis in `Apply()` (`okToSwap`)**: before equipping a benched on-use trinket into a
+slot that currently holds an **on-cooldown** on-use trinket, require the incoming one to be either
+**usable now** (`IsReady`) or **meaningfully sooner** — `CdLeft(incoming) <= CdLeft(displaced) - swapMargin`
+(default `swapMargin = 5 s`). Otherwise the swap is skipped and the current loadout is held (no
+equip ⇒ no event cascade ⇒ no thrash). AGM (the passive anchor) is never gated; replacing an empty
+slot or an untracked/junk trinket is always allowed; row 3 (bench AGM for two ready dispels) still
+works because the incoming trinket is ready.
+
+**Why this converges:** once the soonest on-use is equipped, the flip source can no longer pull it
+back — the benched alternative is *later*, not sooner, so `okToSwap` returns false and it holds.
+Near-ties (< `swapMargin`) never swap. The multiset claim already prevents re-positioning a loadout
+that is already present. `minGap` (1 s) still debounces the same-frame event cascade.
+
+**Config addition:** `swapMargin` (default 5). 2-AGM mode is unaffected (its own `swapBackAt`
+gating already prevents churn; `okToSwap` allows AGM anchoring and ready/sooner on-use swaps).

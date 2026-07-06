@@ -14,6 +14,7 @@ aura_env.cfg = {
     agmLock = tonumber(cfg.agmLock) or 20,    -- keep AGM equipped this long (s) after its on-use
     equipCd = tonumber(cfg.equipCd) or 30,    -- ignore cooldowns <= this (the trinket equip lockout)
     swapBuffer = tonumber(cfg.swapBuffer) or 1, -- extra s so a swapped-in on-use's lockout fully covers its CD tail
+    swapMargin = tonumber(cfg.swapMargin) or 5, -- anti-thrash: only swap an equipped on-CD on-use out for a benched one that is >= this many s sooner
     stackAgm   = (cfg.stackAgm ~= false),     -- if 2 AGMs owned, wear both for +2% dodge while idle
     debug   = cfg.debug == true,
 }
@@ -220,12 +221,27 @@ function aura_env.Apply()
     elseif not id14 then target = 14 end
     if not target then aura_env.pending = false; return end
 
+    -- Anti-thrash hysteresis: never swap an equipped, on-cooldown ON-USE trinket (Insignia/MR)
+    -- out for a benched on-use trinket unless the incoming one is usable NOW or meaningfully
+    -- (swapMargin s) sooner. Kills the 13<->14 flicker when two on-use CDs are close, or when a
+    -- duplicate copy's readiness momentarily flips. AGM (the passive anchor) is never gated, and
+    -- replacing an empty slot or an untracked/junk trinket is always allowed. A blocked swap just
+    -- holds the current loadout (no equip => no event cascade => no thrash).
+    local function okToSwap(incoming, slot)
+        if incoming == c.agmId then return true end
+        local displaced = GetInventoryItemID("player", slot)
+        if not displaced then return true end
+        if displaced ~= c.iotaId and displaced ~= c.mrId then return true end
+        if aura_env.IsReady(incoming) then return true end
+        return aura_env.CdLeft(incoming) <= (aura_env.CdLeft(displaced) - c.swapMargin)
+    end
+
     for i = 1, 2 do
         if not matched[i] then
             local id = want[i]
             -- EquipItemByName pulls from BAGS, so a fresh equip needs a spare bag copy. For a
             -- 2nd AGM this is guaranteed (AgmCount>=2 means the unequipped copy sits in bags).
-            if (GetItemCount(id) or 0) > 0 then
+            if (GetItemCount(id) or 0) > 0 and okToSwap(id, target) then
                 EquipItemByName(id, target)
                 aura_env.lastEquip = now
                 if c.debug then print("|cff66ccff[TRK]|r equip " .. id .. " -> slot " .. target) end
