@@ -126,14 +126,7 @@
       "config": {},
       "authorOptions": [],
       "conditions": [],
-      "subRegions": [
-        {
-          "type": "subbackground"
-        },
-        {
-          "type": "subforeground"
-        }
-      ],
+      "subRegions": [],
       "animation": {
         "main": {
           "type": "none",
@@ -224,14 +217,7 @@
       "config": {},
       "authorOptions": [],
       "conditions": [],
-      "subRegions": [
-        {
-          "type": "subbackground"
-        },
-        {
-          "type": "subforeground"
-        }
-      ],
+      "subRegions": [],
       "animation": {
         "main": {
           "type": "none",
@@ -322,14 +308,7 @@
       "config": {},
       "authorOptions": [],
       "conditions": [],
-      "subRegions": [
-        {
-          "type": "subbackground"
-        },
-        {
-          "type": "subforeground"
-        }
-      ],
+      "subRegions": [],
       "animation": {
         "main": {
           "type": "none",

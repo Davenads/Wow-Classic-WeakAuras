@@ -166,3 +166,8 @@ Resolver = the §3 table in `plan.md`. AGM 20 s lock + out-of-combat gate + no-o
   user's standalone auras — migrate by importing the package and deleting the separate ones. Engine
   `init`/`start`/`status` blocks and all three `stateupdate` TSUs verified intact via round-trip.
   Untested in-game.
+- **2026-07-06** — Fix (on-import error `unknown or incompatible element type 'subforeground'`): the
+  fabricated icon schema carried `subRegions:[{subbackground},{subforeground}]`, which current WA
+  rejects on icon regions. Icons render texture + cooldown swipe/number natively (no sub-regions
+  needed), so `subRegions` is now `[]` on every icon in `display.json`/`display2.json`/`package.json`.
+  Rebuilt `display.txt` (3152), `display2.txt` (3134), `package.txt` (8025). Round-trip verified.
