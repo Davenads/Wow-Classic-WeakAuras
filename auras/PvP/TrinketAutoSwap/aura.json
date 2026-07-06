@@ -32,7 +32,7 @@
     "cooldownEdge": false,
     "xOffset": 0,
     "zoom": 0,
-    "desc": "Out-of-combat trinket optimizer: keeps the best AGM / Insignia / Minor Recombobulator pair in slots 13-14 by live cooldown. Controller only; add two native Item-Slot displays per aura.md. See plan.md.",
+    "desc": "Betty's 19 Twink Trinket Manager - an out-of-combat optimizer that keeps the best 2-of-3 trinkets (Arena Grand Master, Insignia, Minor Recombobulator) in slots 13/14 by live cooldown. It does what Trinket Menu can't: it treats Arena Grand Master as a persistent fallback so its +1% dodge equip passive is always active - keeping AGM slotted for the passive even when a higher-priority trinket is front of the queue, instead of dropping it. The Insignia is auto-detected by name, so it works on both Alliance and Horde with no config. Pairs with the companion group \"Betty's Trinket Display\".",
     "authorOptions": [],
     "wordWrap": "WordWrap",
     "width": 64,
@@ -122,7 +122,7 @@
     },
     "automaticWidth": "Auto",
     "displayText": "%c",
-    "id": "PvP Trinket Auto-Swap",
+    "id": "Betty's 19 Twink Trinket Manager",
     "fontSize": 12
   },
   "v": 1421

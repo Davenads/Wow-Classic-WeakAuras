@@ -2,7 +2,7 @@
   "m": "d",
   "s": "5.20.6",
   "d": {
-    "id": "Trinket Display",
+    "id": "Betty's Trinket Display",
     "uid": "trkDispGrp1",
     "regionType": "group",
     "internalVersion": 33,
@@ -86,13 +86,14 @@
       },
       "disjunctive": "all",
       "activeTriggerMode": 1
-    }
+    },
+    "desc": "Companion display for Betty's 19 Twink Trinket Manager: movable icons for trinket slots 13/14 plus a smaller bench icon for the third (unequipped) trinket, each showing its live cooldown. Insignia auto-detected (Alliance + Horde)."
   },
   "c": [
     {
       "id": "Trinket Slot 1",
       "uid": "trkDisp13x1",
-      "parent": "Trinket Display",
+      "parent": "Betty's Trinket Display",
       "regionType": "icon",
       "internalVersion": 33,
       "tocversion": 11508,
@@ -190,7 +191,7 @@
     {
       "id": "Trinket Slot 2",
       "uid": "trkDisp14x1",
-      "parent": "Trinket Display",
+      "parent": "Betty's Trinket Display",
       "regionType": "icon",
       "internalVersion": 33,
       "tocversion": 11508,
@@ -288,7 +289,7 @@
     {
       "id": "Trinket Bench",
       "uid": "trkDispBenx1",
-      "parent": "Trinket Display",
+      "parent": "Betty's Trinket Display",
       "regionType": "icon",
       "internalVersion": 33,
       "tocversion": 11508,

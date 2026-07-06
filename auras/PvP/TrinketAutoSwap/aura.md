@@ -1,4 +1,7 @@
-# PvP Trinket Auto-Swap (AGM / Insignia / Minor Recombobulator)
+# Betty's 19 Twink Trinket Manager (AGM / Insignia / Minor Recombobulator)
+
+> In-game names: controller = **Betty's 19 Twink Trinket Manager**; display group = **Betty's
+> Trinket Display**. (Repo folder stays `TrinketAutoSwap`.)
 
 - **Category:** PvP (level-19 twink)
 - **Target flavor:** Classic Era (Anniversary / SoD / HC). Item-cooldown call branches for Cata/MoP Classic.
@@ -34,7 +37,7 @@ Two separate importable units. Import both `!WA:2!` strings:
 **A. Controller** — import `export.txt`. It's a Text region; leave it where you like (blank unless
 the `debug` option is on). All swapping logic lives here.
 
-**B. "Trinket Display" group** — import `display.txt`. A movable WA group of **3 custom-TSU icons**:
+**B. "Betty's Trinket Display" group** — import `display.txt`. A movable WA group of **3 custom-TSU icons**:
 
 | Icon | Shows | Size | Trigger source |
 |---|---|---|---|
@@ -135,3 +138,7 @@ Resolver = the §3 table in `plan.md`. AGM 20 s lock + out-of-combat gate + no-o
   Dropped the `TRK_IDS` shared-global idea (sandbox writes don't reach `_G`) in favor of each unit
   self-detecting. Rebuilt export (5873 bytes) + display (3021 bytes). Round-trip verified.
   English clients only; non-English pin `iotaId` / edit the bench fallback.
+- **2026-07-05** — Renamed in-game: controller → **Betty's 19 Twink Trinket Manager**, group →
+  **Betty's Trinket Display** (child parents rewired, `controlledChildren` intact). Rewrote the
+  controller/group `desc` to call out the Trinket-Menu-beating AGM-passive fallback. Rebuilt export
+  (6114 bytes) + display (3186 bytes). Round-trip verified.
