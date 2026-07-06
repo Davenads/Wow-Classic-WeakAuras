@@ -3,17 +3,20 @@
 -- Item IDs (Classic Era, verified): AGM 19024, Insignia(Ally Pala) 18864, Minor Recombobulator 4381.
 
 local cfg = aura_env.config or {}
+local iotaOverride = tonumber(cfg.iotaId)     -- explicit Insignia id; nil => auto-detect at runtime
 
 aura_env.cfg = {
     enabled = (cfg.enabled ~= false),         -- master on/off (Custom Option)
     agmId   = tonumber(cfg.agmId)   or 19024, -- Arena Grand Master  https://www.wowhead.com/classic/item=19024
-    iotaId  = tonumber(cfg.iotaId)  or 18864, -- Insignia of the Alliance (Paladin)  item=18864
+    iotaId  = iotaOverride           or 18864, -- Insignia — auto-detected unless pinned (default Ally Pala)
     mrId    = tonumber(cfg.mrId)    or 4381,  -- Minor Recombobulator  https://www.wowhead.com/classic/item=4381
     minGap  = tonumber(cfg.minGap)  or 1.0,   -- seconds between equip attempts (debounce)
     agmLock = tonumber(cfg.agmLock) or 20,    -- keep AGM equipped this long (s) after its on-use
     equipCd = tonumber(cfg.equipCd) or 30,    -- ignore cooldowns <= this (the trinket equip lockout)
     debug   = cfg.debug == true,
 }
+-- true => user pinned iotaId in Custom Options; skip auto-detect and honor their value.
+aura_env.iotaLocked = iotaOverride ~= nil
 
 -- Flavor-aware item-cooldown getter (global on Era; C_Container/C_Item on Cata/MoP).
 local function itemCooldown(itemId)
@@ -55,6 +58,47 @@ function aura_env.SlotOf(itemId)
     if GetInventoryItemID("player", 13) == itemId then return 13 end
     if GetInventoryItemID("player", 14) == itemId then return 14 end
     return nil
+end
+
+-- Flavor-aware bag readers (globals on Era; C_Container on Cata/MoP).
+local function bagSlots(bag)
+    if C_Container and C_Container.GetContainerNumSlots then return C_Container.GetContainerNumSlots(bag) end
+    return GetContainerNumSlots(bag)
+end
+local function bagItemID(bag, slot)
+    if C_Container and C_Container.GetContainerItemID then return C_Container.GetContainerItemID(bag, slot) end
+    return GetContainerItemID(bag, slot)
+end
+
+-- Auto-detect the PvP Insignia by name ("Insignia of the ...") so the aura is faction/class-
+-- agnostic with zero config. Scans worn trinket slots first, then bags. English clients only;
+-- other locales pin iotaId. Returns an item id or nil.
+function aura_env.DetectInsignia()
+    local function isInsignia(itemId)
+        if not itemId then return false end
+        local n = GetItemInfo(itemId)
+        return n ~= nil and n:find("Insignia of the", 1, true) ~= nil
+    end
+    for _, s in ipairs({ 13, 14 }) do
+        local id = GetInventoryItemID("player", s)
+        if isInsignia(id) then return id end
+    end
+    for bag = 0, 4 do
+        for slot = 1, (bagSlots(bag) or 0) do
+            if isInsignia(bagItemID(bag, slot)) then return bagItemID(bag, slot) end
+        end
+    end
+    return nil
+end
+
+-- Point cfg.iotaId at the detected Insignia unless the user pinned it. Cheap; safe to call often.
+function aura_env.RefreshInsignia()
+    if aura_env.iotaLocked then return end
+    local found = aura_env.DetectInsignia()
+    if found and found ~= aura_env.cfg.iotaId then
+        aura_env.cfg.iotaId = found
+        if aura_env.cfg.debug then print("|cff66ccff[TRK]|r insignia detected: " .. found) end
+    end
 end
 
 -- Detect AGM's on-use firing (ready -> not ready) and start the keep-equipped lock.
@@ -147,3 +191,6 @@ function aura_env.Apply()
     end
     aura_env.pending = false
 end
+
+-- Seed the Insignia id from current bags/equipment on load (re-checked each tick in on_show).
+aura_env.RefreshInsignia()

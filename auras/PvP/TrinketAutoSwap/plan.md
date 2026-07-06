@@ -190,3 +190,29 @@ Remaining (in-game verification, not blockers):
 
 `auras/PvP/TrinketAutoSwap/` → `aura.md`, `export.txt`, `aura.json`, and
 `code/{init.lua, trigger.lua, tsu.lua, on_show.lua, on_hide.lua, custom_text.lua}`.
+
+---
+
+## 12. Zero-config faction support (Insignia auto-detection) — implemented 2026-07-05
+
+**Goal:** drop-in for both Alliance and Horde with **no config**. AGM (19024) and MR (4381) are
+engineering trinkets with the **same item ID on both factions**, so they never need config. The
+Insignia is the only faction/class-specific ID — so auto-detect it at runtime instead of hardcoding.
+
+**Mechanism:** `DetectInsignia()` scans worn trinket slots (13/14) then bags 0–4 for an item whose
+name contains **"Insignia of the"** (matches "…of the Alliance"/"…of the Horde", all classes).
+`RefreshInsignia()` writes the found id into `cfg.iotaId` unless the user pinned `iotaId` as a
+Custom Option (explicit override always wins). Runs on init + every 1 s tick, so a bagged Insignia
+that isn't item-info-cached yet resolves within a tick.
+
+**Why name-scan, not an ID table:** the per-class Insignia IDs aren't all verified, and the repo
+rule is *don't invent IDs*. Name-matching needs no ID list. Trade-off: **English clients only** —
+non-English locales pin `iotaId` (the fallback default 18864 keeps the resolver nil-safe meanwhile).
+
+**Why NOT a shared `TRK_IDS` global:** the WA sandbox only falls through to real `_G` on *reads*
+(how the macro-set `TRK_PAUSED` is read). A global *written* from aura code stays in that aura's
+environment and wouldn't reach the separate bench display. So the bench icon (`benched.lua`) runs
+its **own** copy of the same name-scan instead of consuming a controller-published global. The two
+slot icons never referenced item IDs (they read live slot contents), so they were already agnostic.
+
+**Net:** English Era = true zero-config on either faction. Off-locale = one `iotaId` override.

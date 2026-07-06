@@ -44,9 +44,9 @@ the `debug` option is on). All swapping logic lives here.
 
 Each icon is a `Trigger ▸ Custom ▸ Trigger State Updater` populating `allstates[""]` with
 icon/name and a timed `duration`/`expirationTime` for the cooldown swipe + number. Drag the group
-(or individual icons) anywhere — they keep independent offsets. The bench icon carries its **own**
-`IDS = {19024, 18864, 4381}` copy (separate auras don't share `aura_env`); **edit it to match your
-character's Insignia ID** just like the controller's `iotaId`.
+(or individual icons) anywhere — they keep independent offsets. The bench icon **auto-detects** your
+Insignia by name (like the controller), so it's zero-config on either faction — no per-character
+edit. (Non-English clients: swap the `18864` fallback in `displays/benched.lua` for your Insignia id.)
 
 *Hand-fabricated icon/group regions:* the import IS the test. If any icon mis-imports, export me one
 native WA icon to clone the exact region schema from.
@@ -59,15 +59,16 @@ native WA icon to clone the exact region schema from.
 |---|---|---|---|
 | `enabled` | toggle | on | Master on/off (the "manual toggle"). |
 | `agmId` | number | 19024 | Arena Grand Master item ID. |
-| `iotaId` | number | 18864 | Insignia item ID (per character — Horde/other class differs). |
+| `iotaId` | number | auto | Insignia item ID. **Auto-detected by name** (works Alliance + Horde, zero config); set this only to pin/override on non-English clients. |
 | `mrId` | number | 4381 | Minor Recombobulator item ID. |
 | `minGap` | number | 1.0 | Seconds between equip attempts (debounce). |
 | `agmLock` | number | 20 | Keep AGM equipped this long (s) after its on-use. |
 | `equipCd` | number | 30 | Ignore cooldowns ≤ this (s) — the trinket equip lockout, not a real CD. |
 | `debug` | toggle | off | Print each swap + show a slot readout in the controller text. |
 
-Defaults are baked into `init.lua`, so it works with **zero options set**; add options only to
-override (e.g. a Horde twink's Insignia ID).
+Defaults are baked into `init.lua`, so it works with **zero options set** on either faction — the
+Insignia is auto-detected by name at runtime. Set `iotaId` only to override (e.g. a non-English
+client where the name-scan can't match).
 
 ## Toggle on/off (macro)
 
@@ -128,3 +129,9 @@ Resolver = the §3 table in `plan.md`. AGM 20 s lock + out-of-combat gate + no-o
   `CdLeft()` mistook for a real cooldown, so a just-equipped MR read as on-CD and got reverted to
   AGM one tick later. `CdLeft()` now ignores cooldowns ≤ `cfg.equipCd` (default 30s); real use CDs
   (300s/1800s) are unaffected. Rebuilt export (5090 bytes). Round-trip verified.
+- **2026-07-05** — Zero-config faction support: Insignia now **auto-detected by name**
+  ("Insignia of the …") across slots 13/14 + bags on both controller and bench icon, so it works
+  Alliance + Horde with no config (AGM/MR are faction-neutral). `iotaId` becomes an override.
+  Dropped the `TRK_IDS` shared-global idea (sandbox writes don't reach `_G`) in favor of each unit
+  self-detecting. Rebuilt export (5873 bytes) + display (3021 bytes). Round-trip verified.
+  English clients only; non-English pin `iotaId` / edit the bench fallback.

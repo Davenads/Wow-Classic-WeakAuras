@@ -4,8 +4,35 @@
 -- Events box: UNIT_INVENTORY_CHANGED PLAYER_EQUIPMENT_CHANGED BAG_UPDATE_COOLDOWN
 --             SPELL_UPDATE_COOLDOWN BAG_UPDATE PLAYER_ENTERING_WORLD
 function(allstates)
-    -- Keep in sync with the controller's item IDs (edit per character).
-    local IDS = { 19024, 18864, 4381 }  -- AGM, Insignia (Ally Pala), Minor Recombobulator
+    -- AGM (19024) + MR (4381) are faction-neutral (fixed ids). The Insignia is faction/class-
+    -- specific, so auto-detect it by name ("Insignia of the ...") => zero config on either faction.
+    -- English clients only; other locales: replace the 18864 fallback with your Insignia id.
+    local function bagSlots(bag)
+        if C_Container and C_Container.GetContainerNumSlots then return C_Container.GetContainerNumSlots(bag) end
+        return GetContainerNumSlots(bag)
+    end
+    local function bagItemID(bag, slot)
+        if C_Container and C_Container.GetContainerItemID then return C_Container.GetContainerItemID(bag, slot) end
+        return GetContainerItemID(bag, slot)
+    end
+    local function detectInsignia()
+        local function isIns(itemId)
+            if not itemId then return false end
+            local n = GetItemInfo(itemId)
+            return n ~= nil and n:find("Insignia of the", 1, true) ~= nil
+        end
+        for _, s in ipairs({ 13, 14 }) do
+            local id = GetInventoryItemID("player", s)
+            if isIns(id) then return id end
+        end
+        for bag = 0, 4 do
+            for slot = 1, (bagSlots(bag) or 0) do
+                if isIns(bagItemID(bag, slot)) then return bagItemID(bag, slot) end
+            end
+        end
+        return nil
+    end
+    local IDS = { 19024, detectInsignia() or 18864, 4381 }  -- AGM, Insignia (auto), Minor Recombobulator
 
     local function itemCd(itemId)
         if C_Container and C_Container.GetItemCooldown then return C_Container.GetItemCooldown(itemId) end
