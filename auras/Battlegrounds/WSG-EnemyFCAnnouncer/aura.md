@@ -172,3 +172,10 @@ in-category application chain (full → ½ → ¼ → immune), resetting ~18 s a
   `SPELL_AURA_APPLIED`, `SPELL_AURA_REFRESH`, `SPELL_AURA_REMOVED`); routing unchanged (the
   event still fires as `COMBAT_LOG_EVENT_UNFILTERED`). Rebuilt `export.txt` (10809 bytes).
   Round-trip verified; **pending in-game test.**
+- 2026-07-06 — DR polish: (1) fix `DR_NEXT` ladder typo — second in-category application
+  now correctly announces `next 25%` (was `75%`); (2) fold DR into the debuff line so one
+  throttle slot carries both — a CC that's also a DR category now posts a single
+  `EFC <name> <hp>% — <Spell> (<cat> DR: next <lvl>)` instead of the DR line silently
+  eating the spell name under the 3 s throttle; DR-only spells (unnamed / already-seen /
+  debuffs off) still post `EFC <name> <cat> DR: next <lvl>`. Re-embedded `init.lua`,
+  rebuilt `export.txt` (11132 bytes). Round-trip verified; **pending in-game test.**

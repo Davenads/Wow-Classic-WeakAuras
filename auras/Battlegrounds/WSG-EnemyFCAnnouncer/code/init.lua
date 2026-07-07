@@ -108,7 +108,7 @@ local DR_CAT = {
     ["blind"]="disorient", ["scatter shot"]="disorient",
 }
 -- The multiplier the NEXT application in-category will get after N applications.
-local DR_NEXT = { [1]="50%", [2]="75%", [3]="IMMUNE" }
+local DR_NEXT = { [1]="50%", [2]="25%", [3]="IMMUNE" }
 local DR_RESET = 18   -- seconds after a DR debuff fades before the category resets
 
 local function strip(name) return name and (name:gsub("%-.*$", "")) or name end
@@ -314,30 +314,41 @@ function aura_env.OnCLEU()
         if auraType ~= "DEBUFF" then return end
         local key = spellName:lower()
 
-        -- DR chain (only on fresh applications, not refreshes)
+        -- DR chain (only on fresh applications, not refreshes). Compute the DR text but
+        -- DON'T announce it separately — it is folded into the debuff line below so a
+        -- single throttle slot carries both the spell name AND its DR state.
         local cat = DR_CAT[key]
+        local drText
         if cat and aura_env.cfg.dr and sub == "SPELL_AURA_APPLIED" then
             local s = e.dr[cat]
             if not s or now > (s.resetAt or 0) then s = { apps = 0 }; e.dr[cat] = s end
             s.apps = math.min(s.apps + 1, 4)
             s.resetAt = now + DR_RESET
             local nextLevel = DR_NEXT[s.apps]
-            if nextLevel then
-                aura_env.Announce(e.name .. " " .. cat .. " DR: next " .. nextLevel)
+            if nextLevel then drText = cat .. " DR: next " .. nextLevel end
+        end
+
+        -- Is this a fresh debuff worth naming? (deduped per application via e.seen)
+        local nameDebuff = false
+        if aura_env.cfg.debuffs and not e.seen[key] then
+            local hard, snare = HARD_CC[key], SNARE[key]
+            if hard then
+                nameDebuff = true
+            elseif snare and e.hp and (e.hp * 100) <= aura_env.cfg.hpThresh then
+                nameDebuff = true
             end
         end
 
-        -- debuff call (deduped per application via e.seen)
-        if aura_env.cfg.debuffs and not e.seen[key] then
-            local hard, snare = HARD_CC[key], SNARE[key]
+        -- Emit ONE combined line. Named debuff → "name HP% — Spell (cat DR: next X)".
+        -- DR-only (spell not named / already seen / debuffs off) → "name cat DR: next X".
+        if nameDebuff then
+            e.seen[key] = true
             local pct = e.hp and (" " .. math.floor(e.hp * 100 + 0.5) .. "%") or ""
-            if hard then
-                e.seen[key] = true
-                aura_env.Announce(e.name .. pct .. " — " .. spellName)
-            elseif snare and e.hp and (e.hp * 100) <= aura_env.cfg.hpThresh then
-                e.seen[key] = true
-                aura_env.Announce(e.name .. " " .. math.floor(e.hp * 100 + 0.5) .. "% — " .. spellName)
-            end
+            local body = e.name .. pct .. " — " .. spellName
+            if drText then body = body .. " (" .. drText .. ")" end
+            aura_env.Announce(body)
+        elseif drText then
+            aura_env.Announce(e.name .. " " .. drText)
         end
     elseif sub == "SPELL_AURA_REMOVED" then
         local key = spellName:lower()
