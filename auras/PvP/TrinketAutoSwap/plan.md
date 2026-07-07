@@ -330,3 +330,48 @@ with A+M worn, both counts are equal ⇒ neither is ever re-equipped (matches th
 behavior). For 2-AGM `{A, A}` with one AGM worn, `1 < 2` ⇒ the 2nd AGM still equips. This composes
 with the §14 `okToSwap` hysteresis (both retained). No new config. 2-AGM path untested in-game (no
 2-AGM test character available); 1-AGM is the target of this fix.
+
+## 16. Diagnostic instrumentation + thrash-breaker (persisted bounce) — implemented 2026-07-06
+
+**Situation.** After both §14 (`okToSwap` hysteresis) and §15 (multiset-aware re-equip guard) shipped
+and were re-imported, the 1-AGM bounce STILL reproduced (MR ↔ AGM trading slots 13↔14 every ~1 s, MR
+pinned at "30", Insignia benched). The user confirmed it worked before the 2-AGM logic and persists
+regardless of which string is imported.
+
+**Static proof a single engine can't do this.** Trace the observed state through the *current* code:
+`Desired()` returns `{AGM, MR}` (row 7 — both dispels down, MR available). In `Apply()`, `claim(id13)`
+and `claim(id14)` both succeed against `{AGM, MR}`, so `ok13 and ok14` is true and the function returns
+at the "already correct" early-out **before** `now`, `target`, `okToSwap`, or any `EquipItemByName` is
+ever reached. The §15 `wornCount >= wantedCount` guard would independently block the re-equip even if
+execution continued. Both the pre-2-AGM code and two duplicate-identical engines converge on the same
+loadout. **Conclusion: a lone instance of this engine cannot generate the observed equip traffic** —
+something *outside* the resolver's normal path is driving the swaps.
+
+**Leading hypothesis: two engines fighting.** The most consistent explanation for "worked before 2-AGM,
+broke after, survives every reimport" is that a **second controller instance** is running — e.g. a
+standalone `export.txt` engine imported earlier still enabled *alongside* the `package.txt` group's
+engine, or an "Import as Copy" duplicate. Two engines can each satisfy their own `Desired()` yet, if
+their momentary reads differ by a tick, ping-pong the two physical trinkets between slots. Every
+debugging reimport that didn't delete the prior aura would have *added* another controller.
+
+**Instrumentation added (not a logic change — observability):**
+- **Per-engine `instanceTag`** (`math.random(1000,9999)`) + `aura_env.Dbg(msg)` logger, gated by
+  `aura_env.cfg.debug` **or** a global `TRK_DEBUG` (toggle live with `/run TRK_DEBUG = true`).
+- **Load banner** printed once per engine load: `engine loaded (tag ####)`. **Two distinct tags in
+  chat = two engines** — the smoking gun. Delete extras, keep one.
+- **"acting:" decision log** on every tick that intends to change the loadout (settled ticks stay
+  silent), showing `want` vs the two worn slot ids — reveals *what* each engine is trying to do.
+
+**Thrash-breaker (behavioral safety net):** in the equip loop, track the last equipped id + time. If
+the **same id** is equipped **≥3× within 3 s**, log `THRASH DETECTED …`, set `backoffUntil = now + 10`,
+and return without equipping. This converts an invisible perpetual 1-s equip loop into a single
+diagnostic line and a held loadout. A healthy one-shot swap never trips it (it reaches `want` and the
+early-out returns thereafter). Also added a `backoffUntil` guard near the top of the act path so the
+10-s hold is honored across both the ticker and the event fan-out.
+
+**Test protocol.** Import the new string (delete the old aura first — do NOT "Import as Copy"),
+`/run TRK_DEBUG = true`, reproduce. Then: (a) count distinct `[TRK ####]` tags at load — **>1 confirms
+duplicate engines**; (b) if one tag, read the `acting:`/`EQUIP`/`THRASH DETECTED` lines to see the real
+decision the single engine is making (which would mean the state read, not the resolver, differs from
+the static trace — e.g. `CdLeft` masking the equip lockout makes MR read falsely-ready, a separate
+latent issue). Manually search `/wa` for the engine name and delete any duplicates.

@@ -24,6 +24,18 @@ aura_env.cfg.swapBackAt = aura_env.cfg.equipCd + aura_env.cfg.swapBuffer
 -- true => user pinned iotaId in Custom Options; skip auto-detect and honor their value.
 aura_env.iotaLocked = iotaOverride ~= nil
 
+-- Per-instance tag + debug switch. Toggle logging at runtime with:  /run TRK_DEBUG = true
+-- The load banner (printed at the bottom of this file) needs a /reload to re-fire; per-tick logs
+-- are live. If TWO load banners with DIFFERENT tags appear, you have TWO engines running (a
+-- leftover/duplicate import) — that alone causes perpetual slot-fighting no single-engine fix can
+-- stop; delete the extras and keep one.
+aura_env.instanceTag = tostring(math.random(1000, 9999))
+function aura_env.Dbg(msg)
+    if aura_env.cfg.debug or TRK_DEBUG then
+        print("|cff66ccff[TRK " .. aura_env.instanceTag .. "]|r " .. msg)
+    end
+end
+
 -- Flavor-aware item-cooldown getter (global on Era; C_Container/C_Item on Cata/MoP).
 local function itemCooldown(itemId)
     if C_Container and C_Container.GetItemCooldown then
@@ -209,8 +221,13 @@ function aura_env.Apply()
     local ok14 = claim(id14)
     if ok13 and ok14 then aura_env.pending = false; return end  -- already correct
 
+    -- Only logs on ticks where it INTENDS to change the loadout (settled ticks stay silent).
+    aura_env.Dbg("acting: want=" .. tostring(want[1]) .. "/" .. tostring(want[2])
+        .. " slots=" .. tostring(id13) .. "/" .. tostring(id14))
+
     local now = GetTime()
     if aura_env.lastEquip and (now - aura_env.lastEquip) < c.minGap then return end
+    if aura_env.backoffUntil and now < aura_env.backoffUntil then return end
 
     -- Equip one unmet want entry per call (events reconverge). Overwrite a slot whose item
     -- isn't needed, else an empty slot.
@@ -262,9 +279,35 @@ function aura_env.Apply()
             -- 2nd AGM this is guaranteed (AgmCount>=2 means the unequipped copy sits in bags).
             if wornCount(id) < wantedCount(id)
                and (GetItemCount(id) or 0) > 0 and okToSwap(id, target) then
+                -- THRASH-BREAKER: if we keep equipping the SAME id over and over in a short
+                -- window, the loadout is being fought (a second engine, or a state that flips
+                -- back the instant we finish). Rather than spin an invisible 1s equip loop
+                -- forever, detect the repeat, log it once, and back off for 10s so the churn
+                -- stops and the diagnosis (below) is visible. A single healthy swap never trips
+                -- this (it reaches want and the early-out returns on the next tick).
+                if aura_env.lastEquipId == id and aura_env.lastEquipT
+                   and (now - aura_env.lastEquipT) < 3 then
+                    aura_env.repeatCount = (aura_env.repeatCount or 1) + 1
+                else
+                    aura_env.repeatCount = 1
+                end
+                aura_env.lastEquipId = id
+                aura_env.lastEquipT  = now
+
+                if aura_env.repeatCount >= 3 then
+                    aura_env.Dbg("THRASH DETECTED re-equipping " .. tostring(id)
+                        .. " -> slot " .. tostring(target)
+                        .. " (" .. aura_env.repeatCount .. "x in <3s) — backing off 10s."
+                        .. " If you also see a SECOND [TRK ####] tag, you have a duplicate engine.")
+                    aura_env.backoffUntil = now + 10
+                    aura_env.repeatCount  = 0
+                    return
+                end
+
                 EquipItemByName(id, target)
                 aura_env.lastEquip = now
-                if c.debug then print("|cff66ccff[TRK]|r equip " .. id .. " -> slot " .. target) end
+                aura_env.Dbg("EQUIP " .. tostring(id) .. " -> slot " .. tostring(target)
+                    .. " (want " .. tostring(want[1]) .. "/" .. tostring(want[2]) .. ")")
                 return
             end
         end
@@ -274,3 +317,8 @@ end
 
 -- Seed the Insignia id from current bags/equipment on load (re-checked each tick in on_show).
 aura_env.RefreshInsignia()
+
+-- Load banner. Fires once per engine load (import / reload / login). With TRK_DEBUG on, count the
+-- distinct tags: exactly ONE means a single healthy engine; TWO OR MORE means duplicate controllers
+-- are running and fighting over the trinket slots — delete the extras (keep one) to end the thrash.
+aura_env.Dbg("engine loaded (tag " .. aura_env.instanceTag .. ")")

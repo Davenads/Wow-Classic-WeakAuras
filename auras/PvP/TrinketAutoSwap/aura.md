@@ -211,3 +211,14 @@ the 2nd AGM for +2% total dodge. Single-AGM characters are unaffected.
   1-AGM never re-equips a worn MR/Insignia; 2-AGM still equips a 2nd AGM (1 worn < 2 wanted). Kept the
   §14 `okToSwap` hysteresis. Rebuilt `export.txt` (8240) + `package.txt` (10162).
   Round-trip verified. Untested in-game.
+- **2026-07-06** — Diagnostic instrumentation + thrash-breaker (`plan.md` §16): the 1-AGM bounce
+  persisted after both prior fixes, and a full static trace proved a **single** current-engine
+  instance cannot produce it (the multiset early-out returns before any equip). Hypothesis: two
+  engine instances (a leftover standalone import + the package group) are fighting over the slots.
+  Added (1) a per-engine `instanceTag` + `aura_env.Dbg()` logger gated by `aura_env.cfg.debug` **or**
+  a global `TRK_DEBUG` (set with `/run TRK_DEBUG = true`), (2) a load banner printing the tag once per
+  engine load — **two distinct `[TRK ####]` tags = duplicate engines**, (3) an "acting:" decision log
+  on every tick that intends to change the loadout, and (4) a hard thrash-breaker: if the same item is
+  re-equipped ≥3× within 3 s, it logs `THRASH DETECTED`, backs off 10 s, and holds the loadout instead
+  of spinning the invisible 1-s equip loop. Turns a silent slot-fight into one diagnostic line.
+  Rebuilt `export.txt` (9549) + `package.txt` (11476). Round-trip verified. Untested in-game.
