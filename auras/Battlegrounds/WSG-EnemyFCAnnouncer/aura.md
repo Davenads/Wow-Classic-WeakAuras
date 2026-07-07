@@ -165,3 +165,10 @@ in-category application chain (full → ½ → ¼ → immune), resetting ~18 s a
   `%c`. Added config keys `announceChat/HP/Debuffs/DR`, `shareAddon`, `channel` (BG/RAID/SELF),
   `useWidget`. Trigger gains `CHAT_MSG_ADDON`. Rebuilt `export.txt` (10768 bytes). Round-trip
   verified; **pending in-game test.**
+- 2026-07-06 — Fix WeakAuras "unfiltered COMBAT_LOG_EVENT_UNFILTERED is deprecated" warning
+  (modern WA *disables* the bare event, which would have silenced all death/debuff/DR
+  callouts). Events box now registers the four subevents `OnCLEU` actually consumes with
+  the `COMBAT_LOG_EVENT_UNFILTERED:<SUBEVENT>` filter syntax (`UNIT_DIED`,
+  `SPELL_AURA_APPLIED`, `SPELL_AURA_REFRESH`, `SPELL_AURA_REMOVED`); routing unchanged (the
+  event still fires as `COMBAT_LOG_EVENT_UNFILTERED`). Rebuilt `export.txt` (10809 bytes).
+  Round-trip verified; **pending in-game test.**
