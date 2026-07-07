@@ -131,6 +131,7 @@ function aura_env.SetEFC(name)
     e.name, e.guid, e.unit = name, nil, nil
     e.hp, e.hpTS, e.recvHP, e.recvTS = nil, 0, nil, 0
     e.lastPeriodic = 0
+    e.lastSent = 0                     -- don't inherit the previous carrier's throttle window
     wipe(e.seen); wipe(e.tier); wipe(e.dr)
 end
 
@@ -242,28 +243,42 @@ end
 -- ── periodic HP tick (on_show's 1s ticker + UNIT_HEALTH) ──────────────────────
 function aura_env.Tick()
     local e, cfg = aura_env.efc, aura_env.cfg
-    if not e.name then return end
-    local frac = aura_env.ReadEnemyHP()          -- our DIRECT read (nil if nobody sees FC)
-    if frac then
-        e.hp, e.hpTS = frac, GetTime()
-        aura_env.BroadcastHP(frac)
+    if e.name then
+        -- Direct read: if WE can see the EFC, store it and share it on the bus so peers
+        -- (and users of the original messager) get the value for their display.
+        local frac = aura_env.ReadEnemyHP()
+        if frac then
+            e.hp, e.hpTS = frac, GetTime()
+            aura_env.BroadcastHP(frac)
+        end
+        -- Announce off the BEST-KNOWN hp (our direct read OR an addon-received one), so
+        -- callouts fire even when we're not the witness — the display already works this
+        -- way. Anti-spam is the 3 s global throttle in Announce() plus the per-tier /
+        -- periodic dedupe below; with several aura users a milestone may double up, which
+        -- is the accepted trade for reliable callouts.
         if cfg.hp then
-            local pct = frac * 100
-            for _, t in ipairs(aura_env.TIERS) do
-                if pct <= t then
-                    if not e.tier[t] then e.tier[t] = true
-                        aura_env.Announce(e.name .. " " .. math.floor(pct + 0.5) .. "%") end
-                elseif pct > t + REARM then
-                    e.tier[t] = nil
+            local hp = aura_env.DisplayHP()
+            if hp then
+                local pct = hp * 100
+                for _, t in ipairs(aura_env.TIERS) do
+                    if pct <= t then
+                        if not e.tier[t] then
+                            e.tier[t] = true
+                            aura_env.Announce(e.name .. " " .. math.floor(pct + 0.5) .. "%")
+                        end
+                    elseif pct > t + REARM then
+                        e.tier[t] = nil
+                    end
                 end
-            end
-            if pct <= cfg.hpThresh and (GetTime() - e.lastPeriodic) >= cfg.periodic then
-                e.lastPeriodic = GetTime()
-                aura_env.Announce(e.name .. " " .. math.floor(pct + 0.5) .. "%")
+                if pct <= cfg.hpThresh and (GetTime() - e.lastPeriodic) >= cfg.periodic then
+                    e.lastPeriodic = GetTime()
+                    aura_env.Announce(e.name .. " " .. math.floor(pct + 0.5) .. "%")
+                end
             end
         end
     end
-    aura_env.UpdateWidget()
+    aura_env.UpdateWidget()          -- ALWAYS refresh the widget, incl. clearing it when
+                                     -- the flag drops (e.name == nil) so no stale carrier lingers
 end
 
 -- ── system-message parser (identity of the enemy flag carrier) ────────────────

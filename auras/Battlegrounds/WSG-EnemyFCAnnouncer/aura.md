@@ -185,3 +185,16 @@ in-category application chain (full → ½ → ¼ → immune), resetting ~18 s a
   widget is the sole display where it exists and the `%c` region stays the fallback on Era.
   (`ReadoutText` itself is untouched — the widget still uses it.) Re-embedded `custom_text.lua`,
   rebuilt `export.txt` (11260 bytes). Round-trip verified; **pending in-game test.**
+- 2026-07-06 — Fix HP callouts never firing + stale widget on flag handoff. (A) `Tick()` used
+  to `return` early when no carrier was set, so `UpdateWidget()` never ran on a flag drop and
+  the widget kept showing the old carrier until a new one was picked up (read as "both names"
+  during a handoff); `UpdateWidget()` now always runs, clearing the widget when `e.name` is nil.
+  `SetEFC` also resets `lastSent` so a new carrier isn't throttled by the previous one. (B) HP
+  milestone/periodic announcements were gated on a LOCAL DIRECT read (`ReadEnemyHP`), but the
+  HP that populates the display is usually RECEIVED over the addon bus (from teammates / the
+  original messager) — so the announce branch almost never ran and callouts appeared broken.
+  Announcements now fire off `DisplayHP()` (best-known = direct OR received), like the display;
+  anti-spam is the 3 s throttle + per-tier/periodic dedupe (with several aura users a milestone
+  can double up — accepted trade for reliable callouts; raise `minGap` or disable HP periodic
+  to quiet it). Re-embedded `init.lua`, rebuilt `export.txt` (11674 bytes). Round-trip verified;
+  **pending in-game test.**
