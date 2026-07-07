@@ -179,3 +179,9 @@ in-category application chain (full → ½ → ¼ → immune), resetting ~18 s a
   eating the spell name under the 3 s throttle; DR-only spells (unnamed / already-seen /
   debuffs off) still post `EFC <name> <cat> DR: next <lvl>`. Re-embedded `init.lua`,
   rebuilt `export.txt` (11132 bytes). Round-trip verified; **pending in-game test.**
+- 2026-07-06 — Fix duplicate EFC readout on flavors with the widget hook: the `%c` region
+  and the widget were both rendering `ReadoutText()`, showing the carrier twice next to the
+  flag counters. `custom_text.lua` now returns `""` when `aura_env.widgetText` is set, so the
+  widget is the sole display where it exists and the `%c` region stays the fallback on Era.
+  (`ReadoutText` itself is untouched — the widget still uses it.) Re-embedded `custom_text.lua`,
+  rebuilt `export.txt` (11260 bytes). Round-trip verified; **pending in-game test.**
