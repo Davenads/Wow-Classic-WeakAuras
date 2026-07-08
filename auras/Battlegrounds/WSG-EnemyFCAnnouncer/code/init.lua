@@ -14,10 +14,12 @@
 --   * Shared read: broadcast our direct read over addon prefix "WSGFCNamesHP" (the
 --     SAME prefix + "name@hp" format the original uses) so we interoperate with the
 --     large existing userbase, and receive theirs for the on-screen readout.
---   * ANTI-SPAM RULE: chat /bg announces (HP milestones, periodic, debuffs, DR) fire
---     ONLY from the client that DIRECTLY witnessed them. Received addon HP updates the
---     display only — it is never re-announced. So a raid full of this aura does not
---     multiply /bg spam; chat itself is the human-readable bus for debuff/DR calls.
+--   * ANNOUNCE MODEL: HP milestones + periodic reminders fire off the BEST-KNOWN HP
+--     (our direct read OR an addon-received one), so callouts land even when we aren't
+--     the witness. Anti-spam is a 3 s global throttle (Announce) plus per-tier + periodic
+--     dedupe; with several aura users a milestone can double up — the accepted trade for
+--     reliable callouts. Debuff / DR / death calls still require locally witnessing the
+--     combat-log event, so those are naturally single-sourced.
 
 local c = aura_env.config or {}
 aura_env.cfg = {
@@ -47,10 +49,12 @@ if C_ChatInfo and C_ChatInfo.RegisterAddonMessagePrefix then
 end
 aura_env.ADDON_PREFIX = ADDON_PREFIX
 
--- Chat channel: BG chat was renamed INSTANCE_CHAT in patch 4.0 (Cata/MoP Classic).
-local pid = WOW_PROJECT_ID
-aura_env.bgChannel = (pid == WOW_PROJECT_CATACLYSM_CLASSIC or pid == WOW_PROJECT_MISTS_CLASSIC)
-    and "INSTANCE_CHAT" or "BATTLEGROUND"
+-- Chat channel for /bg AND the addon bus. "BATTLEGROUND" was replaced by "INSTANCE_CHAT"
+-- in patch 4.0; every currently-live Blizzard client (Era/SoD/HC 1.15, Cata, MoP) runs on
+-- the modern engine that uses "INSTANCE_CHAT" — the old "BATTLEGROUND" type only existed on
+-- pre-4.0 clients that no longer exist. This must match the channel the wago messager uses,
+-- or the shared-HP interop (and our /bg sends) silently fail. VERIFY against the wago source.
+aura_env.bgChannel = "INSTANCE_CHAT"
 
 -- Effective faction (mercenary-mode aware): a merc fights for the OTHER side, so the
 -- enemy FC is the carrier of your EFFECTIVE faction's flag. 81748/81744 are the merc
@@ -119,12 +123,18 @@ local function newState()
     return { name=nil, guid=nil, unit=nil,
              hp=nil, hpTS=0,                 -- our own direct read (fraction) + timestamp
              recvHP=nil, recvTS=0,           -- addon-received read (fraction) + timestamp
-             lastSent=0, lastPeriodic=0, lastCast=0,
+             lastSent=0, lastPeriodic=0,
              seen={}, tier={}, dr={} }
 end
 aura_env.efc = aura_env.efc or newState()
 
-function aura_env.Reset() aura_env.efc = newState() end
+function aura_env.Reset()
+    aura_env.efc = newState()
+    -- Re-detect on every world entry: mercenary status (and thus effective faction) can
+    -- change between matches, and the widget handle from a prior zone is stale.
+    aura_env.myFaction = detectFaction()
+    aura_env.widgetText = nil
+end
 
 function aura_env.SetEFC(name)
     local e = aura_env.efc
@@ -158,13 +168,6 @@ function aura_env.Announce(body)
 end
 
 -- ── HP acquisition (own token OR raidNtarget crowdsource) ─────────────────────
-local function nameOf(unit)
-    if not UnitExists(unit) then return nil end
-    local n, realm = UnitName(unit)
-    if realm and realm ~= "" then return n .. "-" .. realm end
-    return n
-end
-
 local function tokenMatches(u)
     local e = aura_env.efc
     if not u or not UnitExists(u) then return false end
@@ -318,6 +321,7 @@ function aura_env.OnCLEU()
     end
 
     if sub == "UNIT_DIED" then
+        e.lastSent = 0                                         -- death is high-value: bypass throttle
         aura_env.Announce(e.name .. " is DOWN")
         aura_env.ClearEFC()                                    -- flag drops on death anyway
         return
@@ -343,13 +347,18 @@ function aura_env.OnCLEU()
             if nextLevel then drText = cat .. " DR: next " .. nextLevel end
         end
 
+        -- Best-known HP for the snare gate + the printed %: prefer our fresh read, else a
+        -- fresh received value, so a snare call isn't lost just because we're not the one
+        -- targeting the carrier.
+        local hp = aura_env.DisplayHP()
+
         -- Is this a fresh debuff worth naming? (deduped per application via e.seen)
         local nameDebuff = false
         if aura_env.cfg.debuffs and not e.seen[key] then
             local hard, snare = HARD_CC[key], SNARE[key]
             if hard then
                 nameDebuff = true
-            elseif snare and e.hp and (e.hp * 100) <= aura_env.cfg.hpThresh then
+            elseif snare and hp and (hp * 100) <= aura_env.cfg.hpThresh then
                 nameDebuff = true
             end
         end
@@ -358,7 +367,7 @@ function aura_env.OnCLEU()
         -- DR-only (spell not named / already seen / debuffs off) → "name cat DR: next X".
         if nameDebuff then
             e.seen[key] = true
-            local pct = e.hp and (" " .. math.floor(e.hp * 100 + 0.5) .. "%") or ""
+            local pct = hp and (" " .. math.floor(hp * 100 + 0.5) .. "%") or ""
             local body = e.name .. pct .. " — " .. spellName
             if drText then body = body .. " (" .. drText .. ")" end
             aura_env.Announce(body)

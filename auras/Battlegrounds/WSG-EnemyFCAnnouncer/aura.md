@@ -15,7 +15,7 @@ Names*): it reuses that aura's proven **crowdsourced HP** model — HP read from
 |---|---|
 | **Display name** | `WSG Enemy FC Announcer` |
 | **Category / folder** | `Battlegrounds` |
-| **Target flavor(s)** | Classic Era / SoD / Hardcore (Cata/MoP Classic supported — chat channel auto-branches) |
+| **Target flavor(s)** | Classic Era / SoD / Hardcore + Cata/MoP Classic (all use `INSTANCE_CHAT`) |
 | **Min WeakAuras version** | 5.x |
 | **wago URL** | n/a |
 | **Region type** | `text` (single status region; the /bg messages are the real output) |
@@ -42,10 +42,11 @@ in-game.** Confirm the items under *Verify first* live before trusting it.
    `nameplateShowEnemies 1`) **or `raidNtarget`** = the HP of whatever any teammate is
    targeting. Your direct read is broadcast over addon prefix `WSGFCNamesHP` so peers (incl.
    users of the original messager) can display it. Hard floor that remains: if *nobody* in
-   the raid can see the carrier, there's no HP to share. **`SendChatMessage` announces and
-   debuff/DR calls fire only from the client that directly witnessed them** — received addon
-   HP updates the on-screen readout only, never re-announces (so a raid full of this aura
-   does not multiply `/bg` spam).
+   the raid can see the carrier, there's no HP to share. **HP milestone/periodic announces fire
+   off best-known HP (direct OR received),** so callouts land even when you aren't the witness;
+   anti-spam is the 3 s throttle + per-tier/periodic dedupe (with several aura users a milestone
+   can double up). **Debuff / DR / death calls still require locally witnessing the combat-log
+   event,** so those stay single-sourced.
 3. **Flavor note (widget display).** The optional top-center **flag-widget readout + click**
    needs the modern UI-widget flag frame (`UIWidgetTopCenterContainerFrame`), present on
    **Cata/MoP Classic** (and retail) but **not Classic Era** (old WorldState frames). Absent
@@ -87,7 +88,7 @@ so edit the `init.lua` constants for now):
 | `announceDebuffs` | on | Hard-CC (always) + snare (while low) calls. |
 | `announceDR` | on | Diminishing-returns calls. |
 | `shareAddon` | on | Send/receive HP over the `WSGFCNamesHP` addon bus. |
-| `channel` | `"BG"` | `"BG"` (INSTANCE_CHAT/BATTLEGROUND) · `"RAID"` (/ra) · `"SELF"` (local print, safe testing). |
+| `channel` | `"BG"` | `"BG"` (INSTANCE_CHAT) · `"RAID"` (/ra) · `"SELF"` (local print, safe testing). |
 | `messagePrefix` | `"EFC"` | Prefix prepended to every line. |
 | `minGap` | 3 | Global throttle (s) between any two chat sends. |
 | `periodicInterval` | 5 | Low-HP reminder cadence (s). |
@@ -110,9 +111,9 @@ Also editable: the `TIERS` milestone list and the `HARD_CC` / `SNARE` / `DR_CAT`
 Single `text` status region. All output is a **side effect** of the trigger; the region
 just shows a local readout.
 
-- `code/init.lua` → **Actions → On Init**: builds `aura_env.efc` state, reads config, picks
-  the chat channel by flavor (`BATTLEGROUND` on Era, `INSTANCE_CHAT` on Cata/MoP), detects
-  your **effective** faction (mercenary-aware, `81748`/`81744`), registers the `WSGFCNamesHP`
+- `code/init.lua` → **Actions → On Init**: builds `aura_env.efc` state, reads config, sets the
+  chat/addon channel to `INSTANCE_CHAT` (all live clients), detects your **effective** faction
+  (mercenary-aware, `81748`/`81744`), registers the `WSGFCNamesHP`
   addon prefix, defines the watchlists (`HARD_CC` / `SNARE` / `DR_CAT`) and all helpers
   (`Announce`, `ReadEnemyHP`, `BroadcastHP`, `OnAddon`, `DisplayHP`, `Tick`, `OnSystem`,
   `OnCLEU`, `ReadoutText`, `InitWidget`/`UpdateWidget`, `SetEFC`, …).
@@ -142,10 +143,11 @@ in-category application chain (full → ½ → ¼ → immune), resetting ~18 s a
   full HP → a hard-CC post; kill them → `is DOWN`; spam events → nothing faster than 3 s.
 - **Locale:** system-message and spell-name matching is **enUS** — edit patterns/watchlists
   for other clients.
-- **Etiquette / spam:** chat announces fire only from the client that *directly* witnessed
-  the HP/debuff/DR (received addon HP is display-only), so a raid full of this aura naturally
-  limits `/bg` output to whoever can see the carrier. The `announceChat` switch + 3 s throttle
-  are your extra guards. **DR calls:** verify `DR_CAT` categories on your flavor.
+- **Etiquette / spam:** HP announces fire off best-known HP (direct OR received), so with
+  several aura users a milestone can double up; debuff/DR/death calls fire only from the client
+  that *directly* witnessed the combat-log event. The `announceChat` switch + 3 s throttle are
+  your guards (raise `minGap` or disable HP periodic to quiet it). **DR calls:** verify `DR_CAT`
+  categories on your flavor.
 
 ## Changelog
 
@@ -198,3 +200,17 @@ in-category application chain (full → ½ → ¼ → immune), resetting ~18 s a
   can double up — accepted trade for reliable callouts; raise `minGap` or disable HP periodic
   to quiet it). Re-embedded `init.lua`, rebuilt `export.txt` (11674 bytes). Round-trip verified;
   **pending in-game test.**
+- 2026-07-08 — Review fixes (safe/unambiguous). (C1) Chat + addon channel is now
+  `INSTANCE_CHAT` unconditionally: `"BATTLEGROUND"` was removed in patch 4.0 and no
+  currently-live client (Era/SoD/HC 1.15, Cata, MoP) uses it, so the old flavor branch could
+  only pick a dead channel. (M1) `Reset()` (fires on `PLAYER_ENTERING_WORLD`) now re-detects
+  effective faction and clears the stale `widgetText`, so a mercenary-status change between
+  matches and a prior zone's widget handle can't carry over. (M2) EFC death now zeroes
+  `lastSent` before announcing so `is DOWN` bypasses the 3 s throttle (a death shouldn't be
+  dropped because a milestone just fired). (M4) the snare HP gate and the debuff line's printed
+  `%` now use `DisplayHP()` (best-known = direct OR received) instead of the raw local read, so
+  a snare call isn't lost when we're not the one targeting the carrier. (M5) rewrote the stale
+  "ANTI-SPAM RULE" header comment to match current behavior (HP fires off best-known HP;
+  debuff/DR/death still require locally witnessing CLEU). Minor: removed dead `nameOf` helper
+  and the unused `lastCast` state field. Re-embedded `init.lua`, rebuilt `export.txt`
+  (11948 bytes). Round-trip verified; **pending in-game test.**
