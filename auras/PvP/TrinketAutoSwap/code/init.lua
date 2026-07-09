@@ -12,7 +12,7 @@ aura_env.cfg = {
     mrId    = tonumber(cfg.mrId)    or 4381,  -- Minor Recombobulator  https://www.wowhead.com/classic/item=4381
     minGap  = tonumber(cfg.minGap)  or 1.0,   -- seconds between equip attempts (debounce)
     agmLock = tonumber(cfg.agmLock) or 20,    -- keep AGM equipped this long (s) after its on-use
-    equipCd = tonumber(cfg.equipCd) or 30,    -- ignore cooldowns <= this (the trinket equip lockout)
+    equipCd = tonumber(cfg.equipCd) or 30,    -- equip-lockout window: ignore CDs <= this AND pre-swap AGM in when its cd drops <= this
     debug   = cfg.debug == true,
 }
 -- true => user pinned iotaId in Custom Options; skip auto-detect and honor their value.
@@ -43,6 +43,15 @@ end
 
 function aura_env.IsReady(itemId)
     return aura_env.CdLeft(itemId) <= 0
+end
+
+-- Will be usable within one equip-lockout's time: 0 < remaining cd <= equipCd. Equipping
+-- an item always costs a ~30s lockout, so swapping in now overlaps that lockout with the
+-- tail of the item's own cooldown (net-free — the 30s is spent either way). CdLeft already
+-- zeroes durations <= equipCd, so this only ever sees the real use cooldown, not a lockout.
+function aura_env.ReadySoon(itemId)
+    local left = aura_env.CdLeft(itemId)
+    return left > 0 and left <= aura_env.cfg.equipCd
 end
 
 function aura_env.Owned(itemId)
@@ -128,8 +137,13 @@ function aura_env.Desired()
     if Ir and Ar then
         pick[I] = true; pick[A] = true                     -- rows 1,2
     elseif Ir then                                         -- IoTA up, AGM down
-        if mAvail then pick[I] = true; pick[M] = true      -- row 3
-        else           pick[I] = true; pick[A] = true end  -- row 4 (MR unavailable -> keep AGM)
+        if aura_env.ReadySoon(A) then
+            pick[I] = true; pick[A] = true                 -- row 3a: AGM back within a lockout -> pre-equip it (overlap the 30s lockout with its cd tail) instead of the MR filler
+        elseif mAvail then
+            pick[I] = true; pick[M] = true                 -- row 3: AGM still far out -> filler MR
+        else
+            pick[I] = true; pick[A] = true                 -- row 4 (MR unavailable -> keep AGM)
+        end
     elseif Ar then                                         -- AGM up, IoTA down
         if mAvail then pick[A] = true; pick[M] = true      -- row 5
         else           pick[A] = true; pick[I] = true end  -- row 6

@@ -45,7 +45,8 @@ Full state table (readiness → desired loadout):
 |---|---|---|---|---|---|
 | 1 | ✓ | ✓ | ✓ | **IoTA + AGM** | R1 (both best up) |
 | 2 | ✓ | ✓ | ✗ | **IoTA + AGM** | R1 |
-| 3 | ✓ | ✗ | ✓ | **IoTA + MR** | R2 (AGM down → MR; keep a 2nd dispel) |
+| 3 | ✓ | ✗ (cd > 30 s) | ✓ | **IoTA + MR** | R2 (AGM far out → MR filler; keep a 2nd dispel) |
+| 3a | ✓ | ✗ (cd ≤ 30 s) | ✓ | **IoTA + AGM** | pre-equip AGM: its cd is back within one equip lockout (`ReadySoon`), so equip now and let the ~30 s lockout overlap the cd tail — AGM usable right at cd-end instead of cd + 30 s |
 | 4 | ✓ | ✗ | ✗ | **IoTA + AGM** | *inferred* (MR unavailable → keep AGM passive) |
 | 5 | ✗ | ✓ | ✓ | **AGM + MR** | R2 (IoTA down → MR) |
 | 6 | ✗ | ✓ | ✗ | **AGM + IoTA** | *inferred* (AGM kept + soonest-returning) |
@@ -59,6 +60,10 @@ Full state table (readiness → desired loadout):
 2. **In-combat freeze** — never swap in combat (see §4). Compute the desired set, mark it
    *pending*, apply on leaving combat.
 3. **No-op guard** — if the desired set already occupies {13,14} (any order), do nothing.
+4. **AGM pre-equip (row 3a)** — the only row that ever benches AGM. `ReadySoon(A)` (0 < cd ≤ `equipCd`,
+   ~30 s) pulls AGM back in over the MR filler so the equip lockout overlaps the cd tail. Stable: once
+   `IoTA + AGM` is worn, every re-eval re-picks it (via `ReadySoon` on the tail, then `IsReady` once the
+   lockout is ignored), so `Apply()`'s no-op guard prevents any swap-back.
 
 Rows **4 and 6 are inferred** (user didn't specify) — flagged for confirmation.
 

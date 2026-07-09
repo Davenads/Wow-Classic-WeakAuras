@@ -72,7 +72,7 @@ it) — pick whichever layout you prefer; you don't need both.
 | `mrId` | number | 4381 | Minor Recombobulator item ID. |
 | `minGap` | number | 1.0 | Seconds between equip attempts (debounce). |
 | `agmLock` | number | 20 | Keep AGM equipped this long (s) after its on-use. |
-| `equipCd` | number | 30 | Ignore cooldowns ≤ this (s) — the trinket equip lockout, not a real CD. |
+| `equipCd` | number | 30 | Equip-lockout window (s): ignore CDs ≤ this (not a real CD) **and** pre-swap AGM back in once its cd drops ≤ this, so the lockout overlaps its cd tail. |
 | `debug` | toggle | off | Print each swap + show a slot readout in the controller text. |
 
 > **2-AGM dodge-stacking is shelved.** The `swapBuffer` / `swapMargin` / `stackAgm` options and
@@ -113,7 +113,10 @@ For a persistent off, disable the aura in `/wa` (right-click ▸ Disable).
 Resolver = the §3 table in `plan.md`. AGM 20 s lock + out-of-combat gate + no-op guard + debounce.
 `Desired()` returns a set `{[id]=true}`; `Apply()` only equips ids not already worn (an already-worn
 trinket is structurally never re-equipped), which is what keeps the single-AGM loadout stable.
-(2-AGM dodge-stacking is shelved — see the note under *Custom Options* and `archive/`.)
+**Row 3a (pre-equip):** when IoTA is up and AGM is benched, `ReadySoon(A)` swaps AGM back in as soon
+as its remaining cd is ≤ `equipCd` (~30 s) instead of waiting for 0 s — the equip lockout runs during
+the cd tail, so AGM is usable right at cd-end rather than 30 s later. (2-AGM dodge-stacking is
+shelved — see the note under *Custom Options* and `archive/`.)
 
 ---
 
@@ -233,3 +236,12 @@ trinket is structurally never re-equipped), which is what keeps the single-AGM l
   surgical revival gated behind `AgmCount() >= 2`. Re-embedded into `aura.json` **and** the
   `package.json` engine child; rebuilt `export.txt` (6112) + `package.txt` (8022). Round-trip
   verified. Untested in-game.
+- **2026-07-08** — AGM pre-equip (row 3a): with IoTA up and AGM benched on cd, the resolver kept the
+  MR filler until AGM hit 0 s, then equipping AGM started a fresh ~30 s lockout — so AGM wasn't usable
+  until cd + 30 s. Added `ReadySoon(itemId)` (0 < remaining cd ≤ `equipCd`) and a new Row 3a: when AGM
+  is back within one lockout, pre-equip it (`I + A`) over the MR filler so the 30 s lockout overlaps
+  the cd tail and AGM is usable right at cd-end. Localized to the only row that ever benches AGM;
+  stable (once `I + A` is worn, `Desired()` re-picks it every tick so no swap-back). Trade-off: MR's
+  on-use is unavailable during that ~30 s window. `init.lua` only. Re-embedded into `aura.json` +
+  `package.json` engine child; rebuilt `export.txt` (6477) + `package.txt` (8394). Round-trip verified.
+  Untested in-game.
