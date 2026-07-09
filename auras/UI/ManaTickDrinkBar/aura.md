@@ -11,16 +11,24 @@ A thin **spark line** that sweeps left → right across the player frame's mana 
 | **Target flavor(s)** | Classic Era / SoD / Hardcore (mana ticks every 2.0 s). enUS buff names. |
 | **Region type** | `aurabar` (Progress Bar) — overlays the Blizzard mana bar, spark = the line |
 | **Min WeakAuras** | 5.x |
-| **Import string** | `export.txt` — **not yet generated** (see *Building the region* below) |
+| **Import string** | `export.txt` — **fabricated** (see *Status* below). Round-trip verified, untested in-game. |
 
 ## Status
 
-Code blocks (`code/init.lua`, `code/tsu.lua`) are authored and ready to paste. The **region itself
-is not fabricated** — a Progress Bar with a spark + frame anchor has no known-good schema in this
-repo to clone, and a hand-built bar string is the exact kind of thing that has mis-imported before
-(`unknown or incompatible element type`). So build the bar in-game from the recipe below and export
-it, or hand me a native Progress Bar export to clone — then `export.txt` becomes the source of truth.
-**Nothing here is tested in-game.**
+Code blocks (`code/init.lua`, `code/tsu.lua`) are authored and embedded. `export.txt` **is now
+fabricated**: rather than hand-build a bar schema from scratch (the exact thing that has mis-imported
+before — `unknown or incompatible element type`), it was cloned from a **known-good imported aura's
+envelope** and the region transformed to `aurabar`, keeping every shared substructure WA already
+accepted (`internalVersion 33`, `tocversion`, trigger meta, animation, load shape). `subRegions` is
+left empty so WA's own import validator fills in the bar's default foreground/background — the same
+way the repo's real icon/text auras import. The TSU is embedded at `triggers[1].trigger.custom`
+(`custom_type: stateupdate`, events `UNIT_POWER_UPDATE UNIT_AURA PLAYER_ENTERING_WORLD`) and
+`init.lua` at `actions.init.custom`. Decode round-trip is lossless.
+
+**Still untested in-game** — import is the real test. If WA rejects it, the fallback is unchanged:
+build the bar in-game from the recipe below (or hand me a native Progress Bar export to clone) and
+re-export. Likely in-game touch-ups: spark color/width, exact width/height match to your mana bar,
+frame strata, and the **Inverse** toggle if the spark sweeps the wrong way.
 
 ## The mechanic (why the line = the tick)
 
@@ -89,3 +97,8 @@ it, or hand me a native Progress Bar export to clone — then `export.txt` becom
   (re-anchored 2 s timed bar driving a spark). Overlay-on-mana-bar via `PlayerFrameManaBar` anchor,
   spark-line look, drinking-only, instant restart. Region not yet fabricated → `export.txt` pending
   an in-game build/export or a native Progress Bar to clone. Untested in-game.
+- 2026-07-08 — Fabricated `export.txt` (`aurabar`, ~3.3 KB): cloned a known-good aura envelope,
+  transformed region to a progress bar (transparent fill/bg, spark on, inverse on, `HORIZONTAL`,
+  119×12, `SELECTFRAME`→`PlayerFrameManaBar` CENTER/CENTER, broad load), embedded `tsu.lua` as a
+  Custom TSU + `init.lua` On Init, left `subRegions` empty for WA to fill. Decode round-trip lossless.
+  Still untested in-game — import is the test.

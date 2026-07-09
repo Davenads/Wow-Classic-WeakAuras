@@ -1,0 +1,132 @@
+{
+ "m": "d",
+ "s": "5.20.6",
+ "d": {
+  "regionType": "aurabar",
+  "id": "Mana Tick Drink Bar",
+  "uid": "VtNWBv7)H8C",
+  "internalVersion": 33,
+  "tocversion": 11508,
+  "anchorFrameType": "SELECTFRAME",
+  "anchorFrameFrame": "PlayerFrameManaBar",
+  "anchorPoint": "CENTER",
+  "selfPoint": "CENTER",
+  "xOffset": 0,
+  "yOffset": 0,
+  "frameStrata": 1,
+  "width": 119,
+  "height": 12,
+  "alpha": 1,
+  "zoom": 0,
+  "orientation": "HORIZONTAL",
+  "inverse": true,
+  "texture": "Blizzard",
+  "barColor": [
+   1,
+   1,
+   1,
+   0
+  ],
+  "backgroundColor": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "icon": false,
+  "auto": true,
+  "desaturate": false,
+  "iconSource": -1,
+  "icon_side": "RIGHT",
+  "spark": true,
+  "sparkWidth": 3,
+  "sparkHeight": 12,
+  "sparkColor": [
+   0.25,
+   1,
+   1,
+   1
+  ],
+  "sparkTexture": "Interface\\CastingBar\\UI-CastingBar-Spark",
+  "sparkBlendMode": "ADD",
+  "sparkOffsetX": 0,
+  "sparkOffsetY": 0,
+  "sparkRotationMode": "AUTO",
+  "sparkRotation": 0,
+  "sparkMirror": false,
+  "sparkHidden": "NEVER",
+  "smoothProgress": false,
+  "useAdjustededMax": false,
+  "subRegions": [],
+  "triggers": {
+   "1": {
+    "trigger": {
+     "type": "custom",
+     "custom_type": "stateupdate",
+     "custom": "-- Mana Tick Drink Bar — Trigger ▸ Custom ▸ Trigger State Updater (triggers[1].trigger.custom)\n-- Events box:  UNIT_POWER_UPDATE UNIT_AURA PLAYER_ENTERING_WORLD\n--\n-- Drives allstates[\"\"] as a 2 s \"timed\" progress bar re-anchored at EVERY observed drink tick,\n-- so the region animates a fresh 0→1 sweep each cycle and the spark reaches the far-right edge\n-- exactly when the next tick lands (\"instant restart\"). Between events WA interpolates the bar\n-- on its own — no per-frame code. REGION MUST BE SET TO INVERSE so the spark travels\n-- left→right toward expirationTime (default timed bars deplete right→left).\nfunction(allstates, event, unit, powerType)\n    local ae  = aura_env\n    local now = GetTime()\n\n    -- drink on / off\n    if event == \"UNIT_AURA\" or event == \"PLAYER_ENTERING_WORLD\" then\n        local d = ae.IsDrinking()\n        if not d then ae.tickAnchor = nil end   -- drop sync the instant we stop drinking\n        ae.drinking = d\n    end\n\n    -- Track mana every update; a drink tick = mana rose WHILE drinking → (re)anchor the cycle\n    -- to this instant. DEDUPE rejects a second UNIT_POWER_UPDATE for the same tick.\n    if event == \"UNIT_POWER_UPDATE\" and unit == \"player\" and powerType == \"MANA\" then\n        local m = ae.ManaNow()\n        if ae.drinking and m > ae.lastMana\n           and (not ae.tickAnchor or (now - ae.tickAnchor) >= ae.DEDUPE) then\n            ae.tickAnchor = now\n        end\n        ae.lastMana = m\n    end\n\n    local s = allstates[\"\"]\n    -- Show a synced, sweeping bar only while drinking, after the first tick locks the phase,\n    -- and while not already at full mana (nothing to time once you're capped).\n    if ae.drinking and ae.tickAnchor and not ae.ManaFull() then\n        local nextTick = ae.tickAnchor + ae.TICK\n        while nextTick <= now do nextTick = nextTick + ae.TICK end   -- keep prediction in the future\n        allstates[\"\"] = {\n            show           = true,\n            changed        = true,\n            progressType   = \"timed\",\n            duration       = ae.TICK,\n            expirationTime = nextTick,\n            autoHide       = false,\n        }\n    elseif s and s.show then\n        s.show = false\n        s.changed = true\n    end\n    return true\nend",
+     "events": "UNIT_POWER_UPDATE UNIT_AURA PLAYER_ENTERING_WORLD",
+     "check": "event",
+     "unit": "player",
+     "debuffType": "HELPFUL",
+     "subeventPrefix": "SPELL",
+     "subeventSuffix": "_CAST_START",
+     "spellIds": {},
+     "names": {}
+    },
+    "untrigger": {}
+   },
+   "disjunctive": "all",
+   "activeTriggerMode": 1
+  },
+  "actions": {
+   "init": {
+    "do_custom": true,
+    "custom": "-- Mana Tick Drink Bar — Actions ▸ On Init (actions.init.custom)\n-- State + helpers for a spark line that sweeps the player mana bar and reaches the far-right\n-- edge at each 2 s mana-regen tick WHILE DRINKING — so you can stutter-step (move between\n-- ticks, be stationary the instant one lands) without losing regen.\n-- Target: WoW Classic Era (mana ticks every 2.0 s). enUS buff names.\n\n-- Enum.PowerType.Mana is 0 on Classic; fall back to the literal if Enum is unavailable.\nlocal MANA = (Enum and Enum.PowerType and Enum.PowerType.Mana) or 0\naura_env.MANA   = MANA\naura_env.TICK   = 2.0     -- Classic mana-regen tick period (seconds)\naura_env.DEDUPE = 1.5     -- ignore mana gains within this many s of the last tick (event dedupe)\n\naura_env.lastMana   = UnitPower(\"player\", MANA) or 0\naura_env.tickAnchor = nil    -- GetTime() of the most recently observed regen tick (sync point)\naura_env.drinking   = false\n\n-- Are we drinking? Match the \"Drink\" buff (enUS); Cata/MoP conjured food is \"Refreshment\".\n-- Localize these two names for non-enUS clients. Uses AuraUtil when present, else a buff scan.\nfunction aura_env.IsDrinking()\n    if AuraUtil and AuraUtil.FindAuraByName then\n        return AuraUtil.FindAuraByName(\"Drink\", \"player\") ~= nil\n            or AuraUtil.FindAuraByName(\"Refreshment\", \"player\") ~= nil\n    end\n    for i = 1, 40 do\n        local n = UnitBuff(\"player\", i)\n        if not n then break end\n        if n == \"Drink\" or n == \"Refreshment\" then return true end\n    end\n    return false\nend\n\nfunction aura_env.ManaNow()  return UnitPower(\"player\", MANA) or 0 end\nfunction aura_env.ManaFull() return aura_env.ManaNow() >= (UnitPowerMax(\"player\", MANA) or 0) end"
+   },
+   "start": {
+    "do_custom": false
+   },
+   "finish": {
+    "do_custom": false
+   }
+  },
+  "conditions": [],
+  "load": {
+   "use_never": false,
+   "class": {
+    "multi": {}
+   },
+   "spec": {
+    "multi": {}
+   },
+   "size": {
+    "multi": {}
+   },
+   "talent": {}
+  },
+  "config": {},
+  "authorOptions": [],
+  "information": {},
+  "animation": {
+   "main": {
+    "type": "none",
+    "duration_type": "seconds",
+    "easeType": "none",
+    "easeStrength": 3
+   },
+   "start": {
+    "type": "none",
+    "duration_type": "seconds",
+    "easeType": "none",
+    "easeStrength": 3
+   },
+   "finish": {
+    "type": "none",
+    "duration_type": "seconds",
+    "easeType": "none",
+    "easeStrength": 3
+   }
+  }
+ },
+ "v": 1421
+}
