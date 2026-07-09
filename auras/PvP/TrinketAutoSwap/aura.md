@@ -73,10 +73,11 @@ it) — pick whichever layout you prefer; you don't need both.
 | `minGap` | number | 1.0 | Seconds between equip attempts (debounce). |
 | `agmLock` | number | 20 | Keep AGM equipped this long (s) after its on-use. |
 | `equipCd` | number | 30 | Ignore cooldowns ≤ this (s) — the trinket equip lockout, not a real CD. |
-| `swapBuffer` | number | 1 | 2-AGM mode: extra seconds added to `equipCd` for the pre-equip window (`swapBackAt`), so a swapped-in on-use's equip lockout fully overlaps its cooldown tail. |
-| `swapMargin` | number | 5 | Anti-thrash hysteresis: only swap an equipped, on-cooldown on-use trinket out for a benched one that is ready now or at least this many seconds sooner. Prevents 13↔14 slot flicker. |
-| `stackAgm` | toggle | on | If two AGMs are owned, wear **both** for +2% dodge while idle (2-AGM mode). Turn off to force single-AGM behavior. |
 | `debug` | toggle | off | Print each swap + show a slot readout in the controller text. |
+
+> **2-AGM dodge-stacking is shelved.** The `swapBuffer` / `swapMargin` / `stackAgm` options and
+> the two-AGM engine were reverted on 2026-07-08 (they regressed the single-AGM path). The design
+> and code are preserved in `archive/` + `plan.md` §13-§16 for a future, surgical revival.
 
 Defaults are baked into `init.lua`, so it works with **zero options set** on either faction — the
 Insignia is auto-detected by name at runtime. Set `iotaId` only to override (e.g. a non-English
@@ -110,9 +111,9 @@ For a persistent off, disable the aura in `/wa` (right-click ▸ Disable).
 | `displays/benched.lua` | "Trinket Display" group ▸ Bench icon ▸ TSU |
 
 Resolver = the §3 table in `plan.md`. AGM 20 s lock + out-of-combat gate + no-op guard + debounce.
-Owning **two AGMs** enters **2-AGM mode** (`plan.md` §13): always keep ≥1 AGM worn, fill the other
-slot with the best on-use trinket that's ready/returning within `swapBackAt` (Insignia > MR), else
-the 2nd AGM for +2% total dodge. Single-AGM characters are unaffected.
+`Desired()` returns a set `{[id]=true}`; `Apply()` only equips ids not already worn (an already-worn
+trinket is structurally never re-equipped), which is what keeps the single-AGM loadout stable.
+(2-AGM dodge-stacking is shelved — see the note under *Custom Options* and `archive/`.)
 
 ---
 
@@ -222,3 +223,13 @@ the 2nd AGM for +2% total dodge. Single-AGM characters are unaffected.
   re-equipped ≥3× within 3 s, it logs `THRASH DETECTED`, backs off 10 s, and holds the loadout instead
   of spinning the invisible 1-s equip loop. Turns a silent slot-fight into one diagnostic line.
   Rebuilt `export.txt` (9549) + `package.txt` (11476). Round-trip verified. Untested in-game.
+- **2026-07-08** — **Reverted the 2-AGM engine** back to the last known-good single-AGM build
+  (`af82692`). The 2-AGM work (`d9ffe4f`) rewrote the core `Desired()`/`Apply()` for all cases and
+  regressed the 1-AGM path; three follow-ups (§14-§16 hysteresis / re-equip guard / thrash-breaker)
+  were reconstructing guarantees the set-based engine had for free. `code/init.lua` restored to the
+  set-based resolver (`Desired()` → `{[id]=true}`; `Apply()` skips already-worn ids); dropped the
+  `swapBuffer` / `swapMargin` / `stackAgm` options and all 2-AGM/instrumentation code. The full
+  2-AGM engine is archived verbatim at `archive/init.2agm.lua` (+ `archive/README.md`) for a future
+  surgical revival gated behind `AgmCount() >= 2`. Re-embedded into `aura.json` **and** the
+  `package.json` engine child; rebuilt `export.txt` (6112) + `package.txt` (8022). Round-trip
+  verified. Untested in-game.

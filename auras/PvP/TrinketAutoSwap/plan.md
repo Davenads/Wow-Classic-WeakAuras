@@ -219,7 +219,14 @@ slot icons never referenced item IDs (they read live slot contents), so they wer
 
 ---
 
-## 13. Two-AGM optimization ("dodge-stacking" mode) — implemented 2026-07-06
+## 13. Two-AGM optimization ("dodge-stacking" mode) — implemented 2026-07-06, SHELVED 2026-07-08
+
+> **STATUS: SHELVED / REVERTED (2026-07-08).** §13-§16 were reverted out of the live build — the
+> 2-AGM rewrite (`d9ffe4f`) regressed the single-AGM path, and §14-§16 were band-aids
+> reconstructing guarantees the pre-2-AGM set-based engine had for free. `code/init.lua` is back to
+> `af82692` (single-AGM). The 2-AGM engine is archived verbatim at `archive/init.2agm.lua`
+> (see `archive/README.md`). The sections below are retained as design reference for a future
+> revival — which should be *additive*, gated behind `AgmCount() >= 2`, not another core rewrite.
 
 **Goal:** a character that owns **two Arena Grand Masters** (item 19024) should wear **both**
 whenever neither on-use trinket is needed, so their **+1% dodge passives stack to +2% total**.
