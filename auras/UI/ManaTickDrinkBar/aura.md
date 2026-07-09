@@ -22,7 +22,7 @@ envelope** and the region transformed to `aurabar`, keeping every shared substru
 accepted (`internalVersion 33`, `tocversion`, trigger meta, animation, load shape). `subRegions` is
 left empty so WA's own import validator fills in the bar's default foreground/background — the same
 way the repo's real icon/text auras import. The TSU is embedded at `triggers[1].trigger.custom`
-(`custom_type: stateupdate`, events `UNIT_POWER_UPDATE UNIT_AURA PLAYER_ENTERING_WORLD`) and
+(`custom_type: stateupdate`, events `UNIT_POWER_UPDATE PLAYER_ENTERING_WORLD`) and
 `init.lua` at `actions.init.custom`. Decode round-trip is lossless.
 
 **Still untested in-game** — import is the real test. If WA rejects it, the fallback is unchanged:
@@ -40,16 +40,19 @@ frame strata, and the **Inverse** toggle if the spark sweeps the wrong way.
   moment a tick lands and reaches the right edge as the next tick lands. Re-anchoring each tick also
   corrects any drift and gives the "instant restart" snap.
 
-> The wider "5-second rule" only matters *outside* drinking (Spirit regen pauses 5 s after a cast).
-> This aura is **drinking-only** by request, so it ignores that case — it shows nothing unless the
-> Drink/Refreshment buff is up.
+> **Persistent metronome (updated).** Originally drinking-only, the bar now shows **whenever mana is
+> below max** and re-syncs to *every* observed mana-regen tick — drinking ticks and out-of-combat
+> Spirit-regen ticks are the same 2 s server heartbeat. This keeps it from blinking out when you
+> stutter-step / briefly stop drinking, and means you're already synced to the tick before you sit.
+> It hides only at full mana. (The "5-second rule" freeze in combat just pauses the sync; the bar
+> keeps projecting the last cadence until ticks resume.)
 
 ## Building the region (in-game recipe)
 
 1. `/wa` → **New** → **Progress Bar**. Name it `Mana Tick Drink Bar`.
 2. **Trigger 1 → Type: Custom → Custom Trigger: Trigger State Updater (TSU).**
    - Paste `code/tsu.lua` into the code box.
-   - **Events** box: `UNIT_POWER_UPDATE UNIT_AURA PLAYER_ENTERING_WORLD`
+   - **Events** box: `UNIT_POWER_UPDATE PLAYER_ENTERING_WORLD`
    - Check On: **Event**.
 3. **Actions → On Init:** paste `code/init.lua`.
 4. **Display (the "line" look):**
@@ -102,3 +105,9 @@ frame strata, and the **Inverse** toggle if the spark sweeps the wrong way.
   119×12, `SELECTFRAME`→`PlayerFrameManaBar` CENTER/CENTER, broad load), embedded `tsu.lua` as a
   Custom TSU + `init.lua` On Init, left `subRegions` empty for WA to fill. Decode round-trip lossless.
   Still untested in-game — import is the test.
+- 2026-07-08 — Persistent metronome fix (in-game: worked but blinked out when not drinking). Dropped
+  the drinking gate entirely: the bar now shows whenever mana is below max and re-syncs to any
+  observed mana-regen tick (drink OR out-of-combat Spirit regen — same 2 s heartbeat), so it no longer
+  disappears when you stutter-step. Removed `IsDrinking`/`drinking` from `init.lua`, seeded the anchor
+  on PEW + first pass, and trimmed trigger events to `UNIT_POWER_UPDATE PLAYER_ENTERING_WORLD` (dropped
+  `UNIT_AURA`). Re-embedded + re-encoded `export.txt` (3114 B), round-trip lossless.
