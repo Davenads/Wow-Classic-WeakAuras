@@ -1,0 +1,828 @@
+{
+  "m": "d",
+  "s": "5.20.6",
+  "d": {
+    "id": "Betty's 19 Paladin Cooldowns",
+    "uid": "palCdGrp1",
+    "regionType": "group",
+    "internalVersion": 33,
+    "tocversion": 11508,
+    "anchorFrameType": "SCREEN",
+    "anchorPoint": "CENTER",
+    "selfPoint": "CENTER",
+    "xOffset": 0,
+    "yOffset": -140,
+    "scale": 1,
+    "controlledChildren": [
+      "Divine Protection",
+      "Blessing of Protection",
+      "Blessing of Freedom",
+      "Lay on Hands",
+      "Judgement",
+      "Healing Potion",
+      "Big Bronze Bomb",
+      "Stoneform"
+    ],
+    "borderColor": [
+      0,
+      0,
+      0,
+      1
+    ],
+    "backdropColor": [
+      1,
+      1,
+      1,
+      0.5
+    ],
+    "config": {},
+    "authorOptions": [],
+    "conditions": [],
+    "subRegions": [],
+    "animation": {
+      "main": {
+        "type": "none",
+        "duration_type": "seconds",
+        "easeType": "none",
+        "easeStrength": 3
+      },
+      "start": {
+        "type": "none",
+        "duration_type": "seconds",
+        "easeType": "none",
+        "easeStrength": 3
+      },
+      "finish": {
+        "type": "none",
+        "duration_type": "seconds",
+        "easeType": "none",
+        "easeStrength": 3
+      }
+    },
+    "load": {
+      "use_never": false,
+      "class": {
+        "multi": {}
+      },
+      "spec": {
+        "multi": {}
+      },
+      "size": {
+        "multi": {}
+      },
+      "talent": {}
+    },
+    "actions": {
+      "init": {},
+      "start": {},
+      "finish": {}
+    },
+    "triggers": {
+      "1": {
+        "trigger": {
+          "type": "custom",
+          "custom_type": "event",
+          "check": "event",
+          "custom": "function() return true end",
+          "events": "",
+          "custom_hide": "custom"
+        },
+        "untrigger": {}
+      },
+      "disjunctive": "all",
+      "activeTriggerMode": 1
+    },
+    "desc": "Betty's 19 twink Paladin cooldown row: Divine Protection, Blessing of Protection, Blessing of Freedom, Lay on Hands, Judgement, Healing Potion, Big Bronze Bomb, Stoneform — each icon shows its live cooldown swipe + numeric countdown. Spells tracked by name (rank-proof); Stoneform self-hides if the character isn't a Dwarf. English clients only; swap the Healing Potion / Big Bronze Bomb item ids for your consumables."
+  },
+  "c": [
+    {
+      "id": "Divine Protection",
+      "uid": "palCdDP1",
+      "parent": "Betty's 19 Paladin Cooldowns",
+      "regionType": "icon",
+      "internalVersion": 33,
+      "tocversion": 11508,
+      "anchorFrameType": "SCREEN",
+      "anchorPoint": "CENTER",
+      "selfPoint": "CENTER",
+      "xOffset": -161,
+      "yOffset": 0,
+      "width": 40,
+      "height": 40,
+      "cooldown": true,
+      "cooldownSwipe": true,
+      "cooldownEdge": false,
+      "cooldownTextDisabled": false,
+      "inverse": false,
+      "icon": true,
+      "iconSource": -1,
+      "desaturate": false,
+      "keepAspectRatio": false,
+      "zoom": 0,
+      "color": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "alpha": 1,
+      "frameStrata": 1,
+      "auto": true,
+      "config": {},
+      "authorOptions": [],
+      "conditions": [],
+      "subRegions": [],
+      "animation": {
+        "main": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "start": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "finish": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        }
+      },
+      "load": {
+        "use_never": false,
+        "class": {
+          "multi": {}
+        },
+        "spec": {
+          "multi": {}
+        },
+        "size": {
+          "multi": {}
+        },
+        "talent": {}
+      },
+      "actions": {
+        "init": {},
+        "start": {},
+        "finish": {}
+      },
+      "triggers": {
+        "1": {
+          "trigger": {
+            "type": "custom",
+            "custom_type": "stateupdate",
+            "check": "event",
+            "custom": "-- Betty's 19 Paladin Cooldowns — Divine Protection — Trigger ▸ Custom ▸ Trigger State Updater\n-- Tracks Divine Protection's cooldown BY NAME (rank-proof; self-hides if the char doesn't know it,\n-- e.g. Stoneform on a non-Dwarf). WA renders the swipe + number from the state's timer.\n-- Spell id (reference): 498  https://www.wowhead.com/classic/spell=498\n-- Events box: SPELL_UPDATE_COOLDOWN SPELL_UPDATE_USABLE LEARNED_SPELL_IN_TAB PLAYER_ENTERING_WORLD\nfunction(allstates)\n    local name = \"Divine Protection\"\n    local sName, _, sIcon = GetSpellInfo(name)\n    if not sName then\n        allstates[\"\"] = { show = false, changed = true }   -- spell not known (e.g. Stoneform on non-Dwarf)\n        return true\n    end\n    local start, dur = GetSpellCooldown(name)\n    local st = allstates[\"\"] or {}\n    st.show = true\n    st.changed = true\n    st.icon = sIcon\n    st.name = sName\n    if start and dur and dur > 1.5 then                     -- dur > 1.5 filters the GCD\n        st.progressType = \"timed\"\n        st.duration = dur\n        st.expirationTime = start + dur\n    else\n        st.progressType = \"static\"\n        st.value, st.total = 1, 1\n    end\n    allstates[\"\"] = st\n    return true\nend",
+            "events": "SPELL_UPDATE_COOLDOWN, SPELL_UPDATE_USABLE, LEARNED_SPELL_IN_TAB, PLAYER_ENTERING_WORLD",
+            "custom_hide": "custom"
+          },
+          "untrigger": {}
+        },
+        "disjunctive": "all",
+        "activeTriggerMode": 1
+      }
+    },
+    {
+      "id": "Blessing of Protection",
+      "uid": "palCdBoP1",
+      "parent": "Betty's 19 Paladin Cooldowns",
+      "regionType": "icon",
+      "internalVersion": 33,
+      "tocversion": 11508,
+      "anchorFrameType": "SCREEN",
+      "anchorPoint": "CENTER",
+      "selfPoint": "CENTER",
+      "xOffset": -115,
+      "yOffset": 0,
+      "width": 40,
+      "height": 40,
+      "cooldown": true,
+      "cooldownSwipe": true,
+      "cooldownEdge": false,
+      "cooldownTextDisabled": false,
+      "inverse": false,
+      "icon": true,
+      "iconSource": -1,
+      "desaturate": false,
+      "keepAspectRatio": false,
+      "zoom": 0,
+      "color": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "alpha": 1,
+      "frameStrata": 1,
+      "auto": true,
+      "config": {},
+      "authorOptions": [],
+      "conditions": [],
+      "subRegions": [],
+      "animation": {
+        "main": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "start": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "finish": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        }
+      },
+      "load": {
+        "use_never": false,
+        "class": {
+          "multi": {}
+        },
+        "spec": {
+          "multi": {}
+        },
+        "size": {
+          "multi": {}
+        },
+        "talent": {}
+      },
+      "actions": {
+        "init": {},
+        "start": {},
+        "finish": {}
+      },
+      "triggers": {
+        "1": {
+          "trigger": {
+            "type": "custom",
+            "custom_type": "stateupdate",
+            "check": "event",
+            "custom": "-- Betty's 19 Paladin Cooldowns — Blessing of Protection — Trigger ▸ Custom ▸ Trigger State Updater\n-- Tracks Blessing of Protection's cooldown BY NAME (rank-proof; self-hides if the char doesn't know it,\n-- e.g. Stoneform on a non-Dwarf). WA renders the swipe + number from the state's timer.\n-- Spell id (reference): 1022  https://www.wowhead.com/classic/spell=1022\n-- Events box: SPELL_UPDATE_COOLDOWN SPELL_UPDATE_USABLE LEARNED_SPELL_IN_TAB PLAYER_ENTERING_WORLD\nfunction(allstates)\n    local name = \"Blessing of Protection\"\n    local sName, _, sIcon = GetSpellInfo(name)\n    if not sName then\n        allstates[\"\"] = { show = false, changed = true }   -- spell not known (e.g. Stoneform on non-Dwarf)\n        return true\n    end\n    local start, dur = GetSpellCooldown(name)\n    local st = allstates[\"\"] or {}\n    st.show = true\n    st.changed = true\n    st.icon = sIcon\n    st.name = sName\n    if start and dur and dur > 1.5 then                     -- dur > 1.5 filters the GCD\n        st.progressType = \"timed\"\n        st.duration = dur\n        st.expirationTime = start + dur\n    else\n        st.progressType = \"static\"\n        st.value, st.total = 1, 1\n    end\n    allstates[\"\"] = st\n    return true\nend",
+            "events": "SPELL_UPDATE_COOLDOWN, SPELL_UPDATE_USABLE, LEARNED_SPELL_IN_TAB, PLAYER_ENTERING_WORLD",
+            "custom_hide": "custom"
+          },
+          "untrigger": {}
+        },
+        "disjunctive": "all",
+        "activeTriggerMode": 1
+      }
+    },
+    {
+      "id": "Blessing of Freedom",
+      "uid": "palCdBoF1",
+      "parent": "Betty's 19 Paladin Cooldowns",
+      "regionType": "icon",
+      "internalVersion": 33,
+      "tocversion": 11508,
+      "anchorFrameType": "SCREEN",
+      "anchorPoint": "CENTER",
+      "selfPoint": "CENTER",
+      "xOffset": -69,
+      "yOffset": 0,
+      "width": 40,
+      "height": 40,
+      "cooldown": true,
+      "cooldownSwipe": true,
+      "cooldownEdge": false,
+      "cooldownTextDisabled": false,
+      "inverse": false,
+      "icon": true,
+      "iconSource": -1,
+      "desaturate": false,
+      "keepAspectRatio": false,
+      "zoom": 0,
+      "color": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "alpha": 1,
+      "frameStrata": 1,
+      "auto": true,
+      "config": {},
+      "authorOptions": [],
+      "conditions": [],
+      "subRegions": [],
+      "animation": {
+        "main": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "start": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "finish": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        }
+      },
+      "load": {
+        "use_never": false,
+        "class": {
+          "multi": {}
+        },
+        "spec": {
+          "multi": {}
+        },
+        "size": {
+          "multi": {}
+        },
+        "talent": {}
+      },
+      "actions": {
+        "init": {},
+        "start": {},
+        "finish": {}
+      },
+      "triggers": {
+        "1": {
+          "trigger": {
+            "type": "custom",
+            "custom_type": "stateupdate",
+            "check": "event",
+            "custom": "-- Betty's 19 Paladin Cooldowns — Blessing of Freedom — Trigger ▸ Custom ▸ Trigger State Updater\n-- Tracks Blessing of Freedom's cooldown BY NAME (rank-proof; self-hides if the char doesn't know it,\n-- e.g. Stoneform on a non-Dwarf). WA renders the swipe + number from the state's timer.\n-- Spell id (reference): 1044  https://www.wowhead.com/classic/spell=1044\n-- Events box: SPELL_UPDATE_COOLDOWN SPELL_UPDATE_USABLE LEARNED_SPELL_IN_TAB PLAYER_ENTERING_WORLD\nfunction(allstates)\n    local name = \"Blessing of Freedom\"\n    local sName, _, sIcon = GetSpellInfo(name)\n    if not sName then\n        allstates[\"\"] = { show = false, changed = true }   -- spell not known (e.g. Stoneform on non-Dwarf)\n        return true\n    end\n    local start, dur = GetSpellCooldown(name)\n    local st = allstates[\"\"] or {}\n    st.show = true\n    st.changed = true\n    st.icon = sIcon\n    st.name = sName\n    if start and dur and dur > 1.5 then                     -- dur > 1.5 filters the GCD\n        st.progressType = \"timed\"\n        st.duration = dur\n        st.expirationTime = start + dur\n    else\n        st.progressType = \"static\"\n        st.value, st.total = 1, 1\n    end\n    allstates[\"\"] = st\n    return true\nend",
+            "events": "SPELL_UPDATE_COOLDOWN, SPELL_UPDATE_USABLE, LEARNED_SPELL_IN_TAB, PLAYER_ENTERING_WORLD",
+            "custom_hide": "custom"
+          },
+          "untrigger": {}
+        },
+        "disjunctive": "all",
+        "activeTriggerMode": 1
+      }
+    },
+    {
+      "id": "Lay on Hands",
+      "uid": "palCdLoH1",
+      "parent": "Betty's 19 Paladin Cooldowns",
+      "regionType": "icon",
+      "internalVersion": 33,
+      "tocversion": 11508,
+      "anchorFrameType": "SCREEN",
+      "anchorPoint": "CENTER",
+      "selfPoint": "CENTER",
+      "xOffset": -23,
+      "yOffset": 0,
+      "width": 40,
+      "height": 40,
+      "cooldown": true,
+      "cooldownSwipe": true,
+      "cooldownEdge": false,
+      "cooldownTextDisabled": false,
+      "inverse": false,
+      "icon": true,
+      "iconSource": -1,
+      "desaturate": false,
+      "keepAspectRatio": false,
+      "zoom": 0,
+      "color": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "alpha": 1,
+      "frameStrata": 1,
+      "auto": true,
+      "config": {},
+      "authorOptions": [],
+      "conditions": [],
+      "subRegions": [],
+      "animation": {
+        "main": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "start": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "finish": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        }
+      },
+      "load": {
+        "use_never": false,
+        "class": {
+          "multi": {}
+        },
+        "spec": {
+          "multi": {}
+        },
+        "size": {
+          "multi": {}
+        },
+        "talent": {}
+      },
+      "actions": {
+        "init": {},
+        "start": {},
+        "finish": {}
+      },
+      "triggers": {
+        "1": {
+          "trigger": {
+            "type": "custom",
+            "custom_type": "stateupdate",
+            "check": "event",
+            "custom": "-- Betty's 19 Paladin Cooldowns — Lay on Hands — Trigger ▸ Custom ▸ Trigger State Updater\n-- Tracks Lay on Hands's cooldown BY NAME (rank-proof; self-hides if the char doesn't know it,\n-- e.g. Stoneform on a non-Dwarf). WA renders the swipe + number from the state's timer.\n-- Spell id (reference): 633  https://www.wowhead.com/classic/spell=633\n-- Events box: SPELL_UPDATE_COOLDOWN SPELL_UPDATE_USABLE LEARNED_SPELL_IN_TAB PLAYER_ENTERING_WORLD\nfunction(allstates)\n    local name = \"Lay on Hands\"\n    local sName, _, sIcon = GetSpellInfo(name)\n    if not sName then\n        allstates[\"\"] = { show = false, changed = true }   -- spell not known (e.g. Stoneform on non-Dwarf)\n        return true\n    end\n    local start, dur = GetSpellCooldown(name)\n    local st = allstates[\"\"] or {}\n    st.show = true\n    st.changed = true\n    st.icon = sIcon\n    st.name = sName\n    if start and dur and dur > 1.5 then                     -- dur > 1.5 filters the GCD\n        st.progressType = \"timed\"\n        st.duration = dur\n        st.expirationTime = start + dur\n    else\n        st.progressType = \"static\"\n        st.value, st.total = 1, 1\n    end\n    allstates[\"\"] = st\n    return true\nend",
+            "events": "SPELL_UPDATE_COOLDOWN, SPELL_UPDATE_USABLE, LEARNED_SPELL_IN_TAB, PLAYER_ENTERING_WORLD",
+            "custom_hide": "custom"
+          },
+          "untrigger": {}
+        },
+        "disjunctive": "all",
+        "activeTriggerMode": 1
+      }
+    },
+    {
+      "id": "Judgement",
+      "uid": "palCdJdg1",
+      "parent": "Betty's 19 Paladin Cooldowns",
+      "regionType": "icon",
+      "internalVersion": 33,
+      "tocversion": 11508,
+      "anchorFrameType": "SCREEN",
+      "anchorPoint": "CENTER",
+      "selfPoint": "CENTER",
+      "xOffset": 23,
+      "yOffset": 0,
+      "width": 40,
+      "height": 40,
+      "cooldown": true,
+      "cooldownSwipe": true,
+      "cooldownEdge": false,
+      "cooldownTextDisabled": false,
+      "inverse": false,
+      "icon": true,
+      "iconSource": -1,
+      "desaturate": false,
+      "keepAspectRatio": false,
+      "zoom": 0,
+      "color": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "alpha": 1,
+      "frameStrata": 1,
+      "auto": true,
+      "config": {},
+      "authorOptions": [],
+      "conditions": [],
+      "subRegions": [],
+      "animation": {
+        "main": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "start": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "finish": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        }
+      },
+      "load": {
+        "use_never": false,
+        "class": {
+          "multi": {}
+        },
+        "spec": {
+          "multi": {}
+        },
+        "size": {
+          "multi": {}
+        },
+        "talent": {}
+      },
+      "actions": {
+        "init": {},
+        "start": {},
+        "finish": {}
+      },
+      "triggers": {
+        "1": {
+          "trigger": {
+            "type": "custom",
+            "custom_type": "stateupdate",
+            "check": "event",
+            "custom": "-- Betty's 19 Paladin Cooldowns — Judgement — Trigger ▸ Custom ▸ Trigger State Updater\n-- Tracks Judgement's cooldown BY NAME (rank-proof; self-hides if the char doesn't know it,\n-- e.g. Stoneform on a non-Dwarf). WA renders the swipe + number from the state's timer.\n-- Spell id (reference): 20271  https://www.wowhead.com/classic/spell=20271\n-- Events box: SPELL_UPDATE_COOLDOWN SPELL_UPDATE_USABLE LEARNED_SPELL_IN_TAB PLAYER_ENTERING_WORLD\nfunction(allstates)\n    local name = \"Judgement\"\n    local sName, _, sIcon = GetSpellInfo(name)\n    if not sName then\n        allstates[\"\"] = { show = false, changed = true }   -- spell not known (e.g. Stoneform on non-Dwarf)\n        return true\n    end\n    local start, dur = GetSpellCooldown(name)\n    local st = allstates[\"\"] or {}\n    st.show = true\n    st.changed = true\n    st.icon = sIcon\n    st.name = sName\n    if start and dur and dur > 1.5 then                     -- dur > 1.5 filters the GCD\n        st.progressType = \"timed\"\n        st.duration = dur\n        st.expirationTime = start + dur\n    else\n        st.progressType = \"static\"\n        st.value, st.total = 1, 1\n    end\n    allstates[\"\"] = st\n    return true\nend",
+            "events": "SPELL_UPDATE_COOLDOWN, SPELL_UPDATE_USABLE, LEARNED_SPELL_IN_TAB, PLAYER_ENTERING_WORLD",
+            "custom_hide": "custom"
+          },
+          "untrigger": {}
+        },
+        "disjunctive": "all",
+        "activeTriggerMode": 1
+      }
+    },
+    {
+      "id": "Healing Potion",
+      "uid": "palCdPot1",
+      "parent": "Betty's 19 Paladin Cooldowns",
+      "regionType": "icon",
+      "internalVersion": 33,
+      "tocversion": 11508,
+      "anchorFrameType": "SCREEN",
+      "anchorPoint": "CENTER",
+      "selfPoint": "CENTER",
+      "xOffset": 69,
+      "yOffset": 0,
+      "width": 40,
+      "height": 40,
+      "cooldown": true,
+      "cooldownSwipe": true,
+      "cooldownEdge": false,
+      "cooldownTextDisabled": false,
+      "inverse": false,
+      "icon": true,
+      "iconSource": -1,
+      "desaturate": false,
+      "keepAspectRatio": false,
+      "zoom": 0,
+      "color": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "alpha": 1,
+      "frameStrata": 1,
+      "auto": true,
+      "config": {},
+      "authorOptions": [],
+      "conditions": [],
+      "subRegions": [],
+      "animation": {
+        "main": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "start": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "finish": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        }
+      },
+      "load": {
+        "use_never": false,
+        "class": {
+          "multi": {}
+        },
+        "spec": {
+          "multi": {}
+        },
+        "size": {
+          "multi": {}
+        },
+        "talent": {}
+      },
+      "actions": {
+        "init": {},
+        "start": {},
+        "finish": {}
+      },
+      "triggers": {
+        "1": {
+          "trigger": {
+            "type": "custom",
+            "custom_type": "stateupdate",
+            "check": "event",
+            "custom": "-- Betty's 19 Paladin Cooldowns — Healing Potion — Trigger ▸ Custom ▸ Trigger State Updater\n-- Tracks the ITEM cooldown (shared category CD). Icon always shows so the slot stays fixed;\n-- the swipe + number appear while on cooldown. Change ITEM_ID for a different consumable.\n-- Swap for your potion: Lesser Healing Potion 858, Discolored Healing Potion 3826.\n-- Item id (reference): 929  https://www.wowhead.com/classic/item=929\n-- Events box: BAG_UPDATE_COOLDOWN SPELL_UPDATE_COOLDOWN BAG_UPDATE PLAYER_ENTERING_WORLD\nfunction(allstates)\n    local ITEM_ID = 929\n    local function itemCd(itemId)\n        if C_Container and C_Container.GetItemCooldown then return C_Container.GetItemCooldown(itemId) end\n        if C_Item and C_Item.GetItemCooldown then return C_Item.GetItemCooldown(itemId) end\n        return GetItemCooldown(itemId)\n    end\n    local start, dur = itemCd(ITEM_ID)\n    local st = allstates[\"\"] or {}\n    st.show = true\n    st.changed = true\n    st.icon = GetItemIcon(ITEM_ID)\n    st.name = (GetItemInfo(ITEM_ID)) or \"Healing Potion\"\n    if start and dur and dur > 1.5 then\n        st.progressType = \"timed\"\n        st.duration = dur\n        st.expirationTime = start + dur\n    else\n        st.progressType = \"static\"\n        st.value, st.total = 1, 1\n    end\n    allstates[\"\"] = st\n    return true\nend",
+            "events": "BAG_UPDATE_COOLDOWN, SPELL_UPDATE_COOLDOWN, BAG_UPDATE, PLAYER_ENTERING_WORLD",
+            "custom_hide": "custom"
+          },
+          "untrigger": {}
+        },
+        "disjunctive": "all",
+        "activeTriggerMode": 1
+      }
+    },
+    {
+      "id": "Big Bronze Bomb",
+      "uid": "palCdBmb1",
+      "parent": "Betty's 19 Paladin Cooldowns",
+      "regionType": "icon",
+      "internalVersion": 33,
+      "tocversion": 11508,
+      "anchorFrameType": "SCREEN",
+      "anchorPoint": "CENTER",
+      "selfPoint": "CENTER",
+      "xOffset": 115,
+      "yOffset": 0,
+      "width": 40,
+      "height": 40,
+      "cooldown": true,
+      "cooldownSwipe": true,
+      "cooldownEdge": false,
+      "cooldownTextDisabled": false,
+      "inverse": false,
+      "icon": true,
+      "iconSource": -1,
+      "desaturate": false,
+      "keepAspectRatio": false,
+      "zoom": 0,
+      "color": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "alpha": 1,
+      "frameStrata": 1,
+      "auto": true,
+      "config": {},
+      "authorOptions": [],
+      "conditions": [],
+      "subRegions": [],
+      "animation": {
+        "main": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "start": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "finish": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        }
+      },
+      "load": {
+        "use_never": false,
+        "class": {
+          "multi": {}
+        },
+        "spec": {
+          "multi": {}
+        },
+        "size": {
+          "multi": {}
+        },
+        "talent": {}
+      },
+      "actions": {
+        "init": {},
+        "start": {},
+        "finish": {}
+      },
+      "triggers": {
+        "1": {
+          "trigger": {
+            "type": "custom",
+            "custom_type": "stateupdate",
+            "check": "event",
+            "custom": "-- Betty's 19 Paladin Cooldowns — Big Bronze Bomb — Trigger ▸ Custom ▸ Trigger State Updater\n-- Tracks the ITEM cooldown (shared category CD). Icon always shows so the slot stays fixed;\n-- the swipe + number appear while on cooldown. Change ITEM_ID for a different consumable.\n-- Engineering AoE stun; shares the ~1-min throwable/bomb cooldown.\n-- Item id (reference): 4380  https://www.wowhead.com/classic/item=4380\n-- Events box: BAG_UPDATE_COOLDOWN SPELL_UPDATE_COOLDOWN BAG_UPDATE PLAYER_ENTERING_WORLD\nfunction(allstates)\n    local ITEM_ID = 4380\n    local function itemCd(itemId)\n        if C_Container and C_Container.GetItemCooldown then return C_Container.GetItemCooldown(itemId) end\n        if C_Item and C_Item.GetItemCooldown then return C_Item.GetItemCooldown(itemId) end\n        return GetItemCooldown(itemId)\n    end\n    local start, dur = itemCd(ITEM_ID)\n    local st = allstates[\"\"] or {}\n    st.show = true\n    st.changed = true\n    st.icon = GetItemIcon(ITEM_ID)\n    st.name = (GetItemInfo(ITEM_ID)) or \"Big Bronze Bomb\"\n    if start and dur and dur > 1.5 then\n        st.progressType = \"timed\"\n        st.duration = dur\n        st.expirationTime = start + dur\n    else\n        st.progressType = \"static\"\n        st.value, st.total = 1, 1\n    end\n    allstates[\"\"] = st\n    return true\nend",
+            "events": "BAG_UPDATE_COOLDOWN, SPELL_UPDATE_COOLDOWN, BAG_UPDATE, PLAYER_ENTERING_WORLD",
+            "custom_hide": "custom"
+          },
+          "untrigger": {}
+        },
+        "disjunctive": "all",
+        "activeTriggerMode": 1
+      }
+    },
+    {
+      "id": "Stoneform",
+      "uid": "palCdStn1",
+      "parent": "Betty's 19 Paladin Cooldowns",
+      "regionType": "icon",
+      "internalVersion": 33,
+      "tocversion": 11508,
+      "anchorFrameType": "SCREEN",
+      "anchorPoint": "CENTER",
+      "selfPoint": "CENTER",
+      "xOffset": 161,
+      "yOffset": 0,
+      "width": 40,
+      "height": 40,
+      "cooldown": true,
+      "cooldownSwipe": true,
+      "cooldownEdge": false,
+      "cooldownTextDisabled": false,
+      "inverse": false,
+      "icon": true,
+      "iconSource": -1,
+      "desaturate": false,
+      "keepAspectRatio": false,
+      "zoom": 0,
+      "color": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "alpha": 1,
+      "frameStrata": 1,
+      "auto": true,
+      "config": {},
+      "authorOptions": [],
+      "conditions": [],
+      "subRegions": [],
+      "animation": {
+        "main": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "start": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "finish": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        }
+      },
+      "load": {
+        "use_never": false,
+        "class": {
+          "multi": {}
+        },
+        "spec": {
+          "multi": {}
+        },
+        "size": {
+          "multi": {}
+        },
+        "talent": {}
+      },
+      "actions": {
+        "init": {},
+        "start": {},
+        "finish": {}
+      },
+      "triggers": {
+        "1": {
+          "trigger": {
+            "type": "custom",
+            "custom_type": "stateupdate",
+            "check": "event",
+            "custom": "-- Betty's 19 Paladin Cooldowns — Stoneform — Trigger ▸ Custom ▸ Trigger State Updater\n-- Tracks Stoneform's cooldown BY NAME (rank-proof; self-hides if the char doesn't know it,\n-- e.g. Stoneform on a non-Dwarf). WA renders the swipe + number from the state's timer.\n-- Spell id (reference): 20594  https://www.wowhead.com/classic/spell=20594\n-- Events box: SPELL_UPDATE_COOLDOWN SPELL_UPDATE_USABLE LEARNED_SPELL_IN_TAB PLAYER_ENTERING_WORLD\nfunction(allstates)\n    local name = \"Stoneform\"\n    local sName, _, sIcon = GetSpellInfo(name)\n    if not sName then\n        allstates[\"\"] = { show = false, changed = true }   -- spell not known (e.g. Stoneform on non-Dwarf)\n        return true\n    end\n    local start, dur = GetSpellCooldown(name)\n    local st = allstates[\"\"] or {}\n    st.show = true\n    st.changed = true\n    st.icon = sIcon\n    st.name = sName\n    if start and dur and dur > 1.5 then                     -- dur > 1.5 filters the GCD\n        st.progressType = \"timed\"\n        st.duration = dur\n        st.expirationTime = start + dur\n    else\n        st.progressType = \"static\"\n        st.value, st.total = 1, 1\n    end\n    allstates[\"\"] = st\n    return true\nend",
+            "events": "SPELL_UPDATE_COOLDOWN, SPELL_UPDATE_USABLE, LEARNED_SPELL_IN_TAB, PLAYER_ENTERING_WORLD",
+            "custom_hide": "custom"
+          },
+          "untrigger": {}
+        },
+        "disjunctive": "all",
+        "activeTriggerMode": 1
+      }
+    }
+  ],
+  "v": 1421
+}
