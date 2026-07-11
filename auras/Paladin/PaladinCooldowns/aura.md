@@ -84,3 +84,5 @@ No Init/Show/Hide/Condition code — the cooldown swipe animates itself once a s
   cloned from the trinket-display group/icon + TSU pattern): Divine Protection, Blessing of
   Protection, Blessing of Freedom, Lay on Hands, Judgement, Healing Potion (929), Big Bronze
   Bomb (4380), Stoneform. Spells tracked by name; Stoneform self-hides on non-Dwarf.
+- 2026-07-11 — Re-pitch the row flush: pitch now equals icon width (40px) so the 8 squares
+  touch edge-to-edge with no gap (xOffsets -140…140).
