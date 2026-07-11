@@ -8,7 +8,7 @@
 | **Min WeakAuras version** | 5.x |
 | **wago URL** | n/a |
 | **wago version** | n/a |
-| **Region type** | `dynamicgroup` of 9 `icon` children |
+| **Region type** | `dynamicgroup` of 10 `icon` children |
 
 ## Purpose
 
@@ -16,20 +16,21 @@ A centered horizontal row of the cooldowns a level 60 Dwarf Priest cares about, 
 with a live cooldown swipe + numeric countdown. Built for a **30 Holy / 21 Disc** build but
 self-tailoring. Left → right:
 
-1. **Fade** — threat drop
-2. **Psychic Scream** — AoE fear / escape
-3. **Fear Ward** (Dwarf racial) — anti-fear
-4. **Desperate Prayer** (Dwarf racial) — emergency instant heal
-5. **Stoneform** (Dwarf racial) — cleanse bleed/poison/disease + armor
-6. **Inner Focus** (Discipline talent) — free + crit next spell
-7. **Mind Blast** — hidden unless the character is a **Shadow build** (knows Shadowform)
-8. **Major Mana Potion** (item) — shows only while carried
-9. **Mana Rune** (item) — Dark or Demonic, whichever is carried
+1. **Power Word: Shield** — re-shield lockout (see Triggers; no true cooldown)
+2. **Fade** — threat drop
+3. **Psychic Scream** — AoE fear / escape
+4. **Fear Ward** (Dwarf racial) — anti-fear
+5. **Desperate Prayer** (Dwarf racial) — emergency instant heal
+6. **Stoneform** (Dwarf racial) — cleanse bleed/poison/disease + armor
+7. **Inner Focus** (Discipline talent) — free + crit next spell
+8. **Mind Blast** — hidden unless the character is a **Shadow build** (knows Shadowform)
+9. **Major Mana Potion** (item) — shows only while carried
+10. **Mana Rune** (item) — Dark or Demonic, whichever is carried
 
 It's a **dynamic group** (`grow = HORIZONTAL`, `space = 0`), so any icon that hides — an
 untalented spell, a not-carried item, Mind Blast on a non-Shadow build — collapses out and the
 remaining icons stay flush and centered with no gap. For the reference 30/21 build carrying mana
-potions + a rune, **8 icons** show (Mind Blast hidden).
+potions + a rune, **9 icons** show (Mind Blast hidden).
 
 ## Triggers
 
@@ -38,6 +39,15 @@ Each icon is a **Custom ▸ Trigger State Updater** (one `""` state) — the sam
 native Cooldown Progress trigger. The `dur > 1.5` guard filters the global cooldown; the numeric
 countdown is WA's built-in icon cooldown text (`cooldownTextDisabled = false`).
 
+- **Power Word: Shield icon (1, readiness):** PW:S has no spell cooldown, so this icon tracks the
+  **Weakened Soul** debuff on the *player* — the re-shield lockout (~15 s) on yourself. It shows the
+  PW:S art (`GetSpellInfo`) and, while Weakened Soul is up, paints a swipe = time until you can
+  re-shield yourself; otherwise it's bright/ready. Self-hides if PW:S isn't known. Scans
+  `UnitDebuff("player", i)` for `"Weakened Soul"`. Because Weakened Soul lands on the *target*, this
+  reflects **self**-shields only (not shields cast on party members).
+  Events: `UNIT_AURA:player PLAYER_ENTERING_WORLD LEARNED_SPELL_IN_TAB`.
+  Reference IDs: Power Word: Shield [17](https://www.wowhead.com/classic/spell=17), Weakened Soul
+  [6788](https://www.wowhead.com/classic/spell=6788).
 - **Plain spell icons (6):** `GetSpellCooldown(name)` / `GetSpellInfo(name)`, tracked **by name**.
   By-name resolves the highest known rank automatically (Classic's per-rank spell IDs are the #1
   "aura won't fire" bug) and returns nil when the spell isn't in the spellbook — which hides
@@ -64,6 +74,7 @@ countdown is WA's built-in icon cooldown text (`cooldownTextDisabled = false`).
 
 ## Custom code
 
+- `code/tsu_pwshield.lua` — the Power Word: Shield icon (tracks the Weakened Soul self-lockout).
 - `code/tsu_spell.lua` — shared TSU pasted into the six plain spell icons; only the
   `name = "..."` line changes per icon (Fade / Psychic Scream / Fear Ward / Desperate Prayer /
   Stoneform / Inner Focus).
@@ -83,6 +94,7 @@ design (Wowhead Classic + Wowpedia):
 
 | Icon | Cooldown | Notes |
 |---|---|---|
+| Power Word: Shield | ~15 s (Weakened Soul) | no true CD; timer = re-shield lockout on yourself |
 | Fade | 30 s | 10 s threat-drop |
 | Psychic Scream | 30 s | base (Improved Psychic Scream — Shadow — would lower it) |
 | Fear Ward | 30 s | **Era keeps the 1.x value** (10-min ward); TBC 2.3.0 changed it to a 3-min CD |
@@ -104,6 +116,8 @@ grey out the rune and vice-versa).
   use a rune — the swipe + number should appear over the matching icon.
 - On the 30/21 build the **Mind Blast** slot should be absent (no Shadowform); respec Shadow and
   it should appear. Empty bags → the **Mana Potion / Rune** slots should collapse out.
+- Cast **Power Word: Shield on yourself** — the PW:S icon should paint the ~15 s Weakened Soul swipe
+  and clear when it fades. Shielding a party member won't move it (it watches Weakened Soul on you).
 - **Power Infusion** (needs 30 pts Disc) and **Silence** (Shadow) are intentionally omitted for
   this build; add spell icons for them if you respec.
 - Spell/item **names are enUS**; non-English clients need the localized names in each TSU.
@@ -120,3 +134,6 @@ grey out the rune and vice-versa).
   Fade/Psychic Scream/Fear Ward 30s, Desperate Prayer 10 min, Stoneform/Inner Focus 3 min, Mind
   Blast 8s (5.5s talented), Major Mana Potion 2 min, Mana Rune 2 min (separate category from
   potions). No code change — durations are read live; GCD guard confirmed safe.
+- 2026-07-11 — Add Power Word: Shield (17) as the new leftmost icon; row is now 10 icons. PW:S has
+  no spell cooldown, so the icon tracks the Weakened Soul (6788) self-lockout via `UnitDebuff` on
+  the player (~15 s until you can re-shield yourself). Re-exported (round-trip lossless).

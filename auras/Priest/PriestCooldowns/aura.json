@@ -14,6 +14,7 @@
     "yOffset": -140,
     "scale": 1,
     "controlledChildren": [
+      "Power Word: Shield",
       "Fade",
       "Psychic Scream",
       "Fear Ward",
@@ -113,10 +114,101 @@
       "disjunctive": "all",
       "activeTriggerMode": 1
     },
-    "desc": "Level 60 Dwarf Priest cooldown row (dynamic, self-collapsing): Fade, Psychic Scream, Fear Ward, Desperate Prayer, Stoneform, Inner Focus, Mind Blast (Shadow-only), Major Mana Potion, Mana Rune. Spells tracked by name (rank-proof; untalented/wrong-race icons hide); items possession-gated (hide when not carried); Mind Blast reveals only for a Shadow build. English clients only."
+    "desc": "Level 60 Dwarf Priest cooldown row (dynamic, self-collapsing): Power Word: Shield (Weakened Soul re-shield lockout), Fade, Psychic Scream, Fear Ward, Desperate Prayer, Stoneform, Inner Focus, Mind Blast (Shadow-only), Major Mana Potion, Mana Rune. Spells tracked by name (rank-proof; untalented/wrong-race icons hide); items possession-gated (hide when not carried); Mind Blast reveals only for a Shadow build; PW:S tracks the Weakened Soul self-lockout. English clients only."
   },
   "v": 1421,
   "c": [
+    {
+      "id": "Power Word: Shield",
+      "uid": "priCdPWS1",
+      "parent": "Dwarf Priest Cooldowns",
+      "regionType": "icon",
+      "internalVersion": 33,
+      "tocversion": 11508,
+      "anchorFrameType": "SCREEN",
+      "anchorPoint": "CENTER",
+      "selfPoint": "CENTER",
+      "xOffset": 0,
+      "yOffset": 0,
+      "width": 40,
+      "height": 40,
+      "cooldown": true,
+      "cooldownSwipe": true,
+      "cooldownEdge": false,
+      "cooldownTextDisabled": false,
+      "inverse": false,
+      "icon": true,
+      "iconSource": -1,
+      "desaturate": false,
+      "keepAspectRatio": false,
+      "zoom": 0,
+      "color": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "alpha": 1,
+      "frameStrata": 1,
+      "auto": true,
+      "config": {},
+      "authorOptions": [],
+      "conditions": [],
+      "subRegions": [],
+      "animation": {
+        "main": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "start": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "finish": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        }
+      },
+      "load": {
+        "use_never": false,
+        "class": {
+          "multi": {}
+        },
+        "spec": {
+          "multi": {}
+        },
+        "size": {
+          "multi": {}
+        },
+        "talent": {}
+      },
+      "actions": {
+        "init": {},
+        "start": {},
+        "finish": {}
+      },
+      "triggers": {
+        "1": {
+          "trigger": {
+            "type": "custom",
+            "custom_type": "stateupdate",
+            "check": "event",
+            "custom": "-- Dwarf Priest Cooldowns — Power Word: Shield (Weakened Soul lockout) — Trigger ▸ Custom ▸ Trigger State Updater\n-- PW:S has NO spell cooldown; the re-shield limiter is the Weakened Soul debuff (~15s) on the\n-- target. This icon shows PW:S art and paints a swipe = time until you can re-shield YOURSELF\n-- (it watches Weakened Soul on the player). Self-hides if the char doesn't know PW:S.\n-- Spell ids (reference): Power Word: Shield 17 · Weakened Soul 6788\n--   https://www.wowhead.com/classic/spell=17  https://www.wowhead.com/classic/spell=6788\n-- Events box: UNIT_AURA:player PLAYER_ENTERING_WORLD LEARNED_SPELL_IN_TAB\nfunction(allstates)\n    local sName, _, sIcon = GetSpellInfo(\"Power Word: Shield\")\n    if not sName then\n        allstates[\"\"] = { show = false, changed = true }    -- PW:S not known -> hide\n        return true\n    end\n    local dur, exp                                           -- Weakened Soul on the player = re-shield lockout\n    for i = 1, 40 do\n        local n, _, _, _, d, e = UnitDebuff(\"player\", i)\n        if not n then break end\n        if n == \"Weakened Soul\" then\n            dur, exp = d, e\n            break\n        end\n    end\n    local st = allstates[\"\"] or {}\n    st.show = true\n    st.changed = true\n    st.icon = sIcon\n    st.name = sName\n    if exp and dur and dur > 0 then\n        st.progressType = \"timed\"\n        st.duration = dur\n        st.expirationTime = exp\n    else\n        st.progressType = \"static\"\n        st.value, st.total = 1, 1\n    end\n    allstates[\"\"] = st\n    return true\nend",
+            "events": "UNIT_AURA:player, PLAYER_ENTERING_WORLD, LEARNED_SPELL_IN_TAB",
+            "custom_hide": "custom"
+          },
+          "untrigger": {}
+        },
+        "disjunctive": "all",
+        "activeTriggerMode": 1
+      }
+    },
     {
       "id": "Fade",
       "uid": "priCdFade1",
