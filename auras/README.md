@@ -8,7 +8,7 @@ scaffold to copy for a new aura — it is not a real aura and has no catalog row
 | WSG Flag Carriers | [Battlegrounds/WSG-FlagCarriers](Battlegrounds/WSG-FlagCarriers) | Era / SoD / HC | text | — | Import-ready (generated string); pending in-game test |
 | WSG Enemy FC Announcer | [Battlegrounds/WSG-EnemyFCAnnouncer](Battlegrounds/WSG-EnemyFCAnnouncer) | Era / SoD / HC (+ Cata/MoP) | text | — | Import-ready (generated string); pending in-game test |
 | Betty's 19 Twink Trinket Manager | [PvP/TrinketAutoSwap](PvP/TrinketAutoSwap) | Era (+ Cata/MoP) | all-in-one group (engine + 3 icons), `package.txt` | — | Import-ready; single-string `package.txt` bundles engine + bar; zero-config both factions (Insignia auto-detected); pending in-game test |
-| Betty's 19 Paladin Cooldowns | [Paladin/PaladinCooldowns](Paladin/PaladinCooldowns) | Era / SoD / HC | static group of 8 icons | — | Import-ready (generated string); cooldown row (DP/BoP/BoF/LoH/Judgement/Healing Potion/Big Bronze Bomb/Stoneform); spells tracked by name, Stoneform self-hides on non-Dwarf; pending in-game test |
+| Betty's 19 Paladin Cooldowns | [Paladin/PaladinCooldowns](Paladin/PaladinCooldowns) | Era / SoD / HC | static group of 9 icons | — | Import-ready (generated string); cooldown row (Hammer of Justice/DP/BoP/BoF/LoH/Judgement/Healing Potion/Big Bronze Bomb/Stoneform); spells tracked by name, Stoneform self-hides on non-Dwarf; pending in-game test |
 
 ## How to add an aura
 

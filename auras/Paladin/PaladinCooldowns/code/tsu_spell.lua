@@ -4,10 +4,11 @@
 -- Spell id (reference): 498  https://www.wowhead.com/classic/spell=498
 -- Events box: SPELL_UPDATE_COOLDOWN SPELL_UPDATE_USABLE LEARNED_SPELL_IN_TAB PLAYER_ENTERING_WORLD
 --
--- SHARED template for all six spell icons. Each pastes an identical block; the ONLY line that
+-- SHARED template for all seven spell icons. Each pastes an identical block; the ONLY line that
 -- changes per icon is `local name = "..."` (and the reference comment):
---   Divine Protection (498) · Blessing of Protection (1022) · Blessing of Freedom (1044)
---   Lay on Hands (633) · Judgement (20271) · Stoneform (20594, self-hides on non-Dwarf)
+--   Hammer of Justice (853) · Divine Protection (498) · Blessing of Protection (1022)
+--   Blessing of Freedom (1044) · Lay on Hands (633) · Judgement (20271)
+--   Stoneform (20594, self-hides on non-Dwarf)
 function(allstates)
     local name = "Divine Protection"
     local sName, _, sIcon = GetSpellInfo(name)

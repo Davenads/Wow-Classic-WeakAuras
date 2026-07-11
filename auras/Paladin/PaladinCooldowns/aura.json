@@ -14,6 +14,7 @@
     "yOffset": -140,
     "scale": 1,
     "controlledChildren": [
+      "Hammer of Justice",
       "Divine Protection",
       "Blessing of Protection",
       "Blessing of Freedom",
@@ -96,6 +97,97 @@
   },
   "c": [
     {
+      "id": "Hammer of Justice",
+      "uid": "palCdHoJ1",
+      "parent": "Betty's 19 Paladin Cooldowns",
+      "regionType": "icon",
+      "internalVersion": 33,
+      "tocversion": 11508,
+      "anchorFrameType": "SCREEN",
+      "anchorPoint": "CENTER",
+      "selfPoint": "CENTER",
+      "xOffset": -160,
+      "yOffset": 0,
+      "width": 40,
+      "height": 40,
+      "cooldown": true,
+      "cooldownSwipe": true,
+      "cooldownEdge": false,
+      "cooldownTextDisabled": false,
+      "inverse": false,
+      "icon": true,
+      "iconSource": -1,
+      "desaturate": false,
+      "keepAspectRatio": false,
+      "zoom": 0,
+      "color": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "alpha": 1,
+      "frameStrata": 1,
+      "auto": true,
+      "config": {},
+      "authorOptions": [],
+      "conditions": [],
+      "subRegions": [],
+      "animation": {
+        "main": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "start": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "finish": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        }
+      },
+      "load": {
+        "use_never": false,
+        "class": {
+          "multi": {}
+        },
+        "spec": {
+          "multi": {}
+        },
+        "size": {
+          "multi": {}
+        },
+        "talent": {}
+      },
+      "actions": {
+        "init": {},
+        "start": {},
+        "finish": {}
+      },
+      "triggers": {
+        "1": {
+          "trigger": {
+            "type": "custom",
+            "custom_type": "stateupdate",
+            "check": "event",
+            "custom": "-- Betty's 19 Paladin Cooldowns — Hammer of Justice — Trigger ▸ Custom ▸ Trigger State Updater\n-- Tracks Hammer of Justice's cooldown BY NAME (rank-proof; self-hides if the char doesn't know it,\n-- e.g. Stoneform on a non-Dwarf). WA renders the swipe + number from the state's timer.\n-- Spell id (reference): 853  https://www.wowhead.com/classic/spell=853\n-- Events box: SPELL_UPDATE_COOLDOWN SPELL_UPDATE_USABLE LEARNED_SPELL_IN_TAB PLAYER_ENTERING_WORLD\nfunction(allstates)\n    local name = \"Hammer of Justice\"\n    local sName, _, sIcon = GetSpellInfo(name)\n    if not sName then\n        allstates[\"\"] = { show = false, changed = true }   -- spell not known (e.g. Stoneform on non-Dwarf)\n        return true\n    end\n    local start, dur = GetSpellCooldown(name)\n    local st = allstates[\"\"] or {}\n    st.show = true\n    st.changed = true\n    st.icon = sIcon\n    st.name = sName\n    if start and dur and dur > 1.5 then                     -- dur > 1.5 filters the GCD\n        st.progressType = \"timed\"\n        st.duration = dur\n        st.expirationTime = start + dur\n    else\n        st.progressType = \"static\"\n        st.value, st.total = 1, 1\n    end\n    allstates[\"\"] = st\n    return true\nend",
+            "events": "SPELL_UPDATE_COOLDOWN, SPELL_UPDATE_USABLE, LEARNED_SPELL_IN_TAB, PLAYER_ENTERING_WORLD",
+            "custom_hide": "custom"
+          },
+          "untrigger": {}
+        },
+        "disjunctive": "all",
+        "activeTriggerMode": 1
+      }
+    },
+    {
       "id": "Divine Protection",
       "uid": "palCdDP1",
       "parent": "Betty's 19 Paladin Cooldowns",
@@ -105,7 +197,7 @@
       "anchorFrameType": "SCREEN",
       "anchorPoint": "CENTER",
       "selfPoint": "CENTER",
-      "xOffset": -140,
+      "xOffset": -120,
       "yOffset": 0,
       "width": 40,
       "height": 40,
@@ -196,7 +288,7 @@
       "anchorFrameType": "SCREEN",
       "anchorPoint": "CENTER",
       "selfPoint": "CENTER",
-      "xOffset": -100,
+      "xOffset": -80,
       "yOffset": 0,
       "width": 40,
       "height": 40,
@@ -287,7 +379,7 @@
       "anchorFrameType": "SCREEN",
       "anchorPoint": "CENTER",
       "selfPoint": "CENTER",
-      "xOffset": -60,
+      "xOffset": -40,
       "yOffset": 0,
       "width": 40,
       "height": 40,
@@ -378,7 +470,7 @@
       "anchorFrameType": "SCREEN",
       "anchorPoint": "CENTER",
       "selfPoint": "CENTER",
-      "xOffset": -20,
+      "xOffset": 0,
       "yOffset": 0,
       "width": 40,
       "height": 40,
@@ -469,7 +561,7 @@
       "anchorFrameType": "SCREEN",
       "anchorPoint": "CENTER",
       "selfPoint": "CENTER",
-      "xOffset": 20,
+      "xOffset": 40,
       "yOffset": 0,
       "width": 40,
       "height": 40,
@@ -560,7 +652,7 @@
       "anchorFrameType": "SCREEN",
       "anchorPoint": "CENTER",
       "selfPoint": "CENTER",
-      "xOffset": 60,
+      "xOffset": 80,
       "yOffset": 0,
       "width": 40,
       "height": 40,
@@ -651,7 +743,7 @@
       "anchorFrameType": "SCREEN",
       "anchorPoint": "CENTER",
       "selfPoint": "CENTER",
-      "xOffset": 100,
+      "xOffset": 120,
       "yOffset": 0,
       "width": 40,
       "height": 40,
@@ -742,7 +834,7 @@
       "anchorFrameType": "SCREEN",
       "anchorPoint": "CENTER",
       "selfPoint": "CENTER",
-      "xOffset": 140,
+      "xOffset": 160,
       "yOffset": 0,
       "width": 40,
       "height": 40,

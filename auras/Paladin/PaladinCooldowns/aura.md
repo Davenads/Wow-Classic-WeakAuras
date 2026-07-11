@@ -8,21 +8,22 @@
 | **Min WeakAuras version** | 5.x |
 | **wago URL** | n/a |
 | **wago version** | n/a |
-| **Region type** | `group` (static) of 8 `icon` children |
+| **Region type** | `group` (static) of 9 `icon` children |
 
 ## Purpose
 
 A fixed horizontal row of the cooldowns a 19-bracket twink Paladin cares about, each an
 icon with a live cooldown swipe + numeric countdown. Left → right:
 
-1. **Divine Protection**
-2. **Blessing of Protection**
-3. **Blessing of Freedom**
-4. **Lay on Hands**
-5. **Judgement**
-6. **Healing Potion** (item)
-7. **Big Bronze Bomb** (item — Engineering AoE stun)
-8. **Stoneform** (Dwarf racial — self-hides if the character can't cast it)
+1. **Hammer of Justice**
+2. **Divine Protection**
+3. **Blessing of Protection**
+4. **Blessing of Freedom**
+5. **Lay on Hands**
+6. **Judgement**
+7. **Healing Potion** (item)
+8. **Big Bronze Bomb** (item — Engineering AoE stun)
+9. **Stoneform** (Dwarf racial — self-hides if the character can't cast it)
 
 Icons are always shown (bright = ready, swipe + number = on cooldown). It's a **static
 group** so hiding Stoneform (non-Dwarf) leaves its trailing slot empty without reflowing
@@ -34,12 +35,13 @@ Each icon is a **Custom ▸ Trigger State Updater** (one `""` state) — the sam
 pattern as *Betty's Trinket Display*, reading cooldowns directly rather than via a native
 Cooldown Progress trigger.
 
-- **Spell icons (6):** `GetSpellCooldown(name)` / `GetSpellInfo(name)`, tracked **by name**.
+- **Spell icons (7):** `GetSpellCooldown(name)` / `GetSpellInfo(name)`, tracked **by name**.
   By-name resolves the highest known rank automatically (Classic's per-rank spell IDs are
   the #1 "aura won't fire" bug) and returns nil when the spell isn't in the spellbook —
   which is exactly how the Stoneform icon hides itself on a non-Dwarf.
   Events: `SPELL_UPDATE_COOLDOWN SPELL_UPDATE_USABLE LEARNED_SPELL_IN_TAB PLAYER_ENTERING_WORLD`.
-  Reference IDs (comment-only, not used by the logic): Divine Protection
+  Reference IDs (comment-only, not used by the logic): Hammer of Justice
+  [853](https://www.wowhead.com/classic/spell=853), Divine Protection
   [498](https://www.wowhead.com/classic/spell=498), Blessing of Protection
   [1022](https://www.wowhead.com/classic/spell=1022), Blessing of Freedom
   [1044](https://www.wowhead.com/classic/spell=1044), Lay on Hands
@@ -60,9 +62,9 @@ The numeric countdown is WA's built-in icon cooldown text (`cooldownTextDisabled
 
 ## Custom code
 
-- `code/tsu_spell.lua` — the shared TSU pasted into all six spell icons; only the
-  `name = "..."` line changes per icon (Divine Protection / Blessing of Protection /
-  Blessing of Freedom / Lay on Hands / Judgement / Stoneform).
+- `code/tsu_spell.lua` — the shared TSU pasted into all seven spell icons; only the
+  `name = "..."` line changes per icon (Hammer of Justice / Divine Protection / Blessing of
+  Protection / Blessing of Freedom / Lay on Hands / Judgement / Stoneform).
 - `code/tsu_item.lua` — the shared TSU for the two item icons; only `ITEM_ID` changes
   (929 Healing Potion / 4380 Big Bronze Bomb).
 
@@ -86,3 +88,5 @@ No Init/Show/Hide/Condition code — the cooldown swipe animates itself once a s
   Bomb (4380), Stoneform. Spells tracked by name; Stoneform self-hides on non-Dwarf.
 - 2026-07-11 — Re-pitch the row flush: pitch now equals icon width (40px) so the 8 squares
   touch edge-to-edge with no gap (xOffsets -140…140).
+- 2026-07-11 — Add Hammer of Justice (853) as the leftmost icon; row is now 9 icons flush
+  (xOffsets -160…160).
