@@ -38,8 +38,9 @@ function(allstates)
         st.duration = bestDur
         st.expirationTime = bestExp
     else
-        st.progressType = "static"
-        st.value, st.total = 1, 1
+        st.progressType = "timed"   -- ready: 0-duration draws no swipe (icon stays bright)
+        st.duration = 0
+        st.expirationTime = 0
     end
     allstates[""] = st
     return true

@@ -92,3 +92,7 @@ No Init/Show/Hide/Condition code — the cooldown swipe animates itself once a s
   (xOffsets -160…160).
 - 2026-07-11 — Flip cooldown swipe direction (`inverse = true`) on all 9 icons so the dark
   overlay starts full and clears as the cooldown counts down (was filling in). Re-exported.
+- 2026-07-11 — Fix the ready (off-CD) state painting a full dark swipe: the TSU no longer emits a
+  `static` value=1/total=1 progress when ready (WA rendered that as a 100% swipe, dark under
+  `inverse`). Ready now emits a zero-duration `timed` state that draws no swipe, so idle icons stay
+  bright. Re-exported.

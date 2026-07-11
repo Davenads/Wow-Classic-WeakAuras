@@ -145,3 +145,7 @@ grey out the rune and vice-versa).
   Re-exported (round-trip lossless).
 - 2026-07-11 — Flip cooldown swipe direction (`inverse = true`) on all 10 icons so the dark
   overlay starts full and clears as the cooldown counts down (was filling in). Re-exported.
+- 2026-07-11 — Fix the ready (off-CD) state painting a full dark swipe: the TSU no longer emits a
+  `static` value=1/total=1 progress when ready (WA rendered that as a 100% swipe, dark under
+  `inverse`). Ready now emits a zero-duration `timed` state that draws no swipe, so idle icons stay
+  bright. Re-exported.
