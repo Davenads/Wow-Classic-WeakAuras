@@ -75,6 +75,29 @@ countdown is WA's built-in icon cooldown text (`cooldownTextDisabled = false`).
 No Init/Show/Hide/Condition code — the cooldown swipe animates itself once a state has
 `duration` + `expirationTime`.
 
+## Cooldowns (Classic Era — verified 2026-07-11)
+
+Durations are read **live** from `GetSpellCooldown`/`GetItemCooldown`, so the on-icon number
+is always whatever the game reports; these are the reference values used to sanity-check the
+design (Wowhead Classic + Wowpedia):
+
+| Icon | Cooldown | Notes |
+|---|---|---|
+| Fade | 30 s | 10 s threat-drop |
+| Psychic Scream | 30 s | base (Improved Psychic Scream — Shadow — would lower it) |
+| Fear Ward | 30 s | **Era keeps the 1.x value** (10-min ward); TBC 2.3.0 changed it to a 3-min CD |
+| Desperate Prayer | 10 min | instant, off-GCD emergency heal |
+| Stoneform | 3 min | 8 s active |
+| Inner Focus | 3 min | Discipline talent |
+| Mind Blast | 8 s (5.5 s w/ 5/5 Improved Mind Blast) | Shadow-only; short CD blinks in the row |
+| Major Mana Potion | 2 min | shared combat-**potion** category |
+| Mana Rune (Dark/Demonic) | 2 min | **separate** category from potions — chainable with a potion |
+
+Design checks: the `dur > 1.5` GCD guard is safe — the shortest real CD (Mind Blast, 8 s / 5.5 s
+talented) clears it. Because potions and runes are on **independent** 2-min cooldowns, having both
+the Mana Potion and Mana Rune icons is meaningful (each shows its own timer; a potion doesn't
+grey out the rune and vice-versa).
+
 ## Testing notes
 
 - Import `export.txt`, drag the group where you want it, then cast each ability / drink a potion /
@@ -93,3 +116,7 @@ No Init/Show/Hide/Condition code — the cooldown swipe animates itself once a s
   (20594), Inner Focus (14751), Mind Blast (8092, Shadowform-gated), Major Mana Potion (13444),
   Mana Rune (Dark 20520 / Demonic 12662). Spells by name; items possession-gated; horizontal
   flush layout collapses hidden icons.
+- 2026-07-11 — Verify cooldown durations against Classic Era (Wowhead/Wowpedia) and record them:
+  Fade/Psychic Scream/Fear Ward 30s, Desperate Prayer 10 min, Stoneform/Inner Focus 3 min, Mind
+  Blast 8s (5.5s talented), Major Mana Potion 2 min, Mana Rune 2 min (separate category from
+  potions). No code change — durations are read live; GCD guard confirmed safe.
