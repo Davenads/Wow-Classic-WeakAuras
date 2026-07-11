@@ -1,0 +1,940 @@
+{
+  "m": "d",
+  "s": "5.20.6",
+  "d": {
+    "id": "Dwarf Priest Cooldowns",
+    "uid": "priCdGrp1",
+    "regionType": "dynamicgroup",
+    "internalVersion": 33,
+    "tocversion": 11508,
+    "anchorFrameType": "SCREEN",
+    "anchorPoint": "CENTER",
+    "selfPoint": "CENTER",
+    "xOffset": 0,
+    "yOffset": -140,
+    "scale": 1,
+    "controlledChildren": [
+      "Fade",
+      "Psychic Scream",
+      "Fear Ward",
+      "Desperate Prayer",
+      "Stoneform",
+      "Inner Focus",
+      "Mind Blast",
+      "Major Mana Potion",
+      "Mana Rune"
+    ],
+    "grow": "HORIZONTAL",
+    "align": "CENTER",
+    "space": 0,
+    "stagger": 0,
+    "sort": "none",
+    "animate": false,
+    "useAnchorPerUnit": false,
+    "radius": 200,
+    "rotation": 0,
+    "fullCircle": true,
+    "arcLength": 360,
+    "constantFactor": "RADIUS",
+    "gridType": "RD",
+    "gridWidth": 5,
+    "rowSpace": 1,
+    "columnSpace": 1,
+    "useLimit": false,
+    "limit": 5,
+    "border": false,
+    "borderColor": [
+      0,
+      0,
+      0,
+      1
+    ],
+    "backdropColor": [
+      1,
+      1,
+      1,
+      0.5
+    ],
+    "frameStrata": 1,
+    "config": {},
+    "authorOptions": [],
+    "conditions": [],
+    "subRegions": [],
+    "animation": {
+      "main": {
+        "type": "none",
+        "duration_type": "seconds",
+        "easeType": "none",
+        "easeStrength": 3
+      },
+      "start": {
+        "type": "none",
+        "duration_type": "seconds",
+        "easeType": "none",
+        "easeStrength": 3
+      },
+      "finish": {
+        "type": "none",
+        "duration_type": "seconds",
+        "easeType": "none",
+        "easeStrength": 3
+      }
+    },
+    "load": {
+      "use_never": false,
+      "class": {
+        "multi": {}
+      },
+      "spec": {
+        "multi": {}
+      },
+      "size": {
+        "multi": {}
+      },
+      "talent": {}
+    },
+    "actions": {
+      "init": {},
+      "start": {},
+      "finish": {}
+    },
+    "triggers": {
+      "1": {
+        "trigger": {
+          "type": "custom",
+          "custom_type": "event",
+          "check": "event",
+          "custom": "function() return true end",
+          "events": "",
+          "custom_hide": "custom"
+        },
+        "untrigger": {}
+      },
+      "disjunctive": "all",
+      "activeTriggerMode": 1
+    },
+    "desc": "Level 60 Dwarf Priest cooldown row (dynamic, self-collapsing): Fade, Psychic Scream, Fear Ward, Desperate Prayer, Stoneform, Inner Focus, Mind Blast (Shadow-only), Major Mana Potion, Mana Rune. Spells tracked by name (rank-proof; untalented/wrong-race icons hide); items possession-gated (hide when not carried); Mind Blast reveals only for a Shadow build. English clients only."
+  },
+  "v": 1421,
+  "c": [
+    {
+      "id": "Fade",
+      "uid": "priCdFade1",
+      "parent": "Dwarf Priest Cooldowns",
+      "regionType": "icon",
+      "internalVersion": 33,
+      "tocversion": 11508,
+      "anchorFrameType": "SCREEN",
+      "anchorPoint": "CENTER",
+      "selfPoint": "CENTER",
+      "xOffset": 0,
+      "yOffset": 0,
+      "width": 40,
+      "height": 40,
+      "cooldown": true,
+      "cooldownSwipe": true,
+      "cooldownEdge": false,
+      "cooldownTextDisabled": false,
+      "inverse": false,
+      "icon": true,
+      "iconSource": -1,
+      "desaturate": false,
+      "keepAspectRatio": false,
+      "zoom": 0,
+      "color": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "alpha": 1,
+      "frameStrata": 1,
+      "auto": true,
+      "config": {},
+      "authorOptions": [],
+      "conditions": [],
+      "subRegions": [],
+      "animation": {
+        "main": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "start": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "finish": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        }
+      },
+      "load": {
+        "use_never": false,
+        "class": {
+          "multi": {}
+        },
+        "spec": {
+          "multi": {}
+        },
+        "size": {
+          "multi": {}
+        },
+        "talent": {}
+      },
+      "actions": {
+        "init": {},
+        "start": {},
+        "finish": {}
+      },
+      "triggers": {
+        "1": {
+          "trigger": {
+            "type": "custom",
+            "custom_type": "stateupdate",
+            "check": "event",
+            "custom": "-- Dwarf Priest Cooldowns — Fade — Trigger ▸ Custom ▸ Trigger State Updater\n-- Tracks Fade's cooldown BY NAME (rank-proof; self-hides if the char doesn't know it,\n-- e.g. an untalented ability or the wrong race). WA renders the swipe + number from the timer.\n-- Spell id (reference): 586  https://www.wowhead.com/classic/spell=586\n-- Events box: SPELL_UPDATE_COOLDOWN SPELL_UPDATE_USABLE LEARNED_SPELL_IN_TAB PLAYER_ENTERING_WORLD\nfunction(allstates)\n    local name = \"Fade\"\n    local sName, _, sIcon = GetSpellInfo(name)\n    if not sName then\n        allstates[\"\"] = { show = false, changed = true }   -- spell not known -> hide (group collapses)\n        return true\n    end\n    local start, dur = GetSpellCooldown(name)\n    local st = allstates[\"\"] or {}\n    st.show = true\n    st.changed = true\n    st.icon = sIcon\n    st.name = sName\n    if start and dur and dur > 1.5 then                     -- dur > 1.5 filters the GCD\n        st.progressType = \"timed\"\n        st.duration = dur\n        st.expirationTime = start + dur\n    else\n        st.progressType = \"static\"\n        st.value, st.total = 1, 1\n    end\n    allstates[\"\"] = st\n    return true\nend",
+            "events": "SPELL_UPDATE_COOLDOWN, SPELL_UPDATE_USABLE, LEARNED_SPELL_IN_TAB, PLAYER_ENTERING_WORLD",
+            "custom_hide": "custom"
+          },
+          "untrigger": {}
+        },
+        "disjunctive": "all",
+        "activeTriggerMode": 1
+      }
+    },
+    {
+      "id": "Psychic Scream",
+      "uid": "priCdPScr1",
+      "parent": "Dwarf Priest Cooldowns",
+      "regionType": "icon",
+      "internalVersion": 33,
+      "tocversion": 11508,
+      "anchorFrameType": "SCREEN",
+      "anchorPoint": "CENTER",
+      "selfPoint": "CENTER",
+      "xOffset": 0,
+      "yOffset": 0,
+      "width": 40,
+      "height": 40,
+      "cooldown": true,
+      "cooldownSwipe": true,
+      "cooldownEdge": false,
+      "cooldownTextDisabled": false,
+      "inverse": false,
+      "icon": true,
+      "iconSource": -1,
+      "desaturate": false,
+      "keepAspectRatio": false,
+      "zoom": 0,
+      "color": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "alpha": 1,
+      "frameStrata": 1,
+      "auto": true,
+      "config": {},
+      "authorOptions": [],
+      "conditions": [],
+      "subRegions": [],
+      "animation": {
+        "main": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "start": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "finish": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        }
+      },
+      "load": {
+        "use_never": false,
+        "class": {
+          "multi": {}
+        },
+        "spec": {
+          "multi": {}
+        },
+        "size": {
+          "multi": {}
+        },
+        "talent": {}
+      },
+      "actions": {
+        "init": {},
+        "start": {},
+        "finish": {}
+      },
+      "triggers": {
+        "1": {
+          "trigger": {
+            "type": "custom",
+            "custom_type": "stateupdate",
+            "check": "event",
+            "custom": "-- Dwarf Priest Cooldowns — Psychic Scream — Trigger ▸ Custom ▸ Trigger State Updater\n-- Tracks Psychic Scream's cooldown BY NAME (rank-proof; self-hides if the char doesn't know it,\n-- e.g. an untalented ability or the wrong race). WA renders the swipe + number from the timer.\n-- Spell id (reference): 8122  https://www.wowhead.com/classic/spell=8122\n-- Events box: SPELL_UPDATE_COOLDOWN SPELL_UPDATE_USABLE LEARNED_SPELL_IN_TAB PLAYER_ENTERING_WORLD\nfunction(allstates)\n    local name = \"Psychic Scream\"\n    local sName, _, sIcon = GetSpellInfo(name)\n    if not sName then\n        allstates[\"\"] = { show = false, changed = true }   -- spell not known -> hide (group collapses)\n        return true\n    end\n    local start, dur = GetSpellCooldown(name)\n    local st = allstates[\"\"] or {}\n    st.show = true\n    st.changed = true\n    st.icon = sIcon\n    st.name = sName\n    if start and dur and dur > 1.5 then                     -- dur > 1.5 filters the GCD\n        st.progressType = \"timed\"\n        st.duration = dur\n        st.expirationTime = start + dur\n    else\n        st.progressType = \"static\"\n        st.value, st.total = 1, 1\n    end\n    allstates[\"\"] = st\n    return true\nend",
+            "events": "SPELL_UPDATE_COOLDOWN, SPELL_UPDATE_USABLE, LEARNED_SPELL_IN_TAB, PLAYER_ENTERING_WORLD",
+            "custom_hide": "custom"
+          },
+          "untrigger": {}
+        },
+        "disjunctive": "all",
+        "activeTriggerMode": 1
+      }
+    },
+    {
+      "id": "Fear Ward",
+      "uid": "priCdFWard1",
+      "parent": "Dwarf Priest Cooldowns",
+      "regionType": "icon",
+      "internalVersion": 33,
+      "tocversion": 11508,
+      "anchorFrameType": "SCREEN",
+      "anchorPoint": "CENTER",
+      "selfPoint": "CENTER",
+      "xOffset": 0,
+      "yOffset": 0,
+      "width": 40,
+      "height": 40,
+      "cooldown": true,
+      "cooldownSwipe": true,
+      "cooldownEdge": false,
+      "cooldownTextDisabled": false,
+      "inverse": false,
+      "icon": true,
+      "iconSource": -1,
+      "desaturate": false,
+      "keepAspectRatio": false,
+      "zoom": 0,
+      "color": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "alpha": 1,
+      "frameStrata": 1,
+      "auto": true,
+      "config": {},
+      "authorOptions": [],
+      "conditions": [],
+      "subRegions": [],
+      "animation": {
+        "main": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "start": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "finish": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        }
+      },
+      "load": {
+        "use_never": false,
+        "class": {
+          "multi": {}
+        },
+        "spec": {
+          "multi": {}
+        },
+        "size": {
+          "multi": {}
+        },
+        "talent": {}
+      },
+      "actions": {
+        "init": {},
+        "start": {},
+        "finish": {}
+      },
+      "triggers": {
+        "1": {
+          "trigger": {
+            "type": "custom",
+            "custom_type": "stateupdate",
+            "check": "event",
+            "custom": "-- Dwarf Priest Cooldowns — Fear Ward — Trigger ▸ Custom ▸ Trigger State Updater\n-- Tracks Fear Ward's cooldown BY NAME (rank-proof; self-hides if the char doesn't know it,\n-- e.g. an untalented ability or the wrong race). WA renders the swipe + number from the timer.\n-- Spell id (reference): 6346  https://www.wowhead.com/classic/spell=6346\n-- Events box: SPELL_UPDATE_COOLDOWN SPELL_UPDATE_USABLE LEARNED_SPELL_IN_TAB PLAYER_ENTERING_WORLD\nfunction(allstates)\n    local name = \"Fear Ward\"\n    local sName, _, sIcon = GetSpellInfo(name)\n    if not sName then\n        allstates[\"\"] = { show = false, changed = true }   -- spell not known -> hide (group collapses)\n        return true\n    end\n    local start, dur = GetSpellCooldown(name)\n    local st = allstates[\"\"] or {}\n    st.show = true\n    st.changed = true\n    st.icon = sIcon\n    st.name = sName\n    if start and dur and dur > 1.5 then                     -- dur > 1.5 filters the GCD\n        st.progressType = \"timed\"\n        st.duration = dur\n        st.expirationTime = start + dur\n    else\n        st.progressType = \"static\"\n        st.value, st.total = 1, 1\n    end\n    allstates[\"\"] = st\n    return true\nend",
+            "events": "SPELL_UPDATE_COOLDOWN, SPELL_UPDATE_USABLE, LEARNED_SPELL_IN_TAB, PLAYER_ENTERING_WORLD",
+            "custom_hide": "custom"
+          },
+          "untrigger": {}
+        },
+        "disjunctive": "all",
+        "activeTriggerMode": 1
+      }
+    },
+    {
+      "id": "Desperate Prayer",
+      "uid": "priCdDPray1",
+      "parent": "Dwarf Priest Cooldowns",
+      "regionType": "icon",
+      "internalVersion": 33,
+      "tocversion": 11508,
+      "anchorFrameType": "SCREEN",
+      "anchorPoint": "CENTER",
+      "selfPoint": "CENTER",
+      "xOffset": 0,
+      "yOffset": 0,
+      "width": 40,
+      "height": 40,
+      "cooldown": true,
+      "cooldownSwipe": true,
+      "cooldownEdge": false,
+      "cooldownTextDisabled": false,
+      "inverse": false,
+      "icon": true,
+      "iconSource": -1,
+      "desaturate": false,
+      "keepAspectRatio": false,
+      "zoom": 0,
+      "color": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "alpha": 1,
+      "frameStrata": 1,
+      "auto": true,
+      "config": {},
+      "authorOptions": [],
+      "conditions": [],
+      "subRegions": [],
+      "animation": {
+        "main": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "start": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "finish": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        }
+      },
+      "load": {
+        "use_never": false,
+        "class": {
+          "multi": {}
+        },
+        "spec": {
+          "multi": {}
+        },
+        "size": {
+          "multi": {}
+        },
+        "talent": {}
+      },
+      "actions": {
+        "init": {},
+        "start": {},
+        "finish": {}
+      },
+      "triggers": {
+        "1": {
+          "trigger": {
+            "type": "custom",
+            "custom_type": "stateupdate",
+            "check": "event",
+            "custom": "-- Dwarf Priest Cooldowns — Desperate Prayer — Trigger ▸ Custom ▸ Trigger State Updater\n-- Tracks Desperate Prayer's cooldown BY NAME (rank-proof; self-hides if the char doesn't know it,\n-- e.g. an untalented ability or the wrong race). WA renders the swipe + number from the timer.\n-- Spell id (reference): 13908  https://www.wowhead.com/classic/spell=13908\n-- Events box: SPELL_UPDATE_COOLDOWN SPELL_UPDATE_USABLE LEARNED_SPELL_IN_TAB PLAYER_ENTERING_WORLD\nfunction(allstates)\n    local name = \"Desperate Prayer\"\n    local sName, _, sIcon = GetSpellInfo(name)\n    if not sName then\n        allstates[\"\"] = { show = false, changed = true }   -- spell not known -> hide (group collapses)\n        return true\n    end\n    local start, dur = GetSpellCooldown(name)\n    local st = allstates[\"\"] or {}\n    st.show = true\n    st.changed = true\n    st.icon = sIcon\n    st.name = sName\n    if start and dur and dur > 1.5 then                     -- dur > 1.5 filters the GCD\n        st.progressType = \"timed\"\n        st.duration = dur\n        st.expirationTime = start + dur\n    else\n        st.progressType = \"static\"\n        st.value, st.total = 1, 1\n    end\n    allstates[\"\"] = st\n    return true\nend",
+            "events": "SPELL_UPDATE_COOLDOWN, SPELL_UPDATE_USABLE, LEARNED_SPELL_IN_TAB, PLAYER_ENTERING_WORLD",
+            "custom_hide": "custom"
+          },
+          "untrigger": {}
+        },
+        "disjunctive": "all",
+        "activeTriggerMode": 1
+      }
+    },
+    {
+      "id": "Stoneform",
+      "uid": "priCdStn1",
+      "parent": "Dwarf Priest Cooldowns",
+      "regionType": "icon",
+      "internalVersion": 33,
+      "tocversion": 11508,
+      "anchorFrameType": "SCREEN",
+      "anchorPoint": "CENTER",
+      "selfPoint": "CENTER",
+      "xOffset": 0,
+      "yOffset": 0,
+      "width": 40,
+      "height": 40,
+      "cooldown": true,
+      "cooldownSwipe": true,
+      "cooldownEdge": false,
+      "cooldownTextDisabled": false,
+      "inverse": false,
+      "icon": true,
+      "iconSource": -1,
+      "desaturate": false,
+      "keepAspectRatio": false,
+      "zoom": 0,
+      "color": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "alpha": 1,
+      "frameStrata": 1,
+      "auto": true,
+      "config": {},
+      "authorOptions": [],
+      "conditions": [],
+      "subRegions": [],
+      "animation": {
+        "main": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "start": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "finish": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        }
+      },
+      "load": {
+        "use_never": false,
+        "class": {
+          "multi": {}
+        },
+        "spec": {
+          "multi": {}
+        },
+        "size": {
+          "multi": {}
+        },
+        "talent": {}
+      },
+      "actions": {
+        "init": {},
+        "start": {},
+        "finish": {}
+      },
+      "triggers": {
+        "1": {
+          "trigger": {
+            "type": "custom",
+            "custom_type": "stateupdate",
+            "check": "event",
+            "custom": "-- Dwarf Priest Cooldowns — Stoneform — Trigger ▸ Custom ▸ Trigger State Updater\n-- Tracks Stoneform's cooldown BY NAME (rank-proof; self-hides if the char doesn't know it,\n-- e.g. an untalented ability or the wrong race). WA renders the swipe + number from the timer.\n-- Spell id (reference): 20594  https://www.wowhead.com/classic/spell=20594\n-- Events box: SPELL_UPDATE_COOLDOWN SPELL_UPDATE_USABLE LEARNED_SPELL_IN_TAB PLAYER_ENTERING_WORLD\nfunction(allstates)\n    local name = \"Stoneform\"\n    local sName, _, sIcon = GetSpellInfo(name)\n    if not sName then\n        allstates[\"\"] = { show = false, changed = true }   -- spell not known -> hide (group collapses)\n        return true\n    end\n    local start, dur = GetSpellCooldown(name)\n    local st = allstates[\"\"] or {}\n    st.show = true\n    st.changed = true\n    st.icon = sIcon\n    st.name = sName\n    if start and dur and dur > 1.5 then                     -- dur > 1.5 filters the GCD\n        st.progressType = \"timed\"\n        st.duration = dur\n        st.expirationTime = start + dur\n    else\n        st.progressType = \"static\"\n        st.value, st.total = 1, 1\n    end\n    allstates[\"\"] = st\n    return true\nend",
+            "events": "SPELL_UPDATE_COOLDOWN, SPELL_UPDATE_USABLE, LEARNED_SPELL_IN_TAB, PLAYER_ENTERING_WORLD",
+            "custom_hide": "custom"
+          },
+          "untrigger": {}
+        },
+        "disjunctive": "all",
+        "activeTriggerMode": 1
+      }
+    },
+    {
+      "id": "Inner Focus",
+      "uid": "priCdIFoc1",
+      "parent": "Dwarf Priest Cooldowns",
+      "regionType": "icon",
+      "internalVersion": 33,
+      "tocversion": 11508,
+      "anchorFrameType": "SCREEN",
+      "anchorPoint": "CENTER",
+      "selfPoint": "CENTER",
+      "xOffset": 0,
+      "yOffset": 0,
+      "width": 40,
+      "height": 40,
+      "cooldown": true,
+      "cooldownSwipe": true,
+      "cooldownEdge": false,
+      "cooldownTextDisabled": false,
+      "inverse": false,
+      "icon": true,
+      "iconSource": -1,
+      "desaturate": false,
+      "keepAspectRatio": false,
+      "zoom": 0,
+      "color": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "alpha": 1,
+      "frameStrata": 1,
+      "auto": true,
+      "config": {},
+      "authorOptions": [],
+      "conditions": [],
+      "subRegions": [],
+      "animation": {
+        "main": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "start": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "finish": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        }
+      },
+      "load": {
+        "use_never": false,
+        "class": {
+          "multi": {}
+        },
+        "spec": {
+          "multi": {}
+        },
+        "size": {
+          "multi": {}
+        },
+        "talent": {}
+      },
+      "actions": {
+        "init": {},
+        "start": {},
+        "finish": {}
+      },
+      "triggers": {
+        "1": {
+          "trigger": {
+            "type": "custom",
+            "custom_type": "stateupdate",
+            "check": "event",
+            "custom": "-- Dwarf Priest Cooldowns — Inner Focus — Trigger ▸ Custom ▸ Trigger State Updater\n-- Tracks Inner Focus's cooldown BY NAME (rank-proof; self-hides if the char doesn't know it,\n-- e.g. an untalented ability or the wrong race). WA renders the swipe + number from the timer.\n-- Spell id (reference): 14751  https://www.wowhead.com/classic/spell=14751\n-- Events box: SPELL_UPDATE_COOLDOWN SPELL_UPDATE_USABLE LEARNED_SPELL_IN_TAB PLAYER_ENTERING_WORLD\nfunction(allstates)\n    local name = \"Inner Focus\"\n    local sName, _, sIcon = GetSpellInfo(name)\n    if not sName then\n        allstates[\"\"] = { show = false, changed = true }   -- spell not known -> hide (group collapses)\n        return true\n    end\n    local start, dur = GetSpellCooldown(name)\n    local st = allstates[\"\"] or {}\n    st.show = true\n    st.changed = true\n    st.icon = sIcon\n    st.name = sName\n    if start and dur and dur > 1.5 then                     -- dur > 1.5 filters the GCD\n        st.progressType = \"timed\"\n        st.duration = dur\n        st.expirationTime = start + dur\n    else\n        st.progressType = \"static\"\n        st.value, st.total = 1, 1\n    end\n    allstates[\"\"] = st\n    return true\nend",
+            "events": "SPELL_UPDATE_COOLDOWN, SPELL_UPDATE_USABLE, LEARNED_SPELL_IN_TAB, PLAYER_ENTERING_WORLD",
+            "custom_hide": "custom"
+          },
+          "untrigger": {}
+        },
+        "disjunctive": "all",
+        "activeTriggerMode": 1
+      }
+    },
+    {
+      "id": "Mind Blast",
+      "uid": "priCdMBlast1",
+      "parent": "Dwarf Priest Cooldowns",
+      "regionType": "icon",
+      "internalVersion": 33,
+      "tocversion": 11508,
+      "anchorFrameType": "SCREEN",
+      "anchorPoint": "CENTER",
+      "selfPoint": "CENTER",
+      "xOffset": 0,
+      "yOffset": 0,
+      "width": 40,
+      "height": 40,
+      "cooldown": true,
+      "cooldownSwipe": true,
+      "cooldownEdge": false,
+      "cooldownTextDisabled": false,
+      "inverse": false,
+      "icon": true,
+      "iconSource": -1,
+      "desaturate": false,
+      "keepAspectRatio": false,
+      "zoom": 0,
+      "color": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "alpha": 1,
+      "frameStrata": 1,
+      "auto": true,
+      "config": {},
+      "authorOptions": [],
+      "conditions": [],
+      "subRegions": [],
+      "animation": {
+        "main": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "start": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "finish": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        }
+      },
+      "load": {
+        "use_never": false,
+        "class": {
+          "multi": {}
+        },
+        "spec": {
+          "multi": {}
+        },
+        "size": {
+          "multi": {}
+        },
+        "talent": {}
+      },
+      "actions": {
+        "init": {},
+        "start": {},
+        "finish": {}
+      },
+      "triggers": {
+        "1": {
+          "trigger": {
+            "type": "custom",
+            "custom_type": "stateupdate",
+            "check": "event",
+            "custom": "-- Dwarf Priest Cooldowns — Mind Blast (Shadow-only) — Trigger ▸ Custom ▸ Trigger State Updater\n-- Reveals ONLY when the character knows Shadowform (i.e. a real Shadow build); otherwise stays\n-- hidden and the dynamic group collapses the slot. Then tracks Mind Blast's cooldown BY NAME.\n-- Spell ids (reference): Mind Blast 8092 · gate spell Shadowform 15473\n--   https://www.wowhead.com/classic/spell=8092  https://www.wowhead.com/classic/spell=15473\n-- Events box: SPELL_UPDATE_COOLDOWN SPELL_UPDATE_USABLE LEARNED_SPELL_IN_TAB PLAYER_ENTERING_WORLD\nfunction(allstates)\n    local name = \"Mind Blast\"\n    if not GetSpellInfo(\"Shadowform\") then                  -- not a Shadow build -> hide\n        allstates[\"\"] = { show = false, changed = true }\n        return true\n    end\n    local sName, _, sIcon = GetSpellInfo(name)\n    if not sName then\n        allstates[\"\"] = { show = false, changed = true }\n        return true\n    end\n    local start, dur = GetSpellCooldown(name)\n    local st = allstates[\"\"] or {}\n    st.show = true\n    st.changed = true\n    st.icon = sIcon\n    st.name = sName\n    if start and dur and dur > 1.5 then\n        st.progressType = \"timed\"\n        st.duration = dur\n        st.expirationTime = start + dur\n    else\n        st.progressType = \"static\"\n        st.value, st.total = 1, 1\n    end\n    allstates[\"\"] = st\n    return true\nend",
+            "events": "SPELL_UPDATE_COOLDOWN, SPELL_UPDATE_USABLE, LEARNED_SPELL_IN_TAB, PLAYER_ENTERING_WORLD",
+            "custom_hide": "custom"
+          },
+          "untrigger": {}
+        },
+        "disjunctive": "all",
+        "activeTriggerMode": 1
+      }
+    },
+    {
+      "id": "Major Mana Potion",
+      "uid": "priCdMana1",
+      "parent": "Dwarf Priest Cooldowns",
+      "regionType": "icon",
+      "internalVersion": 33,
+      "tocversion": 11508,
+      "anchorFrameType": "SCREEN",
+      "anchorPoint": "CENTER",
+      "selfPoint": "CENTER",
+      "xOffset": 0,
+      "yOffset": 0,
+      "width": 40,
+      "height": 40,
+      "cooldown": true,
+      "cooldownSwipe": true,
+      "cooldownEdge": false,
+      "cooldownTextDisabled": false,
+      "inverse": false,
+      "icon": true,
+      "iconSource": -1,
+      "desaturate": false,
+      "keepAspectRatio": false,
+      "zoom": 0,
+      "color": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "alpha": 1,
+      "frameStrata": 1,
+      "auto": true,
+      "config": {},
+      "authorOptions": [],
+      "conditions": [],
+      "subRegions": [],
+      "animation": {
+        "main": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "start": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "finish": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        }
+      },
+      "load": {
+        "use_never": false,
+        "class": {
+          "multi": {}
+        },
+        "spec": {
+          "multi": {}
+        },
+        "size": {
+          "multi": {}
+        },
+        "talent": {}
+      },
+      "actions": {
+        "init": {},
+        "start": {},
+        "finish": {}
+      },
+      "triggers": {
+        "1": {
+          "trigger": {
+            "type": "custom",
+            "custom_type": "stateupdate",
+            "check": "event",
+            "custom": "-- Dwarf Priest Cooldowns — Major Mana Potion — Trigger ▸ Custom ▸ Trigger State Updater\n-- Possession-gated ITEM icon: shows ONLY while you carry >=1 (dynamic group collapses the slot\n-- when you don't), then paints the shared ~2-min combat-potion cooldown. Swap ITEM_ID for a\n-- different potion (e.g. Superior Mana Potion 3827). Flavor-aware getters: global on Era,\n-- C_Container/C_Item on Cata/MoP.\n-- Item id (reference): 13444  https://www.wowhead.com/classic/item=13444\n-- Events box: BAG_UPDATE_COOLDOWN SPELL_UPDATE_COOLDOWN BAG_UPDATE PLAYER_ENTERING_WORLD\nfunction(allstates)\n    local ITEM_ID = 13444\n    local function itemCd(itemId)\n        if C_Container and C_Container.GetItemCooldown then return C_Container.GetItemCooldown(itemId) end\n        if C_Item and C_Item.GetItemCooldown then return C_Item.GetItemCooldown(itemId) end\n        return GetItemCooldown(itemId)\n    end\n    local function itemCount(itemId)\n        if C_Item and C_Item.GetItemCount then return C_Item.GetItemCount(itemId) end\n        return GetItemCount(itemId)\n    end\n    if (itemCount(ITEM_ID) or 0) < 1 then                   -- not carried -> hide\n        allstates[\"\"] = { show = false, changed = true }\n        return true\n    end\n    local start, dur = itemCd(ITEM_ID)\n    local st = allstates[\"\"] or {}\n    st.show = true\n    st.changed = true\n    st.icon = GetItemIcon(ITEM_ID)\n    st.name = (GetItemInfo(ITEM_ID)) or \"Major Mana Potion\"\n    if start and dur and dur > 1.5 then\n        st.progressType = \"timed\"\n        st.duration = dur\n        st.expirationTime = start + dur\n    else\n        st.progressType = \"static\"\n        st.value, st.total = 1, 1\n    end\n    allstates[\"\"] = st\n    return true\nend",
+            "events": "BAG_UPDATE_COOLDOWN, SPELL_UPDATE_COOLDOWN, BAG_UPDATE, PLAYER_ENTERING_WORLD",
+            "custom_hide": "custom"
+          },
+          "untrigger": {}
+        },
+        "disjunctive": "all",
+        "activeTriggerMode": 1
+      }
+    },
+    {
+      "id": "Mana Rune",
+      "uid": "priCdRune1",
+      "parent": "Dwarf Priest Cooldowns",
+      "regionType": "icon",
+      "internalVersion": 33,
+      "tocversion": 11508,
+      "anchorFrameType": "SCREEN",
+      "anchorPoint": "CENTER",
+      "selfPoint": "CENTER",
+      "xOffset": 0,
+      "yOffset": 0,
+      "width": 40,
+      "height": 40,
+      "cooldown": true,
+      "cooldownSwipe": true,
+      "cooldownEdge": false,
+      "cooldownTextDisabled": false,
+      "inverse": false,
+      "icon": true,
+      "iconSource": -1,
+      "desaturate": false,
+      "keepAspectRatio": false,
+      "zoom": 0,
+      "color": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "alpha": 1,
+      "frameStrata": 1,
+      "auto": true,
+      "config": {},
+      "authorOptions": [],
+      "conditions": [],
+      "subRegions": [],
+      "animation": {
+        "main": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "start": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "finish": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        }
+      },
+      "load": {
+        "use_never": false,
+        "class": {
+          "multi": {}
+        },
+        "spec": {
+          "multi": {}
+        },
+        "size": {
+          "multi": {}
+        },
+        "talent": {}
+      },
+      "actions": {
+        "init": {},
+        "start": {},
+        "finish": {}
+      },
+      "triggers": {
+        "1": {
+          "trigger": {
+            "type": "custom",
+            "custom_type": "stateupdate",
+            "check": "event",
+            "custom": "-- Dwarf Priest Cooldowns — Mana Rune (Dark/Demonic) — Trigger ▸ Custom ▸ Trigger State Updater\n-- One smart icon for whichever mana rune you carry: scans the list, shows the FIRST one in your\n-- bags (its own art + live rune cooldown), and hides if you carry neither (group collapses).\n-- Item ids (reference): Dark Rune 20520 · Demonic Rune 12662\n--   https://www.wowhead.com/classic/item=20520  https://www.wowhead.com/classic/item=12662\n-- Events box: BAG_UPDATE_COOLDOWN SPELL_UPDATE_COOLDOWN BAG_UPDATE PLAYER_ENTERING_WORLD\nfunction(allstates)\n    local RUNES = { 20520, 12662 }                          -- Dark Rune (Scholo), Demonic Rune (DM)\n    local function itemCd(itemId)\n        if C_Container and C_Container.GetItemCooldown then return C_Container.GetItemCooldown(itemId) end\n        if C_Item and C_Item.GetItemCooldown then return C_Item.GetItemCooldown(itemId) end\n        return GetItemCooldown(itemId)\n    end\n    local function itemCount(itemId)\n        if C_Item and C_Item.GetItemCount then return C_Item.GetItemCount(itemId) end\n        return GetItemCount(itemId)\n    end\n    local have\n    for _, id in ipairs(RUNES) do\n        if (itemCount(id) or 0) > 0 then\n            have = id\n            break\n        end\n    end\n    if not have then                                        -- no rune carried -> hide\n        allstates[\"\"] = { show = false, changed = true }\n        return true\n    end\n    local start, dur = itemCd(have)\n    local st = allstates[\"\"] or {}\n    st.show = true\n    st.changed = true\n    st.icon = GetItemIcon(have)\n    st.name = (GetItemInfo(have)) or \"Mana Rune\"\n    if start and dur and dur > 1.5 then\n        st.progressType = \"timed\"\n        st.duration = dur\n        st.expirationTime = start + dur\n    else\n        st.progressType = \"static\"\n        st.value, st.total = 1, 1\n    end\n    allstates[\"\"] = st\n    return true\nend",
+            "events": "BAG_UPDATE_COOLDOWN, SPELL_UPDATE_COOLDOWN, BAG_UPDATE, PLAYER_ENTERING_WORLD",
+            "custom_hide": "custom"
+          },
+          "untrigger": {}
+        },
+        "disjunctive": "all",
+        "activeTriggerMode": 1
+      }
+    }
+  ]
+}
