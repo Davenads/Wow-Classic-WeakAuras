@@ -143,3 +143,5 @@ grey out the rune and vice-versa).
   `GetSpellCooldown("Power Word: Shield")` too and shows the longer of the 4 s CD (any target) and
   the ~15 s Weakened Soul window (self-shields); added `SPELL_UPDATE_COOLDOWN` to the events box.
   Re-exported (round-trip lossless).
+- 2026-07-11 — Flip cooldown swipe direction (`inverse = true`) on all 10 icons so the dark
+  overlay starts full and clears as the cooldown counts down (was filling in). Re-exported.

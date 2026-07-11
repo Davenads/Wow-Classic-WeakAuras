@@ -90,3 +90,5 @@ No Init/Show/Hide/Condition code — the cooldown swipe animates itself once a s
   touch edge-to-edge with no gap (xOffsets -140…140).
 - 2026-07-11 — Add Hammer of Justice (853) as the leftmost icon; row is now 9 icons flush
   (xOffsets -160…160).
+- 2026-07-11 — Flip cooldown swipe direction (`inverse = true`) on all 9 icons so the dark
+  overlay starts full and clears as the cooldown counts down (was filling in). Re-exported.
