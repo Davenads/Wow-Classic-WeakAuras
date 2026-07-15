@@ -1,0 +1,101 @@
+{
+  "m": "d",
+  "s": "5.20.6",
+  "d": {
+    "id": "Incoming Heals",
+    "uid": "incHeals01",
+    "regionType": "icon",
+    "internalVersion": 33,
+    "tocversion": 11508,
+    "anchorFrameType": "SCREEN",
+    "anchorPoint": "CENTER",
+    "selfPoint": "CENTER",
+    "xOffset": 0,
+    "yOffset": -100,
+    "width": 40,
+    "height": 40,
+    "cooldown": true,
+    "cooldownSwipe": true,
+    "cooldownEdge": false,
+    "cooldownTextDisabled": false,
+    "inverse": true,
+    "icon": true,
+    "iconSource": -1,
+    "desaturate": false,
+    "keepAspectRatio": false,
+    "zoom": 0,
+    "color": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "alpha": 1,
+    "frameStrata": 1,
+    "auto": true,
+    "config": {},
+    "authorOptions": [],
+    "conditions": [],
+    "subRegions": [],
+    "animation": {
+      "main": {
+        "type": "none",
+        "duration_type": "seconds",
+        "easeType": "none",
+        "easeStrength": 3
+      },
+      "start": {
+        "type": "none",
+        "duration_type": "seconds",
+        "easeType": "none",
+        "easeStrength": 3
+      },
+      "finish": {
+        "type": "none",
+        "duration_type": "seconds",
+        "easeType": "none",
+        "easeStrength": 3
+      }
+    },
+    "load": {
+      "use_never": false,
+      "use_ingroup": true,
+      "ingroup": "group",
+      "class": {
+        "multi": {}
+      },
+      "spec": {
+        "multi": {}
+      },
+      "size": {
+        "multi": {}
+      },
+      "talent": {}
+    },
+    "actions": {
+      "init": {
+        "custom": "-- Incoming Heals Indicator — Actions ▸ On Init (actions.init.custom)\n-- Resolves LibHealComm-4.0 ONCE (nil-safe: the aura still loads if no provider addon is\n-- present) and stashes the handle + a default icon on aura_env for the TSU to use. When\n-- LibHealComm IS present, we hook its callbacks so the trigger re-scans the instant an\n-- inbound heal on YOU starts / updates / is delayed / is cancelled — no polling needed.\n-- Data-source selection itself lives in tsu.lua (D2 LibHealComm ▸ else D1 native).\n-- LibHealComm-4.0 API: https://www.wowace.com/projects/libhealcomm-4-0/pages/api\nlocal HC = LibStub and LibStub(\"LibHealComm-4.0\", true) or nil\naura_env.HC = HC\naura_env.icon = 135953   -- Interface/Icons/Spell_Holy_Heal — generic inbound-heal art\n\nif HC then\n    -- Stable string target: re-running On Init (reload / config change) just REPLACES the\n    -- same callbacks rather than stacking duplicates.\n    local target = \"WA_IncomingHeals\"\n\n    -- The trailing varargs of every HealComm heal callback are the affected target GUIDs.\n    local function affectsPlayer(...)\n        local me = UnitGUID(\"player\")\n        for i = 1, select(\"#\", ...) do\n            if (select(i, ...)) == me then return true end\n        end\n        return false\n    end\n\n    -- HealStarted / HealUpdated / HealDelayed: (event, casterGUID, spellID, healType, endTime,     ...targetGUIDs)\n    -- HealStopped:                             (event, casterGUID, spellID, healType, interrupted,  ...targetGUIDs)\n    -- arg5 (endTime | interrupted) is ignored here; we re-read amounts fresh in the TSU.\n    local function poke(event, casterGUID, spellID, healType, arg5, ...)\n        if affectsPlayer(...) then\n            WeakAuras.ScanEvents(\"HEALCOMM_INCOMING\")\n        end\n    end\n\n    HC.RegisterCallback(target, \"HealComm_HealStarted\", poke)\n    HC.RegisterCallback(target, \"HealComm_HealUpdated\", poke)\n    HC.RegisterCallback(target, \"HealComm_HealDelayed\", poke)\n    HC.RegisterCallback(target, \"HealComm_HealStopped\", poke)\n    -- Modifier / trackability changes carry a single GUID (or none) — just rescan.\n    HC.RegisterCallback(target, \"HealComm_ModifierChanged\", function()\n        WeakAuras.ScanEvents(\"HEALCOMM_INCOMING\")\n    end)\n    HC.RegisterCallback(target, \"HealComm_GUIDDisappeared\", function()\n        WeakAuras.ScanEvents(\"HEALCOMM_INCOMING\")\n    end)\nend"
+      },
+      "start": {},
+      "finish": {}
+    },
+    "triggers": {
+      "1": {
+        "trigger": {
+          "type": "custom",
+          "custom_type": "stateupdate",
+          "check": "event",
+          "custom": "-- Incoming Heals Indicator — Trigger ▸ Custom ▸ Trigger State Updater (\"stateupdate\")\n-- Shows a single state while a heal is inbound on YOU, timed to its land-time, carrying the\n-- predicted amount + caster as custom fields. Graceful-degrade data source:\n--   D2  LibHealComm-4.0 (aura_env.HC)  -> amount + land-time + caster, incl. HoTs/channels.\n--   D1  native UnitGetIncomingHeals    -> amount only, direct casts only, no land-time.\n--   (else)                             -> hide.\n-- Declare in the Custom Variables box:  { amount = \"number\", hasAmount = true, casterName = \"string\" }\n-- Events box:  HEALCOMM_INCOMING, UNIT_HEAL_PREDICTION, PLAYER_ENTERING_WORLD\n-- LibHealComm-4.0 API: https://www.wowace.com/projects/libhealcomm-4-0/pages/api\nfunction(allstates, event, ...)\n    local now  = GetTime()\n    local guid = UnitGUID(\"player\")\n\n    local function hide()\n        allstates[\"\"] = { show = false, changed = true }\n        return true\n    end\n\n    if not guid then return hide() end\n\n    -- ===== D2: LibHealComm (rich) =====\n    local HC = aura_env.HC\n    if HC then\n        local amount, _, endTime, healerGUID = HC:GetNextHealAmount(guid)\n        if amount and endTime and endTime > now then\n            -- Sum every heal landing by that time, scaled by the active heal modifier.\n            local incoming = HC:GetHealAmount(guid, HC.ALL_HEALS, endTime) or amount\n            incoming = incoming * (HC:GetHealModifier(guid) or 1)\n\n            -- Cache the bar/swipe length so repeated rescans don't reset it to full each\n            -- time; only recompute when the soonest land-time actually changes.\n            if aura_env.curEnd ~= endTime then\n                aura_env.curEnd = endTime\n                aura_env.curDur = endTime - now\n            end\n\n            local who = healerGUID and select(6, GetPlayerInfoByGUID(healerGUID)) or nil\n            allstates[\"\"] = {\n                show           = true,\n                changed        = true,\n                progressType   = \"timed\",\n                duration       = aura_env.curDur,\n                expirationTime = endTime,\n                autoHide       = true,\n                icon           = aura_env.icon,\n                name           = who or \"Incoming Heal\",\n                amount         = math.floor(incoming + 0.5),\n                hasAmount      = true,\n                casterName     = who,\n            }\n            return true\n        end\n        aura_env.curEnd = nil\n    end\n\n    -- ===== D1: native fallback (amount only, no land-time) =====\n    local inc = UnitGetIncomingHeals and UnitGetIncomingHeals(\"player\")\n    if inc and inc > 0 then\n        allstates[\"\"] = {\n            show           = true,\n            changed        = true,\n            progressType   = \"timed\",\n            duration       = 1.5,            -- native gives no land-time; show a brief window\n            expirationTime = now + 1.5,\n            autoHide       = true,\n            icon           = aura_env.icon,\n            name           = \"Incoming Heal\",\n            amount         = math.floor(inc + 0.5),\n            hasAmount      = true,\n            casterName     = nil,\n        }\n        return true\n    end\n\n    return hide()\nend",
+          "events": "HEALCOMM_INCOMING, UNIT_HEAL_PREDICTION, PLAYER_ENTERING_WORLD",
+          "customVariables": "{ amount = 'number', hasAmount = true, casterName = 'string' }",
+          "custom_hide": "custom"
+        },
+        "untrigger": {}
+      },
+      "disjunctive": "all",
+      "activeTriggerMode": 1
+    },
+    "desc": "Self incoming-heal indicator (Classic Era). Icon + native land-time countdown; predicted amount + caster carried as state fields (amount/hasAmount/casterName). Data source degrades LibHealComm-4.0 -> native UnitGetIncomingHeals. Group-gated."
+  },
+  "v": 1421
+}
