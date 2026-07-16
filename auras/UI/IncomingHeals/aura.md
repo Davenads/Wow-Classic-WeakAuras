@@ -34,22 +34,28 @@ Data source is a **graceful-degrade chain** (full rationale in `PLAN.md`):
 - **Trigger 1 — Custom ▸ Trigger State Updater** (`code/tsu.lua`). One state `""`, `timed`
   to the heal's land-time, with custom fields `amount` (number), `hasAmount` (bool),
   `casterName` (string).
-  - **Custom Variables:** `{ amount = "number", hasAmount = true, casterName = "string" }`
+  - **Custom Variables:** `{ amount = "number", rawAmount = "number", hasAmount = true, casterName = "string", casterGUID = "string", spellName = "string", healType = "string", modifier = "number", overheal = "bool" }`
   - **Events:** `HEALCOMM_INCOMING, UNIT_HEAL_PREDICTION, PLAYER_ENTERING_WORLD`
     (`HEALCOMM_INCOMING` is a custom event fired by the On Init callbacks).
 
-No spell/item IDs are hard-coded — LibHealComm resolves amounts; the icon is generic
-`Spell_Holy_Heal` (fileID `135953`).
+No spell/item IDs are hard-coded. The icon is the **actual inbound-heal spell** —
+`GetSpellTexture(spellID)`, where `spellID` is captured from the LibHealComm callbacks
+(`GetNextHealAmount` doesn't return it). Fallback is the texture **path**
+`Interface\Icons\Spell_Holy_Heal` (a numeric fileID renders as `?` on some Era clients).
 
 ## Custom code
 
 - `code/init.lua` → **Actions ▸ On Init.** Resolves `LibStub("LibHealComm-4.0", true)` once
   onto `aura_env.HC`; if present, registers `HealComm_Heal*` / `_ModifierChanged` /
-  `_GUIDDisappeared` callbacks that fire `WeakAuras.ScanEvents("HEALCOMM_INCOMING")` whenever
-  an inbound heal on the player changes.
-- `code/tsu.lua` → **Trigger ▸ Custom ▸ TSU.** The degrade chain above; builds the timed state.
-- `code/custom_text.lua` → **Display ▸ Text ▸ `%c`.** Formats `caster  +amount` (e.g.
-  `Greater Heal  +4.2k`). Optional — a text string of `%casterName  +%amount` needs no `%c`.
+  `_GUIDDisappeared` callbacks that (a) cache the inbound cast's `spellID`/`healType` per
+  healer on `aura_env.casts` — so the TSU can show the real spell icon — and (b) fire
+  `WeakAuras.ScanEvents("HEALCOMM_INCOMING")` whenever an inbound heal on the player changes.
+- `code/tsu.lua` → **Trigger ▸ Custom ▸ TSU.** The degrade chain above; resolves the real
+  spell icon, computes the effective amount (× heal modifier), the `overheal` flag
+  (amount > missing health), and the `healType` label; builds the timed state.
+- `code/custom_text.lua` → **Display ▸ Text ▸ `%c`.** Rich string: **class-colored** caster ·
+  amount (green, or **red when it would overheal**) · a **`(-NN%)`** flag when a heal-reduction
+  modifier is active (e.g. `Flash Heal  +900  (-50%)`). No-`%c` alternative: `%casterName  +%amount`.
 
 ## Presentation & in-game finish
 
@@ -57,8 +63,9 @@ v1 ships as an **icon** (verified region schema) so it imports clean and works i
 icon art + native swipe/countdown to land-time. Per CLAUDE.md §1 the **WA UI owns geometry**,
 so the richer looks are quick in-game tweaks rather than hand-fabricated schema:
 
-- **Amount/caster text:** add a Text sub-element → set its text to `%casterName  +%amount`
-  (or `%c` + paste `custom_text.lua`).
+- **Amount/caster text:** add a Text sub-element → for the full class-color + overheal-color +
+  `(-NN%)` treatment set its text to `%c` and paste `custom_text.lua`; or, for a plain version
+  with no `%c`, set the text to `%casterName  +%amount`.
 - **Timer-bar look (U5, the plan's headline pick):** change Region type to *Progress Bar
   (aurabar)*, keep the same trigger/actions, set the bar text to `%casterName  +%amount` and
   the bar to fill toward `expirationTime`. Re-export and overwrite `export.txt`.
@@ -74,4 +81,9 @@ so the richer looks are quick in-game tweaks rather than hand-fabricated schema:
 
 ## Changelog
 
+- 2026-07-15 — Show the real inbound-heal spell icon (captured `spellID` → `GetSpellTexture`)
+  with a texture-path fallback, fixing the `?` icon (numeric fileID `135953` is invalid on
+  this Era client). Enriched state (`healType`, `modifier`, `overheal`, `rawAmount`,
+  `casterGUID`, `spellName`); rich `%c` text: class-colored caster, overheal-red amount,
+  `(-NN%)` heal-reduction flag.
 - 2026-07-15 — Initial version: icon indicator, LibHealComm ▸ native degrade chain, group-gated.
