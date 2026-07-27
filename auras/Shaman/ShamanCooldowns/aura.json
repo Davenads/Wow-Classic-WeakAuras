@@ -1,0 +1,1346 @@
+{
+  "m": "d",
+  "s": "5.20.6",
+  "d": {
+    "id": "Betty's 19 Shaman Cooldowns",
+    "uid": "shmCdGrp01",
+    "regionType": "group",
+    "internalVersion": 33,
+    "tocversion": 11508,
+    "anchorFrameType": "SCREEN",
+    "anchorPoint": "CENTER",
+    "selfPoint": "CENTER",
+    "xOffset": 0,
+    "yOffset": -140,
+    "scale": 1,
+    "controlledChildren": [
+      "Shaman Cooldowns Tier 1",
+      "Shaman Cooldowns Tier 2",
+      "Shaman Totem Presence"
+    ],
+    "borderColor": [
+      0,
+      0,
+      0,
+      1
+    ],
+    "backdropColor": [
+      1,
+      1,
+      1,
+      0.5
+    ],
+    "config": {},
+    "authorOptions": [],
+    "conditions": [],
+    "subRegions": [],
+    "animation": {
+      "main": {
+        "type": "none",
+        "duration_type": "seconds",
+        "easeType": "none",
+        "easeStrength": 3
+      },
+      "start": {
+        "type": "none",
+        "duration_type": "seconds",
+        "easeType": "none",
+        "easeStrength": 3
+      },
+      "finish": {
+        "type": "none",
+        "duration_type": "seconds",
+        "easeType": "none",
+        "easeStrength": 3
+      }
+    },
+    "load": {
+      "use_never": false,
+      "class": {
+        "multi": {}
+      },
+      "spec": {
+        "multi": {}
+      },
+      "size": {
+        "multi": {}
+      },
+      "talent": {}
+    },
+    "actions": {
+      "init": {},
+      "start": {},
+      "finish": {}
+    },
+    "triggers": {
+      "1": {
+        "trigger": {
+          "type": "custom",
+          "custom_type": "event",
+          "check": "event",
+          "custom": "function() return true end",
+          "events": "",
+          "custom_hide": "custom"
+        },
+        "untrigger": {}
+      },
+      "disjunctive": "all",
+      "activeTriggerMode": 1
+    },
+    "desc": "Betty's 19 twink Tauren Shaman cooldown display. Tier 1 (full size): War Stomp, Earth Shock, Earthbind Totem (15s), Healing Potion (929), Big Bronze Bomb (4380). Tier 2 (smaller): Fire Nova Totem (15s), Stoneclaw Totem (30s). Presence dots (show while planted): Tremor, Searing. Earthbind/Fire Nova/Stoneclaw glow while the totem is physically down. Spells/totems tracked by name (rank-proof; War Stomp self-hides on non-Tauren); items possession-gated. English clients only."
+  },
+  "c": [
+    {
+      "id": "Shaman Cooldowns Tier 1",
+      "uid": "shmTier1grp",
+      "parent": "Betty's 19 Shaman Cooldowns",
+      "regionType": "dynamicgroup",
+      "internalVersion": 33,
+      "tocversion": 11508,
+      "anchorFrameType": "SCREEN",
+      "anchorPoint": "CENTER",
+      "selfPoint": "CENTER",
+      "xOffset": 0,
+      "yOffset": 0,
+      "scale": 1,
+      "controlledChildren": [
+        "War Stomp",
+        "Earth Shock",
+        "Earthbind Totem",
+        "Healing Potion",
+        "Big Bronze Bomb"
+      ],
+      "grow": "HORIZONTAL",
+      "align": "CENTER",
+      "space": 4,
+      "stagger": 0,
+      "sort": "none",
+      "animate": false,
+      "useAnchorPerUnit": false,
+      "radius": 200,
+      "rotation": 0,
+      "fullCircle": true,
+      "arcLength": 360,
+      "constantFactor": "RADIUS",
+      "gridType": "RD",
+      "gridWidth": 5,
+      "rowSpace": 1,
+      "columnSpace": 1,
+      "useLimit": false,
+      "limit": 5,
+      "border": false,
+      "borderColor": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "backdropColor": [
+        1,
+        1,
+        1,
+        0.5
+      ],
+      "frameStrata": 1,
+      "config": {},
+      "authorOptions": [],
+      "conditions": [],
+      "subRegions": [],
+      "animation": {
+        "main": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "start": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "finish": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        }
+      },
+      "load": {
+        "use_never": false,
+        "class": {
+          "multi": {}
+        },
+        "spec": {
+          "multi": {}
+        },
+        "size": {
+          "multi": {}
+        },
+        "talent": {}
+      },
+      "actions": {
+        "init": {},
+        "start": {},
+        "finish": {}
+      },
+      "triggers": {
+        "1": {
+          "trigger": {
+            "type": "custom",
+            "custom_type": "event",
+            "check": "event",
+            "custom": "function() return true end",
+            "events": "",
+            "custom_hide": "custom"
+          },
+          "untrigger": {}
+        },
+        "disjunctive": "all",
+        "activeTriggerMode": 1
+      }
+    },
+    {
+      "id": "Shaman Cooldowns Tier 2",
+      "uid": "shmTier2grp",
+      "parent": "Betty's 19 Shaman Cooldowns",
+      "regionType": "dynamicgroup",
+      "internalVersion": 33,
+      "tocversion": 11508,
+      "anchorFrameType": "SCREEN",
+      "anchorPoint": "CENTER",
+      "selfPoint": "CENTER",
+      "xOffset": 0,
+      "yOffset": -34,
+      "scale": 1,
+      "controlledChildren": [
+        "Fire Nova Totem",
+        "Stoneclaw Totem"
+      ],
+      "grow": "RIGHT",
+      "align": "CENTER",
+      "space": 4,
+      "stagger": 0,
+      "sort": "none",
+      "animate": false,
+      "useAnchorPerUnit": false,
+      "radius": 200,
+      "rotation": 0,
+      "fullCircle": true,
+      "arcLength": 360,
+      "constantFactor": "RADIUS",
+      "gridType": "RD",
+      "gridWidth": 5,
+      "rowSpace": 1,
+      "columnSpace": 1,
+      "useLimit": false,
+      "limit": 5,
+      "border": false,
+      "borderColor": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "backdropColor": [
+        1,
+        1,
+        1,
+        0.5
+      ],
+      "frameStrata": 1,
+      "config": {},
+      "authorOptions": [],
+      "conditions": [],
+      "subRegions": [],
+      "animation": {
+        "main": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "start": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "finish": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        }
+      },
+      "load": {
+        "use_never": false,
+        "class": {
+          "multi": {}
+        },
+        "spec": {
+          "multi": {}
+        },
+        "size": {
+          "multi": {}
+        },
+        "talent": {}
+      },
+      "actions": {
+        "init": {},
+        "start": {},
+        "finish": {}
+      },
+      "triggers": {
+        "1": {
+          "trigger": {
+            "type": "custom",
+            "custom_type": "event",
+            "check": "event",
+            "custom": "function() return true end",
+            "events": "",
+            "custom_hide": "custom"
+          },
+          "untrigger": {}
+        },
+        "disjunctive": "all",
+        "activeTriggerMode": 1
+      }
+    },
+    {
+      "id": "Shaman Totem Presence",
+      "uid": "shmDotsGrp1",
+      "parent": "Betty's 19 Shaman Cooldowns",
+      "regionType": "dynamicgroup",
+      "internalVersion": 33,
+      "tocversion": 11508,
+      "anchorFrameType": "SCREEN",
+      "anchorPoint": "CENTER",
+      "selfPoint": "CENTER",
+      "xOffset": 0,
+      "yOffset": -58,
+      "scale": 1,
+      "controlledChildren": [
+        "Tremor Totem",
+        "Searing Totem"
+      ],
+      "grow": "RIGHT",
+      "align": "CENTER",
+      "space": 4,
+      "stagger": 0,
+      "sort": "none",
+      "animate": false,
+      "useAnchorPerUnit": false,
+      "radius": 200,
+      "rotation": 0,
+      "fullCircle": true,
+      "arcLength": 360,
+      "constantFactor": "RADIUS",
+      "gridType": "RD",
+      "gridWidth": 5,
+      "rowSpace": 1,
+      "columnSpace": 1,
+      "useLimit": false,
+      "limit": 5,
+      "border": false,
+      "borderColor": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "backdropColor": [
+        1,
+        1,
+        1,
+        0.5
+      ],
+      "frameStrata": 1,
+      "config": {},
+      "authorOptions": [],
+      "conditions": [],
+      "subRegions": [],
+      "animation": {
+        "main": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "start": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "finish": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        }
+      },
+      "load": {
+        "use_never": false,
+        "class": {
+          "multi": {}
+        },
+        "spec": {
+          "multi": {}
+        },
+        "size": {
+          "multi": {}
+        },
+        "talent": {}
+      },
+      "actions": {
+        "init": {},
+        "start": {},
+        "finish": {}
+      },
+      "triggers": {
+        "1": {
+          "trigger": {
+            "type": "custom",
+            "custom_type": "event",
+            "check": "event",
+            "custom": "function() return true end",
+            "events": "",
+            "custom_hide": "custom"
+          },
+          "untrigger": {}
+        },
+        "disjunctive": "all",
+        "activeTriggerMode": 1
+      }
+    },
+    {
+      "id": "War Stomp",
+      "uid": "shmWarStomp",
+      "parent": "Shaman Cooldowns Tier 1",
+      "regionType": "icon",
+      "internalVersion": 33,
+      "tocversion": 11508,
+      "anchorFrameType": "SCREEN",
+      "anchorPoint": "CENTER",
+      "selfPoint": "CENTER",
+      "xOffset": 0,
+      "yOffset": 0,
+      "width": 40,
+      "height": 40,
+      "cooldown": true,
+      "cooldownSwipe": true,
+      "cooldownEdge": false,
+      "cooldownTextDisabled": false,
+      "inverse": true,
+      "icon": true,
+      "iconSource": -1,
+      "desaturate": false,
+      "keepAspectRatio": false,
+      "zoom": 0,
+      "color": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "alpha": 1,
+      "frameStrata": 1,
+      "auto": true,
+      "config": {},
+      "authorOptions": [],
+      "conditions": [],
+      "subRegions": [],
+      "animation": {
+        "main": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "start": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "finish": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        }
+      },
+      "load": {
+        "use_never": false,
+        "class": {
+          "multi": {}
+        },
+        "spec": {
+          "multi": {}
+        },
+        "size": {
+          "multi": {}
+        },
+        "talent": {}
+      },
+      "actions": {
+        "init": {},
+        "start": {},
+        "finish": {}
+      },
+      "triggers": {
+        "1": {
+          "trigger": {
+            "type": "custom",
+            "custom_type": "stateupdate",
+            "check": "event",
+            "custom": "-- Betty's 19 Shaman Cooldowns — <SPELL> — Trigger ▸ Custom ▸ Trigger State Updater\n-- Tracks a spell's cooldown BY NAME (rank-proof; self-hides if the char doesn't know it).\n-- ONE shared TSU for every plain cooldown icon in the primary + totem sub-row — only the\n-- `name` line changes per icon:\n--     War Stomp (120s)  /  Earth Shock (6s, shared w/ Flame Shock)\n--     Earthbind Totem (15s)  /  Fire Nova Totem (15s)  /  Stoneclaw Totem (30s)\n-- The three totem icons ALSO get a \"planted\" Glow via conditions.lua (that's a Condition,\n-- not part of this TSU). Cloned verbatim from Betty's 19 Paladin Cooldowns tsu_spell.\n-- Spell id (reference, War Stomp): 20549  https://www.wowhead.com/classic/spell=20549\n-- Events box: SPELL_UPDATE_COOLDOWN SPELL_UPDATE_USABLE LEARNED_SPELL_IN_TAB PLAYER_ENTERING_WORLD\nfunction(allstates)\n    local name = \"War Stomp\"                                -- ← change per icon\n    local sName, _, sIcon = GetSpellInfo(name)\n    if not sName then\n        allstates[\"\"] = { show = false, changed = true }    -- spell not known (e.g. War Stomp on non-Tauren)\n        return true\n    end\n    local start, dur = GetSpellCooldown(name)\n    local st = allstates[\"\"] or {}\n    st.show = true\n    st.changed = true\n    st.icon = sIcon\n    st.name = sName\n    if start and dur and dur > 1.5 then                     -- dur > 1.5 filters the GCD\n        st.progressType = \"timed\"\n        st.duration = dur\n        st.expirationTime = start + dur\n    else\n        st.progressType = \"timed\"   -- ready: 0-duration draws no swipe (icon stays bright)\n        st.duration = 0\n        st.expirationTime = 0\n    end\n    allstates[\"\"] = st\n    return true\nend",
+            "events": "SPELL_UPDATE_COOLDOWN, SPELL_UPDATE_USABLE, LEARNED_SPELL_IN_TAB, PLAYER_ENTERING_WORLD",
+            "custom_hide": "custom"
+          },
+          "untrigger": {}
+        },
+        "disjunctive": "all",
+        "activeTriggerMode": 1
+      }
+    },
+    {
+      "id": "Earth Shock",
+      "uid": "shmEarthShk",
+      "parent": "Shaman Cooldowns Tier 1",
+      "regionType": "icon",
+      "internalVersion": 33,
+      "tocversion": 11508,
+      "anchorFrameType": "SCREEN",
+      "anchorPoint": "CENTER",
+      "selfPoint": "CENTER",
+      "xOffset": 0,
+      "yOffset": 0,
+      "width": 40,
+      "height": 40,
+      "cooldown": true,
+      "cooldownSwipe": true,
+      "cooldownEdge": false,
+      "cooldownTextDisabled": false,
+      "inverse": true,
+      "icon": true,
+      "iconSource": -1,
+      "desaturate": false,
+      "keepAspectRatio": false,
+      "zoom": 0,
+      "color": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "alpha": 1,
+      "frameStrata": 1,
+      "auto": true,
+      "config": {},
+      "authorOptions": [],
+      "conditions": [],
+      "subRegions": [],
+      "animation": {
+        "main": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "start": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "finish": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        }
+      },
+      "load": {
+        "use_never": false,
+        "class": {
+          "multi": {}
+        },
+        "spec": {
+          "multi": {}
+        },
+        "size": {
+          "multi": {}
+        },
+        "talent": {}
+      },
+      "actions": {
+        "init": {},
+        "start": {},
+        "finish": {}
+      },
+      "triggers": {
+        "1": {
+          "trigger": {
+            "type": "custom",
+            "custom_type": "stateupdate",
+            "check": "event",
+            "custom": "-- Betty's 19 Shaman Cooldowns — <SPELL> — Trigger ▸ Custom ▸ Trigger State Updater\n-- Tracks a spell's cooldown BY NAME (rank-proof; self-hides if the char doesn't know it).\n-- ONE shared TSU for every plain cooldown icon in the primary + totem sub-row — only the\n-- `name` line changes per icon:\n--     War Stomp (120s)  /  Earth Shock (6s, shared w/ Flame Shock)\n--     Earthbind Totem (15s)  /  Fire Nova Totem (15s)  /  Stoneclaw Totem (30s)\n-- The three totem icons ALSO get a \"planted\" Glow via conditions.lua (that's a Condition,\n-- not part of this TSU). Cloned verbatim from Betty's 19 Paladin Cooldowns tsu_spell.\n-- Spell id (reference, Earth Shock): 8042  https://www.wowhead.com/classic/spell=8042\n-- Events box: SPELL_UPDATE_COOLDOWN SPELL_UPDATE_USABLE LEARNED_SPELL_IN_TAB PLAYER_ENTERING_WORLD\nfunction(allstates)\n    local name = \"Earth Shock\"                                -- ← change per icon\n    local sName, _, sIcon = GetSpellInfo(name)\n    if not sName then\n        allstates[\"\"] = { show = false, changed = true }    -- spell not known (e.g. War Stomp on non-Tauren)\n        return true\n    end\n    local start, dur = GetSpellCooldown(name)\n    local st = allstates[\"\"] or {}\n    st.show = true\n    st.changed = true\n    st.icon = sIcon\n    st.name = sName\n    if start and dur and dur > 1.5 then                     -- dur > 1.5 filters the GCD\n        st.progressType = \"timed\"\n        st.duration = dur\n        st.expirationTime = start + dur\n    else\n        st.progressType = \"timed\"   -- ready: 0-duration draws no swipe (icon stays bright)\n        st.duration = 0\n        st.expirationTime = 0\n    end\n    allstates[\"\"] = st\n    return true\nend",
+            "events": "SPELL_UPDATE_COOLDOWN, SPELL_UPDATE_USABLE, LEARNED_SPELL_IN_TAB, PLAYER_ENTERING_WORLD",
+            "custom_hide": "custom"
+          },
+          "untrigger": {}
+        },
+        "disjunctive": "all",
+        "activeTriggerMode": 1
+      }
+    },
+    {
+      "id": "Earthbind Totem",
+      "uid": "shmEarthbnd",
+      "parent": "Shaman Cooldowns Tier 1",
+      "regionType": "icon",
+      "internalVersion": 33,
+      "tocversion": 11508,
+      "anchorFrameType": "SCREEN",
+      "anchorPoint": "CENTER",
+      "selfPoint": "CENTER",
+      "xOffset": 0,
+      "yOffset": 0,
+      "width": 40,
+      "height": 40,
+      "cooldown": true,
+      "cooldownSwipe": true,
+      "cooldownEdge": false,
+      "cooldownTextDisabled": false,
+      "inverse": true,
+      "icon": true,
+      "iconSource": -1,
+      "desaturate": false,
+      "keepAspectRatio": false,
+      "zoom": 0,
+      "color": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "alpha": 1,
+      "frameStrata": 1,
+      "auto": true,
+      "config": {},
+      "authorOptions": [],
+      "conditions": [
+        {
+          "check": {
+            "trigger": -1,
+            "variable": "customcheck",
+            "value": "-- Betty's 19 Shaman Cooldowns — \"totem planted\" GLOW check — Conditions ▸ Custom Check\n-- Paste as a Custom Check condition on each TOTEM cooldown icon, then set the condition's\n-- change to \"Glow\". Returns true while the named totem is physically down, so the icon glows\n-- while planted — the icon's own swipe still shows the recast cooldown (from tsu_spell.lua).\n-- ONE template — change the `name` line per icon:\n--     Earthbind Totem (primary row)  /  Fire Nova Totem  /  Stoneclaw Totem (totem sub-row)\n-- Add PLAYER_TOTEM_UPDATE to the condition's check-on events so the glow updates on drop/expire.\n-- Scans all totem slots (Fire=1 Earth=2 Water=3 Air=4); slot order is irrelevant.\nfunction()\n    local name = \"Earthbind Totem\"                          -- ← change per icon\n    for slot = 1, (MAX_TOTEMS or 4) do\n        local _, tName, _, tDur = GetTotemInfo(slot)\n        if tName == name and tDur and tDur > 0 then\n            return true\n        end\n    end\n    return false\nend"
+          },
+          "changes": [
+            {
+              "property": "sub.1.glow",
+              "value": true
+            }
+          ],
+          "linked": false
+        }
+      ],
+      "subRegions": [
+        {
+          "type": "subglow",
+          "glow": false,
+          "useGlowColor": false,
+          "glowColor": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "glowType": "buttonOverlay",
+          "glowLines": 8,
+          "glowFrequency": 0.25,
+          "glowLength": 10,
+          "glowThickness": 1,
+          "glowScale": 1,
+          "glowBorder": false,
+          "glowXOffset": 0,
+          "glowYOffset": 0
+        }
+      ],
+      "animation": {
+        "main": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "start": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "finish": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        }
+      },
+      "load": {
+        "use_never": false,
+        "class": {
+          "multi": {}
+        },
+        "spec": {
+          "multi": {}
+        },
+        "size": {
+          "multi": {}
+        },
+        "talent": {}
+      },
+      "actions": {
+        "init": {},
+        "start": {},
+        "finish": {}
+      },
+      "triggers": {
+        "1": {
+          "trigger": {
+            "type": "custom",
+            "custom_type": "stateupdate",
+            "check": "event",
+            "custom": "-- Betty's 19 Shaman Cooldowns — <SPELL> — Trigger ▸ Custom ▸ Trigger State Updater\n-- Tracks a spell's cooldown BY NAME (rank-proof; self-hides if the char doesn't know it).\n-- ONE shared TSU for every plain cooldown icon in the primary + totem sub-row — only the\n-- `name` line changes per icon:\n--     War Stomp (120s)  /  Earth Shock (6s, shared w/ Flame Shock)\n--     Earthbind Totem (15s)  /  Fire Nova Totem (15s)  /  Stoneclaw Totem (30s)\n-- The three totem icons ALSO get a \"planted\" Glow via conditions.lua (that's a Condition,\n-- not part of this TSU). Cloned verbatim from Betty's 19 Paladin Cooldowns tsu_spell.\n-- Spell id (reference, Earthbind Totem): 2484  https://www.wowhead.com/classic/spell=2484\n-- Events box: SPELL_UPDATE_COOLDOWN SPELL_UPDATE_USABLE LEARNED_SPELL_IN_TAB PLAYER_ENTERING_WORLD\nfunction(allstates)\n    local name = \"Earthbind Totem\"                                -- ← change per icon\n    local sName, _, sIcon = GetSpellInfo(name)\n    if not sName then\n        allstates[\"\"] = { show = false, changed = true }    -- spell not known (e.g. War Stomp on non-Tauren)\n        return true\n    end\n    local start, dur = GetSpellCooldown(name)\n    local st = allstates[\"\"] or {}\n    st.show = true\n    st.changed = true\n    st.icon = sIcon\n    st.name = sName\n    if start and dur and dur > 1.5 then                     -- dur > 1.5 filters the GCD\n        st.progressType = \"timed\"\n        st.duration = dur\n        st.expirationTime = start + dur\n    else\n        st.progressType = \"timed\"   -- ready: 0-duration draws no swipe (icon stays bright)\n        st.duration = 0\n        st.expirationTime = 0\n    end\n    allstates[\"\"] = st\n    return true\nend",
+            "events": "SPELL_UPDATE_COOLDOWN, SPELL_UPDATE_USABLE, LEARNED_SPELL_IN_TAB, PLAYER_ENTERING_WORLD, PLAYER_TOTEM_UPDATE",
+            "custom_hide": "custom"
+          },
+          "untrigger": {}
+        },
+        "disjunctive": "all",
+        "activeTriggerMode": 1
+      }
+    },
+    {
+      "id": "Healing Potion",
+      "uid": "shmHealPot1",
+      "parent": "Shaman Cooldowns Tier 1",
+      "regionType": "icon",
+      "internalVersion": 33,
+      "tocversion": 11508,
+      "anchorFrameType": "SCREEN",
+      "anchorPoint": "CENTER",
+      "selfPoint": "CENTER",
+      "xOffset": 0,
+      "yOffset": 0,
+      "width": 40,
+      "height": 40,
+      "cooldown": true,
+      "cooldownSwipe": true,
+      "cooldownEdge": false,
+      "cooldownTextDisabled": false,
+      "inverse": true,
+      "icon": true,
+      "iconSource": -1,
+      "desaturate": false,
+      "keepAspectRatio": false,
+      "zoom": 0,
+      "color": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "alpha": 1,
+      "frameStrata": 1,
+      "auto": true,
+      "config": {},
+      "authorOptions": [],
+      "conditions": [],
+      "subRegions": [],
+      "animation": {
+        "main": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "start": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "finish": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        }
+      },
+      "load": {
+        "use_never": false,
+        "class": {
+          "multi": {}
+        },
+        "spec": {
+          "multi": {}
+        },
+        "size": {
+          "multi": {}
+        },
+        "talent": {}
+      },
+      "actions": {
+        "init": {},
+        "start": {},
+        "finish": {}
+      },
+      "triggers": {
+        "1": {
+          "trigger": {
+            "type": "custom",
+            "custom_type": "stateupdate",
+            "check": "event",
+            "custom": "-- Betty's 19 Shaman Cooldowns — Healing Potion — Trigger ▸ Custom ▸ Trigger State Updater\n-- Tracks an ITEM cooldown (shared category CD). Icon always shows so the slot stays fixed;\n-- the swipe + number appear while on cooldown. ONE shared TSU for both consumable icons —\n-- only the ITEM_ID (and fallback name) changes per icon:\n--     Healing Potion  = 929   (req level 12; ~2-min combat-potion category)\n--     Big Bronze Bomb = 4380  (Engineering AoE stun; ~1-min throwable/bomb category)\n-- Cloned verbatim from Betty's 19 Paladin Cooldowns tsu_item.\n-- Item id (reference, Healing Potion): 929  https://www.wowhead.com/classic/item=929\n-- Events box: BAG_UPDATE_COOLDOWN SPELL_UPDATE_COOLDOWN BAG_UPDATE PLAYER_ENTERING_WORLD\nfunction(allstates)\n    local ITEM_ID = 929                                     -- ← change per icon (929 / 4380)\n    local function itemCd(itemId)\n        if C_Container and C_Container.GetItemCooldown then return C_Container.GetItemCooldown(itemId) end\n        if C_Item and C_Item.GetItemCooldown then return C_Item.GetItemCooldown(itemId) end\n        return GetItemCooldown(itemId)\n    end\n    local start, dur = itemCd(ITEM_ID)\n    local st = allstates[\"\"] or {}\n    st.show = true\n    st.changed = true\n    st.icon = GetItemIcon(ITEM_ID)\n    st.name = (GetItemInfo(ITEM_ID)) or \"Healing Potion\"    -- ← change fallback per icon\n    if start and dur and dur > 1.5 then\n        st.progressType = \"timed\"\n        st.duration = dur\n        st.expirationTime = start + dur\n    else\n        st.progressType = \"timed\"   -- ready: 0-duration draws no swipe (icon stays bright)\n        st.duration = 0\n        st.expirationTime = 0\n    end\n    allstates[\"\"] = st\n    return true\nend",
+            "events": "BAG_UPDATE_COOLDOWN, SPELL_UPDATE_COOLDOWN, BAG_UPDATE, PLAYER_ENTERING_WORLD",
+            "custom_hide": "custom"
+          },
+          "untrigger": {}
+        },
+        "disjunctive": "all",
+        "activeTriggerMode": 1
+      }
+    },
+    {
+      "id": "Big Bronze Bomb",
+      "uid": "shmBigBomb1",
+      "parent": "Shaman Cooldowns Tier 1",
+      "regionType": "icon",
+      "internalVersion": 33,
+      "tocversion": 11508,
+      "anchorFrameType": "SCREEN",
+      "anchorPoint": "CENTER",
+      "selfPoint": "CENTER",
+      "xOffset": 0,
+      "yOffset": 0,
+      "width": 40,
+      "height": 40,
+      "cooldown": true,
+      "cooldownSwipe": true,
+      "cooldownEdge": false,
+      "cooldownTextDisabled": false,
+      "inverse": true,
+      "icon": true,
+      "iconSource": -1,
+      "desaturate": false,
+      "keepAspectRatio": false,
+      "zoom": 0,
+      "color": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "alpha": 1,
+      "frameStrata": 1,
+      "auto": true,
+      "config": {},
+      "authorOptions": [],
+      "conditions": [],
+      "subRegions": [],
+      "animation": {
+        "main": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "start": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "finish": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        }
+      },
+      "load": {
+        "use_never": false,
+        "class": {
+          "multi": {}
+        },
+        "spec": {
+          "multi": {}
+        },
+        "size": {
+          "multi": {}
+        },
+        "talent": {}
+      },
+      "actions": {
+        "init": {},
+        "start": {},
+        "finish": {}
+      },
+      "triggers": {
+        "1": {
+          "trigger": {
+            "type": "custom",
+            "custom_type": "stateupdate",
+            "check": "event",
+            "custom": "-- Betty's 19 Shaman Cooldowns — Big Bronze Bomb — Trigger ▸ Custom ▸ Trigger State Updater\n-- Tracks an ITEM cooldown (shared category CD). Icon always shows so the slot stays fixed;\n-- the swipe + number appear while on cooldown. ONE shared TSU for both consumable icons —\n-- only the ITEM_ID (and fallback name) changes per icon:\n--     Healing Potion  = 929   (req level 12; ~2-min combat-potion category)\n--     Big Bronze Bomb = 4380  (Engineering AoE stun; ~1-min throwable/bomb category)\n-- Cloned verbatim from Betty's 19 Paladin Cooldowns tsu_item.\n-- Item id (reference, Big Bronze Bomb): 4380  https://www.wowhead.com/classic/item=4380\n-- Events box: BAG_UPDATE_COOLDOWN SPELL_UPDATE_COOLDOWN BAG_UPDATE PLAYER_ENTERING_WORLD\nfunction(allstates)\n    local ITEM_ID = 4380                                     -- ← change per icon (929 / 4380)\n    local function itemCd(itemId)\n        if C_Container and C_Container.GetItemCooldown then return C_Container.GetItemCooldown(itemId) end\n        if C_Item and C_Item.GetItemCooldown then return C_Item.GetItemCooldown(itemId) end\n        return GetItemCooldown(itemId)\n    end\n    local start, dur = itemCd(ITEM_ID)\n    local st = allstates[\"\"] or {}\n    st.show = true\n    st.changed = true\n    st.icon = GetItemIcon(ITEM_ID)\n    st.name = (GetItemInfo(ITEM_ID)) or \"Big Bronze Bomb\"    -- ← change fallback per icon\n    if start and dur and dur > 1.5 then\n        st.progressType = \"timed\"\n        st.duration = dur\n        st.expirationTime = start + dur\n    else\n        st.progressType = \"timed\"   -- ready: 0-duration draws no swipe (icon stays bright)\n        st.duration = 0\n        st.expirationTime = 0\n    end\n    allstates[\"\"] = st\n    return true\nend",
+            "events": "BAG_UPDATE_COOLDOWN, SPELL_UPDATE_COOLDOWN, BAG_UPDATE, PLAYER_ENTERING_WORLD",
+            "custom_hide": "custom"
+          },
+          "untrigger": {}
+        },
+        "disjunctive": "all",
+        "activeTriggerMode": 1
+      }
+    },
+    {
+      "id": "Fire Nova Totem",
+      "uid": "shmFireNova",
+      "parent": "Shaman Cooldowns Tier 2",
+      "regionType": "icon",
+      "internalVersion": 33,
+      "tocversion": 11508,
+      "anchorFrameType": "SCREEN",
+      "anchorPoint": "CENTER",
+      "selfPoint": "CENTER",
+      "xOffset": 0,
+      "yOffset": 0,
+      "width": 24,
+      "height": 24,
+      "cooldown": true,
+      "cooldownSwipe": true,
+      "cooldownEdge": false,
+      "cooldownTextDisabled": false,
+      "inverse": true,
+      "icon": true,
+      "iconSource": -1,
+      "desaturate": false,
+      "keepAspectRatio": false,
+      "zoom": 0,
+      "color": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "alpha": 1,
+      "frameStrata": 1,
+      "auto": true,
+      "config": {},
+      "authorOptions": [],
+      "conditions": [
+        {
+          "check": {
+            "trigger": -1,
+            "variable": "customcheck",
+            "value": "-- Betty's 19 Shaman Cooldowns — \"totem planted\" GLOW check — Conditions ▸ Custom Check\n-- Paste as a Custom Check condition on each TOTEM cooldown icon, then set the condition's\n-- change to \"Glow\". Returns true while the named totem is physically down, so the icon glows\n-- while planted — the icon's own swipe still shows the recast cooldown (from tsu_spell.lua).\n-- ONE template — change the `name` line per icon:\n--     Earthbind Totem (primary row)  /  Fire Nova Totem  /  Stoneclaw Totem (totem sub-row)\n-- Add PLAYER_TOTEM_UPDATE to the condition's check-on events so the glow updates on drop/expire.\n-- Scans all totem slots (Fire=1 Earth=2 Water=3 Air=4); slot order is irrelevant.\nfunction()\n    local name = \"Fire Nova Totem\"                          -- ← change per icon\n    for slot = 1, (MAX_TOTEMS or 4) do\n        local _, tName, _, tDur = GetTotemInfo(slot)\n        if tName == name and tDur and tDur > 0 then\n            return true\n        end\n    end\n    return false\nend"
+          },
+          "changes": [
+            {
+              "property": "sub.1.glow",
+              "value": true
+            }
+          ],
+          "linked": false
+        }
+      ],
+      "subRegions": [
+        {
+          "type": "subglow",
+          "glow": false,
+          "useGlowColor": false,
+          "glowColor": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "glowType": "buttonOverlay",
+          "glowLines": 8,
+          "glowFrequency": 0.25,
+          "glowLength": 10,
+          "glowThickness": 1,
+          "glowScale": 1,
+          "glowBorder": false,
+          "glowXOffset": 0,
+          "glowYOffset": 0
+        }
+      ],
+      "animation": {
+        "main": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "start": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "finish": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        }
+      },
+      "load": {
+        "use_never": false,
+        "class": {
+          "multi": {}
+        },
+        "spec": {
+          "multi": {}
+        },
+        "size": {
+          "multi": {}
+        },
+        "talent": {}
+      },
+      "actions": {
+        "init": {},
+        "start": {},
+        "finish": {}
+      },
+      "triggers": {
+        "1": {
+          "trigger": {
+            "type": "custom",
+            "custom_type": "stateupdate",
+            "check": "event",
+            "custom": "-- Betty's 19 Shaman Cooldowns — <SPELL> — Trigger ▸ Custom ▸ Trigger State Updater\n-- Tracks a spell's cooldown BY NAME (rank-proof; self-hides if the char doesn't know it).\n-- ONE shared TSU for every plain cooldown icon in the primary + totem sub-row — only the\n-- `name` line changes per icon:\n--     War Stomp (120s)  /  Earth Shock (6s, shared w/ Flame Shock)\n--     Earthbind Totem (15s)  /  Fire Nova Totem (15s)  /  Stoneclaw Totem (30s)\n-- The three totem icons ALSO get a \"planted\" Glow via conditions.lua (that's a Condition,\n-- not part of this TSU). Cloned verbatim from Betty's 19 Paladin Cooldowns tsu_spell.\n-- Spell id (reference, Fire Nova Totem): 1535  https://www.wowhead.com/classic/spell=1535\n-- Events box: SPELL_UPDATE_COOLDOWN SPELL_UPDATE_USABLE LEARNED_SPELL_IN_TAB PLAYER_ENTERING_WORLD\nfunction(allstates)\n    local name = \"Fire Nova Totem\"                                -- ← change per icon\n    local sName, _, sIcon = GetSpellInfo(name)\n    if not sName then\n        allstates[\"\"] = { show = false, changed = true }    -- spell not known (e.g. War Stomp on non-Tauren)\n        return true\n    end\n    local start, dur = GetSpellCooldown(name)\n    local st = allstates[\"\"] or {}\n    st.show = true\n    st.changed = true\n    st.icon = sIcon\n    st.name = sName\n    if start and dur and dur > 1.5 then                     -- dur > 1.5 filters the GCD\n        st.progressType = \"timed\"\n        st.duration = dur\n        st.expirationTime = start + dur\n    else\n        st.progressType = \"timed\"   -- ready: 0-duration draws no swipe (icon stays bright)\n        st.duration = 0\n        st.expirationTime = 0\n    end\n    allstates[\"\"] = st\n    return true\nend",
+            "events": "SPELL_UPDATE_COOLDOWN, SPELL_UPDATE_USABLE, LEARNED_SPELL_IN_TAB, PLAYER_ENTERING_WORLD, PLAYER_TOTEM_UPDATE",
+            "custom_hide": "custom"
+          },
+          "untrigger": {}
+        },
+        "disjunctive": "all",
+        "activeTriggerMode": 1
+      }
+    },
+    {
+      "id": "Stoneclaw Totem",
+      "uid": "shmStonecla",
+      "parent": "Shaman Cooldowns Tier 2",
+      "regionType": "icon",
+      "internalVersion": 33,
+      "tocversion": 11508,
+      "anchorFrameType": "SCREEN",
+      "anchorPoint": "CENTER",
+      "selfPoint": "CENTER",
+      "xOffset": 0,
+      "yOffset": 0,
+      "width": 24,
+      "height": 24,
+      "cooldown": true,
+      "cooldownSwipe": true,
+      "cooldownEdge": false,
+      "cooldownTextDisabled": false,
+      "inverse": true,
+      "icon": true,
+      "iconSource": -1,
+      "desaturate": false,
+      "keepAspectRatio": false,
+      "zoom": 0,
+      "color": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "alpha": 1,
+      "frameStrata": 1,
+      "auto": true,
+      "config": {},
+      "authorOptions": [],
+      "conditions": [
+        {
+          "check": {
+            "trigger": -1,
+            "variable": "customcheck",
+            "value": "-- Betty's 19 Shaman Cooldowns — \"totem planted\" GLOW check — Conditions ▸ Custom Check\n-- Paste as a Custom Check condition on each TOTEM cooldown icon, then set the condition's\n-- change to \"Glow\". Returns true while the named totem is physically down, so the icon glows\n-- while planted — the icon's own swipe still shows the recast cooldown (from tsu_spell.lua).\n-- ONE template — change the `name` line per icon:\n--     Earthbind Totem (primary row)  /  Fire Nova Totem  /  Stoneclaw Totem (totem sub-row)\n-- Add PLAYER_TOTEM_UPDATE to the condition's check-on events so the glow updates on drop/expire.\n-- Scans all totem slots (Fire=1 Earth=2 Water=3 Air=4); slot order is irrelevant.\nfunction()\n    local name = \"Stoneclaw Totem\"                          -- ← change per icon\n    for slot = 1, (MAX_TOTEMS or 4) do\n        local _, tName, _, tDur = GetTotemInfo(slot)\n        if tName == name and tDur and tDur > 0 then\n            return true\n        end\n    end\n    return false\nend"
+          },
+          "changes": [
+            {
+              "property": "sub.1.glow",
+              "value": true
+            }
+          ],
+          "linked": false
+        }
+      ],
+      "subRegions": [
+        {
+          "type": "subglow",
+          "glow": false,
+          "useGlowColor": false,
+          "glowColor": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "glowType": "buttonOverlay",
+          "glowLines": 8,
+          "glowFrequency": 0.25,
+          "glowLength": 10,
+          "glowThickness": 1,
+          "glowScale": 1,
+          "glowBorder": false,
+          "glowXOffset": 0,
+          "glowYOffset": 0
+        }
+      ],
+      "animation": {
+        "main": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "start": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "finish": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        }
+      },
+      "load": {
+        "use_never": false,
+        "class": {
+          "multi": {}
+        },
+        "spec": {
+          "multi": {}
+        },
+        "size": {
+          "multi": {}
+        },
+        "talent": {}
+      },
+      "actions": {
+        "init": {},
+        "start": {},
+        "finish": {}
+      },
+      "triggers": {
+        "1": {
+          "trigger": {
+            "type": "custom",
+            "custom_type": "stateupdate",
+            "check": "event",
+            "custom": "-- Betty's 19 Shaman Cooldowns — <SPELL> — Trigger ▸ Custom ▸ Trigger State Updater\n-- Tracks a spell's cooldown BY NAME (rank-proof; self-hides if the char doesn't know it).\n-- ONE shared TSU for every plain cooldown icon in the primary + totem sub-row — only the\n-- `name` line changes per icon:\n--     War Stomp (120s)  /  Earth Shock (6s, shared w/ Flame Shock)\n--     Earthbind Totem (15s)  /  Fire Nova Totem (15s)  /  Stoneclaw Totem (30s)\n-- The three totem icons ALSO get a \"planted\" Glow via conditions.lua (that's a Condition,\n-- not part of this TSU). Cloned verbatim from Betty's 19 Paladin Cooldowns tsu_spell.\n-- Spell id (reference, Stoneclaw Totem): 5730  https://www.wowhead.com/classic/spell=5730\n-- Events box: SPELL_UPDATE_COOLDOWN SPELL_UPDATE_USABLE LEARNED_SPELL_IN_TAB PLAYER_ENTERING_WORLD\nfunction(allstates)\n    local name = \"Stoneclaw Totem\"                                -- ← change per icon\n    local sName, _, sIcon = GetSpellInfo(name)\n    if not sName then\n        allstates[\"\"] = { show = false, changed = true }    -- spell not known (e.g. War Stomp on non-Tauren)\n        return true\n    end\n    local start, dur = GetSpellCooldown(name)\n    local st = allstates[\"\"] or {}\n    st.show = true\n    st.changed = true\n    st.icon = sIcon\n    st.name = sName\n    if start and dur and dur > 1.5 then                     -- dur > 1.5 filters the GCD\n        st.progressType = \"timed\"\n        st.duration = dur\n        st.expirationTime = start + dur\n    else\n        st.progressType = \"timed\"   -- ready: 0-duration draws no swipe (icon stays bright)\n        st.duration = 0\n        st.expirationTime = 0\n    end\n    allstates[\"\"] = st\n    return true\nend",
+            "events": "SPELL_UPDATE_COOLDOWN, SPELL_UPDATE_USABLE, LEARNED_SPELL_IN_TAB, PLAYER_ENTERING_WORLD, PLAYER_TOTEM_UPDATE",
+            "custom_hide": "custom"
+          },
+          "untrigger": {}
+        },
+        "disjunctive": "all",
+        "activeTriggerMode": 1
+      }
+    },
+    {
+      "id": "Tremor Totem",
+      "uid": "shmTremor01",
+      "parent": "Shaman Totem Presence",
+      "regionType": "icon",
+      "internalVersion": 33,
+      "tocversion": 11508,
+      "anchorFrameType": "SCREEN",
+      "anchorPoint": "CENTER",
+      "selfPoint": "CENTER",
+      "xOffset": 0,
+      "yOffset": 0,
+      "width": 16,
+      "height": 16,
+      "cooldown": true,
+      "cooldownSwipe": false,
+      "cooldownEdge": false,
+      "cooldownTextDisabled": true,
+      "inverse": true,
+      "icon": true,
+      "iconSource": -1,
+      "desaturate": false,
+      "keepAspectRatio": false,
+      "zoom": 0,
+      "color": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "alpha": 1,
+      "frameStrata": 1,
+      "auto": true,
+      "config": {},
+      "authorOptions": [],
+      "conditions": [],
+      "subRegions": [],
+      "animation": {
+        "main": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "start": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "finish": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        }
+      },
+      "load": {
+        "use_never": false,
+        "class": {
+          "multi": {}
+        },
+        "spec": {
+          "multi": {}
+        },
+        "size": {
+          "multi": {}
+        },
+        "talent": {}
+      },
+      "actions": {
+        "init": {},
+        "start": {},
+        "finish": {}
+      },
+      "triggers": {
+        "1": {
+          "trigger": {
+            "type": "custom",
+            "custom_type": "stateupdate",
+            "check": "event",
+            "custom": "-- Betty's 19 Shaman Cooldowns — <TOTEM> presence dot — Trigger ▸ Custom ▸ Trigger State Updater\n-- Shows a small icon ONLY while the named totem is physically planted (presence only — no\n-- cooldown swipe). ONE shared TSU for the two no-CD totem dots — only the `name` line changes:\n--     Tremor Totem  (Earth slot, fear/charm/sleep break)\n--     Searing Totem (Fire slot, passive DPS)\n-- Reads GetTotemInfo (Fire=1 Earth=2 Water=3 Air=4) and scans ALL slots, so the slot order\n-- never matters. A slot counts as active when its totem name matches and duration > 0.\n-- NOTE: GetTotemInfo is native on current Classic Era / SoD / Cata / MoP clients. If a client\n--   ever stubs it, these dots simply never show (safe no-op) — the CD icons are unaffected.\n-- Events box: PLAYER_TOTEM_UPDATE PLAYER_ENTERING_WORLD\nfunction(allstates)\n    local name = \"Tremor Totem\"                             -- ← change per icon (Tremor Totem / Searing Totem)\n    local foundIcon\n    for slot = 1, (MAX_TOTEMS or 4) do\n        local _, tName, _, tDur, tIcon = GetTotemInfo(slot)\n        if tName == name and tDur and tDur > 0 then\n            foundIcon = tIcon\n            break\n        end\n    end\n    if foundIcon then\n        local st = allstates[\"\"] or {}\n        st.show = true\n        st.changed = true\n        st.icon = foundIcon\n        st.name = name\n        st.progressType = \"timed\"   -- presence only: keep the dot lit, no swipe\n        st.duration = 0\n        st.expirationTime = 0\n        allstates[\"\"] = st\n    else\n        allstates[\"\"] = { show = false, changed = true }    -- totem not down → dot collapses out\n    end\n    return true\nend",
+            "events": "PLAYER_TOTEM_UPDATE, PLAYER_ENTERING_WORLD",
+            "custom_hide": "custom"
+          },
+          "untrigger": {}
+        },
+        "disjunctive": "all",
+        "activeTriggerMode": 1
+      }
+    },
+    {
+      "id": "Searing Totem",
+      "uid": "shmSearing1",
+      "parent": "Shaman Totem Presence",
+      "regionType": "icon",
+      "internalVersion": 33,
+      "tocversion": 11508,
+      "anchorFrameType": "SCREEN",
+      "anchorPoint": "CENTER",
+      "selfPoint": "CENTER",
+      "xOffset": 0,
+      "yOffset": 0,
+      "width": 16,
+      "height": 16,
+      "cooldown": true,
+      "cooldownSwipe": false,
+      "cooldownEdge": false,
+      "cooldownTextDisabled": true,
+      "inverse": true,
+      "icon": true,
+      "iconSource": -1,
+      "desaturate": false,
+      "keepAspectRatio": false,
+      "zoom": 0,
+      "color": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "alpha": 1,
+      "frameStrata": 1,
+      "auto": true,
+      "config": {},
+      "authorOptions": [],
+      "conditions": [],
+      "subRegions": [],
+      "animation": {
+        "main": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "start": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "finish": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        }
+      },
+      "load": {
+        "use_never": false,
+        "class": {
+          "multi": {}
+        },
+        "spec": {
+          "multi": {}
+        },
+        "size": {
+          "multi": {}
+        },
+        "talent": {}
+      },
+      "actions": {
+        "init": {},
+        "start": {},
+        "finish": {}
+      },
+      "triggers": {
+        "1": {
+          "trigger": {
+            "type": "custom",
+            "custom_type": "stateupdate",
+            "check": "event",
+            "custom": "-- Betty's 19 Shaman Cooldowns — <TOTEM> presence dot — Trigger ▸ Custom ▸ Trigger State Updater\n-- Shows a small icon ONLY while the named totem is physically planted (presence only — no\n-- cooldown swipe). ONE shared TSU for the two no-CD totem dots — only the `name` line changes:\n--     Tremor Totem  (Earth slot, fear/charm/sleep break)\n--     Searing Totem (Fire slot, passive DPS)\n-- Reads GetTotemInfo (Fire=1 Earth=2 Water=3 Air=4) and scans ALL slots, so the slot order\n-- never matters. A slot counts as active when its totem name matches and duration > 0.\n-- NOTE: GetTotemInfo is native on current Classic Era / SoD / Cata / MoP clients. If a client\n--   ever stubs it, these dots simply never show (safe no-op) — the CD icons are unaffected.\n-- Events box: PLAYER_TOTEM_UPDATE PLAYER_ENTERING_WORLD\nfunction(allstates)\n    local name = \"Searing Totem\"                             -- ← change per icon (Tremor Totem / Searing Totem)\n    local foundIcon\n    for slot = 1, (MAX_TOTEMS or 4) do\n        local _, tName, _, tDur, tIcon = GetTotemInfo(slot)\n        if tName == name and tDur and tDur > 0 then\n            foundIcon = tIcon\n            break\n        end\n    end\n    if foundIcon then\n        local st = allstates[\"\"] or {}\n        st.show = true\n        st.changed = true\n        st.icon = foundIcon\n        st.name = name\n        st.progressType = \"timed\"   -- presence only: keep the dot lit, no swipe\n        st.duration = 0\n        st.expirationTime = 0\n        allstates[\"\"] = st\n    else\n        allstates[\"\"] = { show = false, changed = true }    -- totem not down → dot collapses out\n    end\n    return true\nend",
+            "events": "PLAYER_TOTEM_UPDATE, PLAYER_ENTERING_WORLD",
+            "custom_hide": "custom"
+          },
+          "untrigger": {}
+        },
+        "disjunctive": "all",
+        "activeTriggerMode": 1
+      }
+    }
+  ],
+  "v": 2000
+}

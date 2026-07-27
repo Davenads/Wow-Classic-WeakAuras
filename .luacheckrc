@@ -41,6 +41,8 @@ read_globals = {
     "IsPlayerSpell", "GetSpellBookItemInfo", "GetSpellBaseCooldown",
     "IsCurrentSpell", "GetTalentInfo", "GetSpecialization", "GetSpecializationInfo",
     "GetNumTalentTabs", "GetActiveTalentGroup",
+    -- Totems (Shaman) — native on current Era/SoD/Cata/MoP clients
+    "GetTotemInfo", "MAX_TOTEMS",
     -- Items / equipment
     "GetItemInfo", "GetItemCooldown", "GetInventoryItemID", "GetInventoryItemLink",
     "GetInventoryItemTexture", "GetInventoryItemCooldown", "IsEquippedItem", "GetItemCount",
