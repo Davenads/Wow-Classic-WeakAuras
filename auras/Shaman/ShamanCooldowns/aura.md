@@ -9,8 +9,9 @@
 | **Min WeakAuras version** | 5.x |
 | **wago URL** | n/a |
 | **wago version** | n/a |
-| **Region type** | parent `group` → **Tier 1** `dynamicgroup` (5 full-size 40px icons) + **Tier 2** `dynamicgroup` (2 × 24px icons) + **Presence** `dynamicgroup` (2 × 16px dots) |
-| **export.txt** | **Fabricated + round-trip-verified lossless** (cloned from the Paladin/Priest `dynamicgroup` shapes; `tools/decode.js` reproduces the same tree). **Not yet imported/tested in-game** — verify per the testing notes before declaring it working. |
+| **Region type** | parent `group` → **Tier 1** `dynamicgroup` (5 full-size 40px icons, y 0) + **Tier 2** `dynamicgroup` (2 × 24px icons, y −44) + **Presence** `dynamicgroup` (2 × 20px dots, y −74) — all three sub-rows grow `HORIZONTAL` (centered) so they line up under Tier 1 |
+| **Load conditions** | `class == SHAMAN` **and** `level == 19` (applied to every region, since children load independently) |
+| **export.txt** | **Fabricated + round-trip-verified lossless** (cloned from the Paladin/Priest `dynamicgroup` shapes; `tools/decode.js` reproduces the same tree). **Imported in-game once (v1)**; layout re-centered/re-spaced in v2 — re-import and re-verify per the testing notes. |
 
 ## Purpose
 
@@ -125,6 +126,13 @@ and sits in the primary row.
 
 ## Changelog
 
+- 2026-07-27 — v2 layout + load gating (post first in-game import). Fixed the "messy" alignment:
+  Tier 2 and the presence dots were `grow = RIGHT` (started at center, extended right → left-
+  shifted); switched both to `grow = HORIZONTAL` so all three sub-rows center under Tier 1.
+  Re-spaced vertically (Tier 1 y 0 / Tier 2 y −44 / Presence y −74) and bumped dots 16 → 20px
+  with `space` 4 → 6. Added load conditions `class == SHAMAN` and `level == 19` to every region
+  (children load independently, so the gate is applied to all 13). Re-fabricated + round-trip
+  verified lossless. Planted glow + CD swipes confirmed working in the v1 in-game test.
 - 2026-07-27 — Fabricated `export.txt`. Built the transmission envelope programmatically by
   cloning the round-tripped Paladin/Priest `dynamicgroup` field shapes: parent static `group`
   → Tier 1 `dynamicgroup` (5 × 40px) + Tier 2 `dynamicgroup` (2 × 24px) + Presence

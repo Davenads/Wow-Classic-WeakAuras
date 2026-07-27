@@ -56,9 +56,14 @@
     },
     "load": {
       "use_never": false,
+      "use_class": true,
       "class": {
+        "single": "SHAMAN",
         "multi": {}
       },
+      "use_level": true,
+      "level": 19,
+      "level_operator": "==",
       "spec": {
         "multi": {}
       },
@@ -87,7 +92,7 @@
       "disjunctive": "all",
       "activeTriggerMode": 1
     },
-    "desc": "Betty's 19 twink Tauren Shaman cooldown display. Tier 1 (full size): War Stomp, Earth Shock, Earthbind Totem (15s), Healing Potion (929), Big Bronze Bomb (4380). Tier 2 (smaller): Fire Nova Totem (15s), Stoneclaw Totem (30s). Presence dots (show while planted): Tremor, Searing. Earthbind/Fire Nova/Stoneclaw glow while the totem is physically down. Spells/totems tracked by name (rank-proof; War Stomp self-hides on non-Tauren); items possession-gated. English clients only."
+    "desc": "Betty's 19 twink Tauren Shaman cooldown display (load-gated to Shaman, level 19). Tier 1 (full size): War Stomp, Earth Shock, Earthbind Totem (15s), Healing Potion (929), Big Bronze Bomb (4380). Tier 2 (smaller): Fire Nova Totem (15s), Stoneclaw Totem (30s). Presence dots (show while planted): Tremor, Searing. All three sub-rows are centered under Tier 1. Earthbind/Fire Nova/Stoneclaw glow while the totem is physically down. Spells/totems tracked by name (rank-proof; War Stomp self-hides on non-Tauren); items possession-gated. English clients only."
   },
   "c": [
     {
@@ -168,9 +173,14 @@
       },
       "load": {
         "use_never": false,
+        "use_class": true,
         "class": {
+          "single": "SHAMAN",
           "multi": {}
         },
+        "use_level": true,
+        "level": 19,
+        "level_operator": "==",
         "spec": {
           "multi": {}
         },
@@ -211,15 +221,15 @@
       "anchorPoint": "CENTER",
       "selfPoint": "CENTER",
       "xOffset": 0,
-      "yOffset": -34,
+      "yOffset": -44,
       "scale": 1,
       "controlledChildren": [
         "Fire Nova Totem",
         "Stoneclaw Totem"
       ],
-      "grow": "RIGHT",
+      "grow": "HORIZONTAL",
       "align": "CENTER",
-      "space": 4,
+      "space": 6,
       "stagger": 0,
       "sort": "none",
       "animate": false,
@@ -275,9 +285,14 @@
       },
       "load": {
         "use_never": false,
+        "use_class": true,
         "class": {
+          "single": "SHAMAN",
           "multi": {}
         },
+        "use_level": true,
+        "level": 19,
+        "level_operator": "==",
         "spec": {
           "multi": {}
         },
@@ -318,15 +333,15 @@
       "anchorPoint": "CENTER",
       "selfPoint": "CENTER",
       "xOffset": 0,
-      "yOffset": -58,
+      "yOffset": -74,
       "scale": 1,
       "controlledChildren": [
         "Tremor Totem",
         "Searing Totem"
       ],
-      "grow": "RIGHT",
+      "grow": "HORIZONTAL",
       "align": "CENTER",
-      "space": 4,
+      "space": 6,
       "stagger": 0,
       "sort": "none",
       "animate": false,
@@ -382,9 +397,14 @@
       },
       "load": {
         "use_never": false,
+        "use_class": true,
         "class": {
+          "single": "SHAMAN",
           "multi": {}
         },
+        "use_level": true,
+        "level": 19,
+        "level_operator": "==",
         "spec": {
           "multi": {}
         },
@@ -473,9 +493,14 @@
       },
       "load": {
         "use_never": false,
+        "use_class": true,
         "class": {
+          "single": "SHAMAN",
           "multi": {}
         },
+        "use_level": true,
+        "level": 19,
+        "level_operator": "==",
         "spec": {
           "multi": {}
         },
@@ -564,9 +589,14 @@
       },
       "load": {
         "use_never": false,
+        "use_class": true,
         "class": {
+          "single": "SHAMAN",
           "multi": {}
         },
+        "use_level": true,
+        "level": 19,
+        "level_operator": "==",
         "spec": {
           "multi": {}
         },
@@ -691,9 +721,14 @@
       },
       "load": {
         "use_never": false,
+        "use_class": true,
         "class": {
+          "single": "SHAMAN",
           "multi": {}
         },
+        "use_level": true,
+        "level": 19,
+        "level_operator": "==",
         "spec": {
           "multi": {}
         },
@@ -782,9 +817,14 @@
       },
       "load": {
         "use_never": false,
+        "use_class": true,
         "class": {
+          "single": "SHAMAN",
           "multi": {}
         },
+        "use_level": true,
+        "level": 19,
+        "level_operator": "==",
         "spec": {
           "multi": {}
         },
@@ -873,9 +913,14 @@
       },
       "load": {
         "use_never": false,
+        "use_class": true,
         "class": {
+          "single": "SHAMAN",
           "multi": {}
         },
+        "use_level": true,
+        "level": 19,
+        "level_operator": "==",
         "spec": {
           "multi": {}
         },
@@ -1000,9 +1045,14 @@
       },
       "load": {
         "use_never": false,
+        "use_class": true,
         "class": {
+          "single": "SHAMAN",
           "multi": {}
         },
+        "use_level": true,
+        "level": 19,
+        "level_operator": "==",
         "spec": {
           "multi": {}
         },
@@ -1127,9 +1177,14 @@
       },
       "load": {
         "use_never": false,
+        "use_class": true,
         "class": {
+          "single": "SHAMAN",
           "multi": {}
         },
+        "use_level": true,
+        "level": 19,
+        "level_operator": "==",
         "spec": {
           "multi": {}
         },
@@ -1171,8 +1226,8 @@
       "selfPoint": "CENTER",
       "xOffset": 0,
       "yOffset": 0,
-      "width": 16,
-      "height": 16,
+      "width": 20,
+      "height": 20,
       "cooldown": true,
       "cooldownSwipe": false,
       "cooldownEdge": false,
@@ -1218,9 +1273,14 @@
       },
       "load": {
         "use_never": false,
+        "use_class": true,
         "class": {
+          "single": "SHAMAN",
           "multi": {}
         },
+        "use_level": true,
+        "level": 19,
+        "level_operator": "==",
         "spec": {
           "multi": {}
         },
@@ -1262,8 +1322,8 @@
       "selfPoint": "CENTER",
       "xOffset": 0,
       "yOffset": 0,
-      "width": 16,
-      "height": 16,
+      "width": 20,
+      "height": 20,
       "cooldown": true,
       "cooldownSwipe": false,
       "cooldownEdge": false,
@@ -1309,9 +1369,14 @@
       },
       "load": {
         "use_never": false,
+        "use_class": true,
         "class": {
+          "single": "SHAMAN",
           "multi": {}
         },
+        "use_level": true,
+        "level": 19,
+        "level_operator": "==",
         "spec": {
           "multi": {}
         },
