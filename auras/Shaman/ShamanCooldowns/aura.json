@@ -16,7 +16,7 @@
     "controlledChildren": [
       "Shaman Cooldowns Tier 1",
       "Shaman Cooldowns Tier 2",
-      "Shaman Totem Presence"
+      "Shaman Totem Slots"
     ],
     "borderColor": [
       0,
@@ -92,7 +92,7 @@
       "disjunctive": "all",
       "activeTriggerMode": 1
     },
-    "desc": "Betty's 19 twink Tauren Shaman cooldown display (load-gated to Shaman, level 19). Tier 1 (full size): War Stomp, Earth Shock, Earthbind Totem (15s), Healing Potion (929), Big Bronze Bomb (4380). Tier 2 (smaller): Fire Nova Totem (15s), Stoneclaw Totem (30s). Presence dots (show while planted): Tremor, Searing. All three sub-rows are centered under Tier 1. Earthbind/Fire Nova/Stoneclaw glow while the totem is physically down. Spells/totems tracked by name (rank-proof; War Stomp self-hides on non-Tauren); items possession-gated. English clients only."
+    "desc": "Betty's 19 twink Tauren Shaman cooldown display (load-gated to Shaman, level 19). Tier 1 (full size): War Stomp, Earth Shock, Earthbind Totem (15s), Healing Potion (929), Big Bronze Bomb (4380). Tier 2 (smaller): Fire Nova Totem (15s), Stoneclaw Totem (30s). Slot dots (show while planted): Fire slot + Earth slot mirror whatever totem is down (GetTotemInfo) with its remaining lifetime — auto-covers Stoneskin, Strength of Earth, Tremor, Searing, etc. All three sub-rows are centered under Tier 1. Earthbind/Fire Nova/Stoneclaw glow while the totem is physically down. Spells/totems tracked by name (rank-proof; War Stomp self-hides on non-Tauren); items possession-gated. English clients only."
   },
   "c": [
     {
@@ -323,8 +323,8 @@
       }
     },
     {
-      "id": "Shaman Totem Presence",
-      "uid": "shmDotsGrp1",
+      "id": "Shaman Totem Slots",
+      "uid": "shmSlotsGr1",
       "parent": "Betty's 19 Shaman Cooldowns",
       "regionType": "dynamicgroup",
       "internalVersion": 33,
@@ -336,8 +336,8 @@
       "yOffset": -74,
       "scale": 1,
       "controlledChildren": [
-        "Tremor Totem",
-        "Searing Totem"
+        "Fire Totem Slot",
+        "Earth Totem Slot"
       ],
       "grow": "HORIZONTAL",
       "align": "CENTER",
@@ -1215,9 +1215,9 @@
       }
     },
     {
-      "id": "Tremor Totem",
-      "uid": "shmTremor01",
-      "parent": "Shaman Totem Presence",
+      "id": "Fire Totem Slot",
+      "uid": "shmFireSlot",
+      "parent": "Shaman Totem Slots",
       "regionType": "icon",
       "internalVersion": 33,
       "tocversion": 11508,
@@ -1229,7 +1229,7 @@
       "width": 20,
       "height": 20,
       "cooldown": true,
-      "cooldownSwipe": false,
+      "cooldownSwipe": true,
       "cooldownEdge": false,
       "cooldownTextDisabled": true,
       "inverse": true,
@@ -1300,7 +1300,7 @@
             "type": "custom",
             "custom_type": "stateupdate",
             "check": "event",
-            "custom": "-- Betty's 19 Shaman Cooldowns — <TOTEM> presence dot — Trigger ▸ Custom ▸ Trigger State Updater\n-- Shows a small icon ONLY while the named totem is physically planted (presence only — no\n-- cooldown swipe). ONE shared TSU for the two no-CD totem dots — only the `name` line changes:\n--     Tremor Totem  (Earth slot, fear/charm/sleep break)\n--     Searing Totem (Fire slot, passive DPS)\n-- Reads GetTotemInfo (Fire=1 Earth=2 Water=3 Air=4) and scans ALL slots, so the slot order\n-- never matters. A slot counts as active when its totem name matches and duration > 0.\n-- NOTE: GetTotemInfo is native on current Classic Era / SoD / Cata / MoP clients. If a client\n--   ever stubs it, these dots simply never show (safe no-op) — the CD icons are unaffected.\n-- Events box: PLAYER_TOTEM_UPDATE PLAYER_ENTERING_WORLD\nfunction(allstates)\n    local name = \"Tremor Totem\"                             -- ← change per icon (Tremor Totem / Searing Totem)\n    local foundIcon\n    for slot = 1, (MAX_TOTEMS or 4) do\n        local _, tName, _, tDur, tIcon = GetTotemInfo(slot)\n        if tName == name and tDur and tDur > 0 then\n            foundIcon = tIcon\n            break\n        end\n    end\n    if foundIcon then\n        local st = allstates[\"\"] or {}\n        st.show = true\n        st.changed = true\n        st.icon = foundIcon\n        st.name = name\n        st.progressType = \"timed\"   -- presence only: keep the dot lit, no swipe\n        st.duration = 0\n        st.expirationTime = 0\n        allstates[\"\"] = st\n    else\n        allstates[\"\"] = { show = false, changed = true }    -- totem not down → dot collapses out\n    end\n    return true\nend",
+            "custom": "-- Betty's 19 Shaman Cooldowns — <SLOT> slot totem — Trigger ▸ Custom ▸ Trigger State Updater\n-- Shows WHATEVER totem currently occupies one totem SLOT (Fire = 1, Earth = 2), with that\n-- totem's own icon and remaining lifetime swipe. ONE shared TSU for the two slot dots — only\n-- the SLOT line changes per icon. A 19 only ever has a Fire and an Earth slot, and each slot\n-- holds one totem at a time, so two slot icons cover the whole kit with NO name list to keep:\n-- Stoneskin, Strength of Earth, Earthbind, Stoneclaw, Tremor (Earth) / Searing, Fire Nova (Fire)\n-- all light the right dot automatically the moment they're planted.\n-- GetTotemInfo(slot) -> haveTotem, name, startTime, duration, icon  (native on current Classic\n--   Era / SoD / Cata / MoP). If a client ever stubs it, the dot just never shows (safe no-op).\n-- Events box: PLAYER_TOTEM_UPDATE PLAYER_ENTERING_WORLD\nfunction(allstates)\n    local SLOT = 1                                          -- ← 1 = Fire slot, 2 = Earth slot\n    local have, tName, startTime, duration, tIcon = GetTotemInfo(SLOT)\n    if have and tName and tName ~= \"\" and duration and duration > 0 then\n        local st = allstates[\"\"] or {}\n        st.show = true\n        st.changed = true\n        st.icon = tIcon\n        st.name = tName\n        st.progressType = \"timed\"                           -- swipe = totem's remaining lifetime\n        st.duration = duration\n        st.expirationTime = startTime + duration\n        allstates[\"\"] = st\n    else\n        allstates[\"\"] = { show = false, changed = true }    -- slot empty → dot collapses out\n    end\n    return true\nend",
             "events": "PLAYER_TOTEM_UPDATE, PLAYER_ENTERING_WORLD",
             "custom_hide": "custom"
           },
@@ -1311,9 +1311,9 @@
       }
     },
     {
-      "id": "Searing Totem",
-      "uid": "shmSearing1",
-      "parent": "Shaman Totem Presence",
+      "id": "Earth Totem Slot",
+      "uid": "shmErthSlot",
+      "parent": "Shaman Totem Slots",
       "regionType": "icon",
       "internalVersion": 33,
       "tocversion": 11508,
@@ -1325,7 +1325,7 @@
       "width": 20,
       "height": 20,
       "cooldown": true,
-      "cooldownSwipe": false,
+      "cooldownSwipe": true,
       "cooldownEdge": false,
       "cooldownTextDisabled": true,
       "inverse": true,
@@ -1396,7 +1396,7 @@
             "type": "custom",
             "custom_type": "stateupdate",
             "check": "event",
-            "custom": "-- Betty's 19 Shaman Cooldowns — <TOTEM> presence dot — Trigger ▸ Custom ▸ Trigger State Updater\n-- Shows a small icon ONLY while the named totem is physically planted (presence only — no\n-- cooldown swipe). ONE shared TSU for the two no-CD totem dots — only the `name` line changes:\n--     Tremor Totem  (Earth slot, fear/charm/sleep break)\n--     Searing Totem (Fire slot, passive DPS)\n-- Reads GetTotemInfo (Fire=1 Earth=2 Water=3 Air=4) and scans ALL slots, so the slot order\n-- never matters. A slot counts as active when its totem name matches and duration > 0.\n-- NOTE: GetTotemInfo is native on current Classic Era / SoD / Cata / MoP clients. If a client\n--   ever stubs it, these dots simply never show (safe no-op) — the CD icons are unaffected.\n-- Events box: PLAYER_TOTEM_UPDATE PLAYER_ENTERING_WORLD\nfunction(allstates)\n    local name = \"Searing Totem\"                             -- ← change per icon (Tremor Totem / Searing Totem)\n    local foundIcon\n    for slot = 1, (MAX_TOTEMS or 4) do\n        local _, tName, _, tDur, tIcon = GetTotemInfo(slot)\n        if tName == name and tDur and tDur > 0 then\n            foundIcon = tIcon\n            break\n        end\n    end\n    if foundIcon then\n        local st = allstates[\"\"] or {}\n        st.show = true\n        st.changed = true\n        st.icon = foundIcon\n        st.name = name\n        st.progressType = \"timed\"   -- presence only: keep the dot lit, no swipe\n        st.duration = 0\n        st.expirationTime = 0\n        allstates[\"\"] = st\n    else\n        allstates[\"\"] = { show = false, changed = true }    -- totem not down → dot collapses out\n    end\n    return true\nend",
+            "custom": "-- Betty's 19 Shaman Cooldowns — <SLOT> slot totem — Trigger ▸ Custom ▸ Trigger State Updater\n-- Shows WHATEVER totem currently occupies one totem SLOT (Fire = 1, Earth = 2), with that\n-- totem's own icon and remaining lifetime swipe. ONE shared TSU for the two slot dots — only\n-- the SLOT line changes per icon. A 19 only ever has a Fire and an Earth slot, and each slot\n-- holds one totem at a time, so two slot icons cover the whole kit with NO name list to keep:\n-- Stoneskin, Strength of Earth, Earthbind, Stoneclaw, Tremor (Earth) / Searing, Fire Nova (Fire)\n-- all light the right dot automatically the moment they're planted.\n-- GetTotemInfo(slot) -> haveTotem, name, startTime, duration, icon  (native on current Classic\n--   Era / SoD / Cata / MoP). If a client ever stubs it, the dot just never shows (safe no-op).\n-- Events box: PLAYER_TOTEM_UPDATE PLAYER_ENTERING_WORLD\nfunction(allstates)\n    local SLOT = 2                                          -- ← 1 = Fire slot, 2 = Earth slot\n    local have, tName, startTime, duration, tIcon = GetTotemInfo(SLOT)\n    if have and tName and tName ~= \"\" and duration and duration > 0 then\n        local st = allstates[\"\"] or {}\n        st.show = true\n        st.changed = true\n        st.icon = tIcon\n        st.name = tName\n        st.progressType = \"timed\"                           -- swipe = totem's remaining lifetime\n        st.duration = duration\n        st.expirationTime = startTime + duration\n        allstates[\"\"] = st\n    else\n        allstates[\"\"] = { show = false, changed = true }    -- slot empty → dot collapses out\n    end\n    return true\nend",
             "events": "PLAYER_TOTEM_UPDATE, PLAYER_ENTERING_WORLD",
             "custom_hide": "custom"
           },
