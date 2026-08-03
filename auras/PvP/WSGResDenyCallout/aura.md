@@ -34,6 +34,11 @@ inference model from the **"BG Rez Timer"** WeakAura (wago `wm2BS70cN`, v1.0.2):
    spirit healer just fired, so re-anchor the cycle.
 3. **Manual/addon sync** on the shared `BG_REZ_SYNC` scan-event + `AuroBGRez` addon prefix
    (interoperates with the existing BG Rez Timer userbase).
+4. **Spirit-healer fallback** — if the aura is imported/reloaded **mid-match** (start message
+   already missed), the 0.1s ticker calls `GetAreaSpiritHealerTime()`; while you or a
+   groupmate is a ghost at a graveyard it returns the seconds to your next res wave, which
+   anchors the clock accurately without waiting for a wave or a manual sync. No-op once
+   seeded or when nobody is at a healer.
 
 Premise: both graveyards share **one** cycle, so a friendly-derived countdown predicts the
 enemy wave. `enemyGyOffset` lets you nudge the enemy phase if it drifts.
@@ -99,3 +104,5 @@ Requires **enemy nameplates on** (or teammates targeting the enemy) to read enem
 
 - 2026-08-02 — Initial scaffold: res-clock (ported from BG Rez Timer), multi-enemy
   scanner + EFC exclusion, layered rate limiter, dry-run default. Not yet tested in-game.
+- 2026-08-02 — Add `GetAreaSpiritHealerTime()` fallback seed so the clock self-anchors when
+  imported/reloaded mid-match (fixes the indefinite "waiting for match start…" state).

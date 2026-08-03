@@ -112,6 +112,19 @@ aura_env.rc = {
 
     isSeeded = function(self) return self.nextRez ~= nil end,
 
+    -- Fallback seed for import/reload MID-MATCH (start message already missed). While you
+    -- or a groupmate is a ghost at a graveyard, GetAreaSpiritHealerTime() returns seconds to
+    -- YOUR next res wave — both graveyards share the cycle, so it anchors the clock accurately
+    -- without waiting for a wave-detection or a manual sync. No-op once seeded, when the API is
+    -- absent, or when nobody's at a healer (returns nil / out-of-range).
+    trySeedFromHealer = function(self)
+        if self.nextRez or not GetAreaSpiritHealerTime then return end
+        local t = GetAreaSpiritHealerTime()
+        if t and t > 0 and t <= REZ_INTERVAL + 3.5 then
+            self.nextRez = GetTime() + t
+        end
+    end,
+
     -- Seconds until the ENEMY graveyard's next wave (with optional phase offset). Rolls the
     -- cycle forward if we've drifted past a wave without a resync.
     enemyRemaining = function(self, offset)

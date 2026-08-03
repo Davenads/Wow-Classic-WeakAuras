@@ -5,6 +5,7 @@
 
 if aura_env.ticker then aura_env.ticker:Cancel() end
 aura_env.ticker = C_Timer.NewTicker(0.1, function()
+    aura_env.rc:trySeedFromHealer()                 -- self-seed if we imported/reloaded mid-match
     aura_env.rc:detectWave(aura_env.cfg.wsgRezThreshold)
     aura_env.Evaluate()
 end)

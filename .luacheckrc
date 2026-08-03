@@ -58,6 +58,7 @@ read_globals = {
     "GetNumGroupMembers", "UnitGroupRolesAssigned", "GetRaidTargetIndex",
     "GetShapeshiftForm", "GetShapeshiftFormInfo", "GetInstanceInfo", "GetZoneText",
     "GetRealZoneText", "GetSubZoneText", "PlaySound", "PlaySoundFile",
+    "GetAreaSpiritHealerTime",
     -- Chat / CVars / output (announcer auras)
     "SendChatMessage", "UnitFactionGroup", "GetCVar", "SetCVar", "print",
     -- Macro-set toggle flag read by the trinket auto-swap controller
