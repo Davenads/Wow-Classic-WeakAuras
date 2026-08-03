@@ -33,11 +33,23 @@
     "xOffset": 0,
     "zoom": 0,
     "desc": "Warsong Gulch: when a low-HP enemy (not the flag carrier) is about to be resurrectable, posts a rate-limited /bg callout to HOLD the kill until the graveyard timer resets, so they eat a near-full ~30s res timer.",
-    "authorOptions": [],
+    "authorOptions": [
+      {
+        "type": "toggle",
+        "key": "dryRun",
+        "name": "Dry run — print locally, don't post to /bg",
+        "desc": "Checked: callouts only print to your own chat (testing). Uncheck to post them to /bg (Instance chat).",
+        "useDesc": true,
+        "default": true,
+        "width": 1
+      }
+    ],
     "wordWrap": "WordWrap",
     "width": 64,
     "height": 64,
-    "config": {},
+    "config": {
+      "dryRun": true
+    },
     "shadowXOffset": 1,
     "uid": "wsgResDeny01",
     "color": [

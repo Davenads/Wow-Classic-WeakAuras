@@ -62,11 +62,17 @@ enemy wave. `enemyGyOffset` lets you nudge the enemy phase if it drifts.
 - `on_hide.lua` — cancels the ticker on leaving WSG.
 - `custom_text.lua` — `%c` local indicator: predicted enemy rez countdown + hold-candidate count.
 
-### Custom Options (author options → `aura_env.config`)
+### Custom Options
+
+Only **`dryRun`** is exposed as a clickable WeakAuras author option (a checkbox in the
+aura's **Custom Options** tab): **checked = local prints only (default), unchecked = post to
+`/bg`**. The remaining keys below are code-level defaults in `init.lua` — edit them there (or
+promote any to author options later). All are read from `aura_env.config` with these
+fallbacks:
 
 | Key | Default | Meaning |
 |---|---|---|
-| `dryRun` | `true` | Print callouts locally instead of sending to `/bg`. |
+| `dryRun` | `true` | **WA checkbox.** Print callouts locally instead of sending to `/bg`. |
 | `channel` | `BG` | Live channel when dry-run off: `BG` (INSTANCE_CHAT) or `RAID`. |
 | `hpThreshold` | `20` | Only enemies at/under this HP % are callout candidates. |
 | `gyLowThreshold` | `7` | Only fire when predicted enemy rez ≤ this many seconds. |
@@ -106,3 +112,5 @@ Requires **enemy nameplates on** (or teammates targeting the enemy) to read enem
   scanner + EFC exclusion, layered rate limiter, dry-run default. Not yet tested in-game.
 - 2026-08-02 — Add `GetAreaSpiritHealerTime()` fallback seed so the clock self-anchors when
   imported/reloaded mid-match (fixes the indefinite "waiting for match start…" state).
+- 2026-08-02 — Expose `dryRun` as a real WA author option (checkbox in Custom Options) so
+  live `/bg` posting can be toggled without editing code. Default stays dry-run (checked).
