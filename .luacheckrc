@@ -34,7 +34,7 @@ read_globals = {
     -- Units
     "UnitExists", "UnitName", "UnitGUID", "UnitClass", "UnitRace", "UnitLevel",
     "UnitHealth", "UnitHealthMax", "UnitPower", "UnitPowerMax", "UnitPowerType", "UnitAffectingCombat",
-    "UnitIsUnit", "UnitIsPlayer", "UnitIsDead", "UnitIsDeadOrGhost", "UnitCanAttack",
+    "UnitIsUnit", "UnitIsPlayer", "UnitIsDead", "UnitIsDeadOrGhost", "UnitCanAttack", "UnitInRange",
     "UnitReaction", "UnitClassification", "UnitCreatureType", "UnitBuff", "UnitDebuff",
     "UnitAura", "UnitCastingInfo", "UnitChannelInfo", "AuraUtil",
     -- Spells / cooldowns (legacy globals still present on Classic)
@@ -57,8 +57,10 @@ read_globals = {
     "GetTime", "InCombatLockdown", "IsInInstance", "IsInGroup", "IsInRaid",
     "GetNumGroupMembers", "UnitGroupRolesAssigned", "GetRaidTargetIndex",
     "GetShapeshiftForm", "GetShapeshiftFormInfo", "GetInstanceInfo", "GetZoneText",
-    "GetRealZoneText", "GetSubZoneText", "PlaySound", "PlaySoundFile",
+    "GetRealZoneText", "GetSubZoneText", "PlaySound", "PlaySoundFile", "SOUNDKIT",
     "GetAreaSpiritHealerTime",
+    -- Combat-log object flags
+    "COMBATLOG_OBJECT_REACTION_HOSTILE",
     -- Chat / CVars / output (announcer auras)
     "SendChatMessage", "UnitFactionGroup", "GetCVar", "SetCVar", "print",
     -- Macro-set globals read by the trinket auto-swap controller

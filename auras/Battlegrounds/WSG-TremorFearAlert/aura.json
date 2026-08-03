@@ -1,0 +1,175 @@
+{
+  "m": "d",
+  "s": "5.20.6",
+  "d": {
+    "yOffset": 170,
+    "outline": "OUTLINE",
+    "desaturate": false,
+    "font": "Friz Quadrata TT",
+    "anchorFrameType": "SCREEN",
+    "animation": {
+      "main": {
+        "type": "none",
+        "duration_type": "seconds",
+        "easeType": "none",
+        "easeStrength": 3
+      },
+      "start": {
+        "type": "none",
+        "duration_type": "seconds",
+        "easeType": "none",
+        "easeStrength": 3
+      },
+      "finish": {
+        "type": "none",
+        "duration_type": "seconds",
+        "easeType": "none",
+        "easeStrength": 3
+      }
+    },
+    "keepAspectRatio": false,
+    "selfPoint": "CENTER",
+    "cooldownEdge": false,
+    "xOffset": 0,
+    "zoom": 0,
+    "desc": "Warsong Gulch (Shaman): on-screen HUD + sound when a nearby ally is hit by a fear/charm/sleep effect Tremor Totem can remove (RED drop-tremor when your tremor isn't down, YELLOW when it's already pulsing), and an ORANGE pre-alert when an enemy begins casting Fear / Scare Beast / Hibernate. Personal HUD only — never posts to chat.",
+    "authorOptions": [
+      {
+        "type": "toggle",
+        "key": "allyAlert",
+        "name": "Ally-feared -> DROP TREMOR alert",
+        "desc": "Show/sound when a nearby ally has a tremor-removable fear/charm/sleep.",
+        "useDesc": true,
+        "default": true,
+        "width": 2
+      },
+      {
+        "type": "toggle",
+        "key": "enemyCast",
+        "name": "Enemy fear-cast pre-alert (FEAR INCOMING)",
+        "desc": "Flash when an enemy begins casting Fear / Scare Beast / Hibernate (pre-empt window).",
+        "useDesc": true,
+        "default": true,
+        "width": 2
+      },
+      {
+        "type": "toggle",
+        "key": "sounds",
+        "name": "Play sounds on new alerts",
+        "desc": "Loud sound on DROP TREMOR, soft sound on FEAR INCOMING.",
+        "useDesc": true,
+        "default": true,
+        "width": 2
+      },
+      {
+        "type": "toggle",
+        "key": "nearbyOnly",
+        "name": "Only alert for allies in ~40yd (assist range)",
+        "desc": "Fail-open: allies whose range cannot be checked are still included.",
+        "useDesc": true,
+        "default": true,
+        "width": 2
+      }
+    ],
+    "wordWrap": "WordWrap",
+    "width": 64,
+    "height": 64,
+    "config": {
+      "allyAlert": true,
+      "enemyCast": true,
+      "sounds": true,
+      "nearbyOnly": true
+    },
+    "shadowXOffset": 1,
+    "uid": "wsgTremorFear01",
+    "color": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "fixedWidth": 200,
+    "tocversion": 11508,
+    "customTextUpdate": "update",
+    "internalVersion": 33,
+    "subRegions": [],
+    "shadowYOffset": -1,
+    "anchorPoint": "CENTER",
+    "justify": "CENTER",
+    "shadowColor": [
+      0,
+      0,
+      0,
+      1
+    ],
+    "regionType": "text",
+    "auto": true,
+    "actions": {
+      "init": {
+        "do_custom": true,
+        "custom": "-- WSG Tremor Fear Alert — Actions → On Init (actions.init.custom)\n-- Personal HUD for a Shaman in Warsong Gulch: a big on-screen call (+ sound) when a\n-- nearby ally is hit by a fear/charm/sleep effect Tremor Totem can remove, and a pre-alert\n-- when an enemy BEGINS casting a fearing spell you can pre-empt.\n-- Target: WoW Classic (Era/SoD/HC + Cata/MoP Classic). enUS spell/aura strings.\n--\n-- WHY THIS SPLIT (it mirrors the spell mechanics):\n--   * ALLY side is a DIRECT READ — UnitDebuff on friendly units is reliable on Classic, so\n--     \"is someone I can save feared right now?\" is truth, not a guess. Tremor pulses every\n--     ~3s and clears Fear/Charm/Sleep, so the call is tied to your OWN tremor status:\n--       - ally feared + tremor NOT down  -> RED    \"DROP TREMOR\" (+ loud sound)\n--       - ally feared + tremor pulsing   -> YELLOW  informational (no sound; auto-clears)\n--   * ENEMY side uses SPELL_CAST_START from the combat log: Fear / Scare Beast / Hibernate\n--     have a ~1.5s cast, so catching the cast START is a pre-empt window ->\n--     ORANGE \"FEAR INCOMING\" (+ soft sound). Instant fears (Psychic Scream) can't be\n--     pre-empted, so they only ever surface on the reliable ALLY side once they land.\n--\n-- No /bg output — personal HUD + sound only.\n\nlocal c = aura_env.config or {}\naura_env.cfg = {\n    enabled    = (c.enabled ~= false),        -- master switch\n    allyAlert  = (c.allyAlert ~= false),      -- RED/YELLOW ally-feared call\n    enemyCast  = (c.enemyCast ~= false),      -- ORANGE enemy fear-cast pre-alert\n    sounds     = (c.sounds ~= false),         -- play sounds on new alerts\n    nearbyOnly = (c.nearbyOnly ~= false),     -- only alert for allies in assist range\n}\n\n-- Effects Tremor Totem removes = Fear / Charm / Sleep, keyed by LOWERCASE enUS aura name\n-- (name match auto-covers all ranks). ONLY list true fear/charm/sleep effects — anything\n-- else would raise a \"drop tremor\" call the totem can't actually clear. Level notes are for\n-- the 10-19 twink bracket; harmless higher-level names are kept for wider reuse. VALUE is\n-- the pretty display name.\nlocal TREMOR_REMOVES = {\n    -- Fear\n    [\"psychic scream\"]     = \"Psychic Scream\",      -- Priest, instant, 30s CD (L18)\n    [\"fear\"]               = \"Fear\",                -- Warlock, ~1.5s cast (L8)\n    [\"scare beast\"]        = \"Scare Beast\",         -- Hunter, ~1.5s cast, beasts only (L14) -> feral druid in form\n    [\"howl of terror\"]     = \"Howl of Terror\",      -- Warlock AoE (L40+; kept for reuse)\n    [\"intimidating shout\"] = \"Intimidating Shout\",  -- Warrior AoE (higher level; kept for reuse)\n    -- Charm\n    [\"seduction\"]          = \"Seduction\",           -- Succubus (needs L20 pet; kept for reuse)\n    [\"mind control\"]       = \"Mind Control\",         -- Priest (L30+; kept for reuse)\n    -- Sleep\n    [\"hibernate\"]          = \"Hibernate\",           -- Druid, ~1.5s cast, beasts/dragonkin -> feral druid in form\n    [\"wyvern sting\"]       = \"Wyvern Sting\",         -- Hunter (L40+; kept for reuse)\n}\n\n-- Enemy spells worth a PRE-ALERT: castable fears/sleeps you can beat by dropping/stomping\n-- tremor during the cast. Instant fears are deliberately absent (nothing to pre-empt).\nlocal CAST_FEARS = {\n    [\"fear\"] = true, [\"scare beast\"] = true, [\"hibernate\"] = true,\n}\n\n-- Localized Tremor Totem name for the GetTotemInfo scan. enUS default; override via\n-- config.tremorName on other locales.\nlocal TREMOR_NAME = c.tremorName or \"Tremor Totem\"\n\n-- Combat-log reaction bit (named global on Classic; numeric fallback documented).\nlocal HOSTILE = COMBATLOG_OBJECT_REACTION_HOSTILE or 0x40\n\nlocal function strip(name) return name and (name:gsub(\"%-.*$\", \"\")) or name end\naura_env.strip = strip\n\n-- ── state ─────────────────────────────────────────────────────────────────────\naura_env.alertText = \"\"                         -- colored string custom_text renders (or \"\")\naura_env.redActive = false                      -- edge tracker for the RED sound\naura_env.incoming  = aura_env.incoming or {}    -- [sourceGUID] = { spell, src, expire }\naura_env.lastEval  = 0\n\nfunction aura_env.Reset()\n    aura_env.enabled   = (GetZoneText() == \"Warsong Gulch\")\n    aura_env.alertText = \"\"\n    aura_env.redActive = false\n    wipe(aura_env.incoming)\nend\n\n-- Seed enabled at load so a /reload while already in WSG shows immediately.\nif aura_env.enabled == nil then\n    aura_env.enabled = (GetZoneText() == \"Warsong Gulch\")\nend\n\n-- ── sound ─────────────────────────────────────────────────────────────────────\nlocal function playSound(which)\n    if not aura_env.cfg.sounds or not PlaySound or not SOUNDKIT then return end\n    if which == \"red\" then\n        PlaySound(SOUNDKIT.RAID_WARNING, \"Master\")      -- loud: act now\n    else\n        PlaySound(SOUNDKIT.READY_CHECK, \"Master\")       -- softer: pre-alert\n    end\nend\n\n-- ── is my Tremor Totem down and pulsing? ──────────────────────────────────────\n-- GetTotemInfo(slot) -> haveTotem, name, startTime, duration, icon. We only need \"is a\n-- totem named Tremor Totem currently out\" (it pulses for its whole duration).\nlocal function tremorActive()\n    if not GetTotemInfo then return false end\n    local wanted = TREMOR_NAME:lower()\n    for slot = 1, (MAX_TOTEMS or 4) do\n        local have, name = GetTotemInfo(slot)\n        if have and name and name:lower() == wanted then return true end\n    end\n    return false\nend\naura_env.TremorActive = tremorActive\n\n-- ── which nearby allies are hit by a tremor-removable effect? ─────────────────\n-- Direct, reliable read: UnitDebuff on friendly group members (incl. yourself). \"nearby\"\n-- is approximated by UnitInRange (assist range ~40yd) — fail-OPEN when the API can't tell,\n-- so we never miss a truly-nearby ally. Returns a list of { name, effect }.\nlocal function scanFearedAllies()\n    local out = {}\n    for unit in WA_IterateGroupMembers() do\n        if UnitExists(unit) and not UnitIsDeadOrGhost(unit) then\n            local near = true\n            if aura_env.cfg.nearbyOnly and unit ~= \"player\" then\n                local inr, checked = UnitInRange(unit)\n                if checked and not inr then near = false end   -- only exclude a CONFIRMED far ally\n            end\n            if near then\n                for i = 1, 40 do\n                    local name = UnitDebuff(unit, i)\n                    if not name then break end\n                    local eff = TREMOR_REMOVES[name:lower()]\n                    if eff then\n                        out[#out + 1] = { name = strip(UnitName(unit)), effect = eff }\n                        break\n                    end\n                end\n            end\n        end\n    end\n    return out\nend\naura_env.ScanFearedAllies = scanFearedAllies\n\n-- ── enemy fear-cast pre-alert (combat log SPELL_CAST_START) ───────────────────\nfunction aura_env.OnCLEU()\n    if not aura_env.cfg.enemyCast then return end\n    local _, sub, _, srcGUID, srcName, srcFlags, _, _, _, _, _, _, spellName =\n        CombatLogGetCurrentEventInfo()\n    if sub ~= \"SPELL_CAST_START\" or not spellName then return end\n    if not CAST_FEARS[spellName:lower()] then return end\n    if bit.band(srcFlags or 0, HOSTILE) == 0 then return end        -- enemy casters only\n    local now = GetTime()\n    local key = srcGUID or spellName\n    local prev = aura_env.incoming[key]\n    aura_env.incoming[key] = { spell = spellName, src = strip(srcName) or \"?\", expire = now + 1.6 }\n    if not (prev and prev.expire > now) then playSound(\"orange\") end -- one sound per cast\n    aura_env.lastEval = 0                                            -- refresh HUD immediately\n    aura_env.Evaluate()\nend\n\n-- ── decision core (drives the HUD text + RED sound edge) ──────────────────────\nfunction aura_env.Evaluate()\n    local cfg, now = aura_env.cfg, GetTime()\n    if now - aura_env.lastEval < 0.1 then return end                -- coalesce event storms\n    aura_env.lastEval = now\n\n    if not aura_env.enabled or not cfg.enabled then\n        aura_env.alertText, aura_env.redActive = \"\", false\n        return\n    end\n\n    -- prune expired incoming casts; keep the first still-live one for the ORANGE line\n    local incomingSrc, incomingSpell\n    for k, info in pairs(aura_env.incoming) do\n        if info.expire <= now then\n            aura_env.incoming[k] = nil\n        elseif not incomingSrc then\n            incomingSrc, incomingSpell = info.src, info.spell\n        end\n    end\n\n    local feared   = (cfg.allyAlert and scanFearedAllies()) or {}\n    local tremorOn = tremorActive()\n\n    -- \"Name1, Name2 (Effect)\" with a +N overflow past 3\n    local function fmtAllies()\n        local names = {}\n        for i = 1, math.min(#feared, 3) do names[i] = feared[i].name end\n        local s = table.concat(names, \", \")\n        if #feared > 3 then s = s .. \" +\" .. (#feared - 3) end\n        local effect = feared[1] and feared[1].effect\n        return s .. (effect and (\" (\" .. effect .. \")\") or \"\")\n    end\n\n    -- Priority: RED (act) > ORANGE (pre-empt) > YELLOW (handled). See header.\n    if #feared > 0 and not tremorOn then\n        aura_env.alertText = \"|cffff2020DROP TREMOR|r  |cffffffff\" .. fmtAllies() .. \"|r\"\n        if not aura_env.redActive then aura_env.redActive = true; playSound(\"red\") end\n    elseif cfg.enemyCast and incomingSrc then\n        aura_env.alertText = \"|cffff9020FEAR INCOMING|r  |cffffffff\"\n            .. incomingSpell .. \" — \" .. incomingSrc .. \"|r\"\n        aura_env.redActive = false\n    elseif #feared > 0 and tremorOn then\n        aura_env.alertText = \"|cffffdd40\" .. fmtAllies() .. \" — tremor pulsing|r\"\n        aura_env.redActive = false\n    else\n        aura_env.alertText, aura_env.redActive = \"\", false\n    end\nend"
+      },
+      "start": {
+        "do_custom": true,
+        "custom": "-- WSG Tremor Fear Alert — Actions → On Show (actions.start.custom)\n-- Ticker drives the alert between events: expires enemy cast pre-alerts (~1.5s window),\n-- re-checks tremor status, and clears the call once a fear fades. 0.3s is responsive\n-- without being wasteful.\n\nif aura_env.ticker then aura_env.ticker:Cancel() end\naura_env.ticker = C_Timer.NewTicker(0.3, function()\n    aura_env.Evaluate()\nend)"
+      },
+      "finish": {
+        "do_custom": true,
+        "custom": "-- WSG Tremor Fear Alert — Actions → On Hide (actions.finish.custom)\n-- Cancel the ticker when the aura hides (leaving WSG) so nothing scans outside the BG.\n\nif aura_env.ticker then\n    aura_env.ticker:Cancel()\n    aura_env.ticker = nil\nend"
+      }
+    },
+    "frameStrata": 1,
+    "icon": true,
+    "conditions": [],
+    "customText": "-- WSG Tremor Fear Alert — Display → Text, custom \"%c\" function\n-- Returns the colored alert line built by Evaluate() (or \"\" when idle). Never sent to\n-- chat — this is the on-screen HUD only. Refreshes every frame (customTextUpdate=update).\n\nfunction()\n    return aura_env.alertText or \"\"\nend",
+    "cooldownSwipe": true,
+    "cooldownTextDisabled": false,
+    "inverse": false,
+    "load": {
+      "use_zone": true,
+      "zone": "Warsong Gulch",
+      "use_never": false,
+      "class": {
+        "single": "SHAMAN",
+        "multi": {}
+      },
+      "spec": {
+        "multi": {}
+      },
+      "size": {
+        "multi": {}
+      },
+      "talent": {},
+      "use_class": true
+    },
+    "alpha": 1,
+    "triggers": {
+      "1": {
+        "untrigger": {},
+        "trigger": {
+          "type": "custom",
+          "custom_type": "status",
+          "custom": "-- WSG Tremor Fear Alert — Trigger 1 → Custom → Status (Check On: Event)\n-- Events box (comma-separated):\n--   PLAYER_ENTERING_WORLD, ZONE_CHANGED_NEW_AREA, PLAYER_TOTEM_UPDATE,\n--   UNIT_AURA, COMBAT_LOG_EVENT_UNFILTERED:SPELL_CAST_START\n--\n-- Side-effect trigger: all real work is in aura_env helpers. Returns aura_env.enabled so\n-- the text region stays shown for the whole WSG match (On Show/On Hide arm/cancel the\n-- ticker exactly once); custom_text draws the alert line or \"\" and refreshes every frame\n-- (customTextUpdate = update). The combat-log event is registered filtered to\n-- SPELL_CAST_START but still arrives as COMBAT_LOG_EVENT_UNFILTERED.\n\nfunction(event, ...)\n    if event == \"PLAYER_ENTERING_WORLD\" or event == \"ZONE_CHANGED_NEW_AREA\" then\n        aura_env.Reset()\n    elseif event == \"COMBAT_LOG_EVENT_UNFILTERED\" then\n        aura_env.OnCLEU()\n    else\n        -- UNIT_AURA (an ally's debuffs changed) / PLAYER_TOTEM_UPDATE (tremor up or down)\n        aura_env.Evaluate()\n    end\n\n    return aura_env.enabled == true\nend",
+          "check": "event",
+          "events": "PLAYER_ENTERING_WORLD, ZONE_CHANGED_NEW_AREA, PLAYER_TOTEM_UPDATE, UNIT_AURA, COMBAT_LOG_EVENT_UNFILTERED:SPELL_CAST_START",
+          "custom_hide": "custom",
+          "debuffType": "HELPFUL",
+          "event": "Health",
+          "subeventPrefix": "SPELL",
+          "subeventSuffix": "_CAST_START",
+          "unevent": "auto",
+          "spellIds": {},
+          "names": {},
+          "unit": "player"
+        }
+      },
+      "disjunctive": "all",
+      "activeTriggerMode": 1
+    },
+    "automaticWidth": "Auto",
+    "displayText": "%c",
+    "id": "WSG Tremor Fear Alert",
+    "fontSize": 24
+  },
+  "v": 1421
+}
