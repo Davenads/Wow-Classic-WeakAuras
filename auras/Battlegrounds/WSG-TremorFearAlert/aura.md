@@ -15,7 +15,7 @@ Never posts to chat — it's a heads-up display and sound for you only.
 | **Display name** | `WSG Tremor Fear Alert` |
 | **Category / folder** | `Battlegrounds` |
 | **Target flavor(s)** | Classic Era / SoD / Hardcore (+ Cata/MoP Classic) |
-| **Load** | Class = **Shaman**, Zone = **Warsong Gulch** |
+| **Load** | Class = **Shaman**, Level = **19**, Zone = **Warsong Gulch** |
 | **Region type** | `text` (single status region; the on-screen line + sound are the output) |
 | **Import string** | `export.txt` — generated from the envelope + `code/*.lua`, round-trip verified |
 
@@ -108,7 +108,7 @@ Single `text` status region; the on-screen line and sound are the output.
 
 ## Import
 
-1. `/wa` → **Import**, paste `export.txt`. Loads only on a **Shaman** in **Warsong Gulch**.
+1. `/wa` → **Import**, paste `export.txt`. Loads only on a **level-19 Shaman** in **Warsong Gulch**.
 2. Drag the text where you want it (default: centered, 170 px up).
 3. Tune via **Custom Options**; test by having a warlock/hunter/priest fear a groupmate near
    you and confirm the RED call + sound, then drop Tremor and confirm it flips to YELLOW.
@@ -127,6 +127,8 @@ Single `text` status region; the on-screen line and sound are the output.
 
 ## Changelog
 
+- 2026-08-03 — Restrict load to **Level == 19** (`use_level`/`level`/`level_operator`),
+  scoping it to the 19 twink WSG bracket. `export.txt` re-encoded, round-trip verified.
 - 2026-08-03 — Initial implementation. Phase 1: **ally-feared → DROP TREMOR** indicator
   (`UnitDebuff` scan of group members, filtered to Tremor-removable fear/charm/sleep effects,
   `UnitInRange` fail-open "nearby" gate) tied to **own Tremor status** (`GetTotemInfo`) for a

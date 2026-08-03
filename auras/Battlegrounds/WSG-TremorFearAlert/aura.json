@@ -129,6 +129,9 @@
       "use_zone": true,
       "zone": "Warsong Gulch",
       "use_never": false,
+      "use_level": true,
+      "level": 19,
+      "level_operator": "==",
       "class": {
         "single": "SHAMAN",
         "multi": {}
