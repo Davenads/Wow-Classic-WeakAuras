@@ -58,6 +58,13 @@ in-game.** Confirm the items under *Verify first* live before trusting it.
 - **HP milestones:** once each as the EFC crosses **≤ 65 / 50 / 35 / 20 %** (re-armed only
   after they heal back above tier + 5%). Format: `EFC <Name> 48%`.
 - **Periodic reminder:** while **≤ 65 %**, every **5 s**. Same format.
+- **Mana milestones** (mana-primary carriers only): once each as the EFC crosses
+  **≤ 30 / 15 %**, and **OOM** at **≤ 5 %**. Format: `EFC <Name> 22% mana` / `EFC <Name> OOM`.
+  **Milestone-only — no periodic** (mana wobbles as they drink/cast, so a periodic call would
+  spam); re-armed only after mana climbs back above bucket + 10%. Self-gates via
+  `UnitPowerType == 0`, so warriors/rogues and shifted feral druids (rage/energy) are skipped.
+  **Read locally only** — nameplates carry no power, so this is silent unless a teammate is
+  targeting the carrier (not shared over the addon bus).
 - **New debuffs** (matched by name, so all ranks count):
   - **Hard CC** (stuns/roots/incapacitates — Polymorph, Hammer of Justice, Kidney Shot,
     Frost Nova, Entangling Roots, Fear, Blind, Freezing Trap, …): announced **regardless of
@@ -85,6 +92,7 @@ so edit the `init.lua` constants for now):
 | `enabled` | on | Master switch. |
 | `announceChat` | on | Master for **all** `/bg` sends (off = display-only, still shares HP). |
 | `announceHP` | on | HP milestones + periodic reminder. |
+| `announceMana` | on | Mana milestones (30/15/OOM); self-gates to mana-primary carriers. |
 | `announceDebuffs` | on | Hard-CC (always) + snare (while low) calls. |
 | `announceDR` | on | Diminishing-returns calls. |
 | `shareAddon` | on | Send/receive HP over the `WSGFCNamesHP` addon bus. |
@@ -95,8 +103,9 @@ so edit the `init.lua` constants for now):
 | `hpThreshold` | 65 | Gate (%) for the periodic reminder + snare calls. |
 | `useWidget` | on | Hook the top-center flag widget where present (else `%c` text). |
 
-Also editable: the `TIERS` milestone list and the `HARD_CC` / `SNARE` / `DR_CAT` watchlists
-(lowercase enUS spell names).
+Also editable: the `TIERS` HP-milestone list, the `MBUCKETS` mana-milestone list (deepest
+bucket announced as `OOM`), and the `HARD_CC` / `SNARE` / `DR_CAT` watchlists (lowercase
+enUS spell names).
 
 ## Import
 
@@ -115,15 +124,15 @@ just shows a local readout.
   chat/addon channel to `INSTANCE_CHAT` (all live clients), detects your **effective** faction
   (mercenary-aware, `81748`/`81744`), registers the `WSGFCNamesHP`
   addon prefix, defines the watchlists (`HARD_CC` / `SNARE` / `DR_CAT`) and all helpers
-  (`Announce`, `ReadEnemyHP`, `BroadcastHP`, `OnAddon`, `DisplayHP`, `Tick`, `OnSystem`,
-  `OnCLEU`, `ReadoutText`, `InitWidget`/`UpdateWidget`, `SetEFC`, …).
+  (`Announce`, `ReadEnemyHP`, `ReadEnemyMana`, `BroadcastHP`, `OnAddon`, `DisplayHP`, `Tick`,
+  `OnSystem`, `OnCLEU`, `ReadoutText`, `InitWidget`/`UpdateWidget`, `SetEFC`, …).
 - `code/on_show.lua` → **Actions → On Show**: starts a 1 s `C_Timer` ticker (drives the HP
   read/broadcast, milestone/periodic checks, widget refresh + re-hook) and warns once if
   enemy nameplates are disabled.
 - `code/on_hide.lua` → **Actions → On Hide**: cancels the ticker (no reload leak).
 - `code/trigger.lua` → **Trigger 1 → Custom → Status** (Check On: Event). Events add
-  `CHAT_MSG_ADDON` (HP receive) to the prior set. Routes each event to a helper; returns
-  `true` so the region stays shown all match.
+  `CHAT_MSG_ADDON` (HP receive) and `UNIT_POWER_UPDATE` (mana on the tracked unit) to the
+  prior set. Routes each event to a helper; returns `true` so the region stays shown all match.
 - `code/custom_text.lua` → **Display → Text → `%c`**: `aura_env.ReadoutText()` — the EFC +
   best-known HP (own read white, addon-shared read grey); blank when no carrier.
 
@@ -214,3 +223,17 @@ in-category application chain (full → ½ → ¼ → immune), resetting ~18 s a
   debuff/DR/death still require locally witnessing CLEU). Minor: removed dead `nameOf` helper
   and the unused `lastCast` state field. Re-embedded `init.lua`, rebuilt `export.txt`
   (11948 bytes). Round-trip verified; **pending in-game test.**
+- 2026-08-03 — Add **mana milestones** for mana-primary carriers. New `ReadEnemyMana()` reads
+  the EFC's mana fraction from a live token (own `target`/`focus`/`mouseover` or `raidNtarget`
+  crowdsource), gated on `UnitPowerType == 0` so warriors/rogues and shifted feral druids
+  (rage/energy) are excluded. `Tick()` announces `MBUCKETS` crossings **≤ 30 / 15 %** as
+  `<Name> N% mana` and **≤ 5 %** as `<Name> OOM`, tracked by a single `e.mLevel` "deepest
+  bucket announced" integer (one call per tick handles a fast dive to OOM). **Milestone-only,
+  no periodic** — mana oscillates as they drink/cast — with a wide re-arm (bucket + 10%) to
+  absorb the wobble. Reuses the existing 3 s `Announce` throttle (HP evaluated first). Posts to
+  `/bg` only; the on-screen readout stays HP-only. **Not shared over the addon bus** (that
+  prefix is the wago HP-interop bus) — mana is read locally, so it's silent when nobody's
+  targeting the carrier. Trigger gains `UNIT_POWER_UPDATE`; state gains `mp/mpTS/mLevel`; config
+  gains `announceMana` (default on); `.luacheckrc` gains `UnitPowerType`. Re-embedded `init.lua`
+  + `trigger.lua`, rebuilt `export.txt` (13582 bytes). Round-trip verified; **pending in-game
+  test.**

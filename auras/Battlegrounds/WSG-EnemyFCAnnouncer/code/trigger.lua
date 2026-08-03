@@ -6,7 +6,7 @@
 --   COMBAT_LOG_EVENT_UNFILTERED:SPELL_AURA_REFRESH,
 --   COMBAT_LOG_EVENT_UNFILTERED:SPELL_AURA_REMOVED, NAME_PLATE_UNIT_ADDED,
 --   NAME_PLATE_UNIT_REMOVED, PLAYER_TARGET_CHANGED, PLAYER_FOCUS_CHANGED,
---   UPDATE_MOUSEOVER_UNIT, UNIT_HEALTH, PLAYER_ENTERING_WORLD
+--   UPDATE_MOUSEOVER_UNIT, UNIT_HEALTH, UNIT_POWER_UPDATE, PLAYER_ENTERING_WORLD
 -- (The COMBAT_LOG subevent filters are required: modern WeakAuras disables a bare
 --  unfiltered COMBAT_LOG_EVENT_UNFILTERED. The event still fires as
 --  "COMBAT_LOG_EVENT_UNFILTERED" below; the colon only scopes registration.)
@@ -33,7 +33,7 @@ function(event, ...)
         aura_env.OnCLEU()
     elseif event == "NAME_PLATE_UNIT_REMOVED" then
         if (...) == e.unit then e.unit = nil end
-    elseif event == "UNIT_HEALTH" then
+    elseif event == "UNIT_HEALTH" or event == "UNIT_POWER_UPDATE" then
         if (...) == e.unit then aura_env.Tick() end
     elseif event == "NAME_PLATE_UNIT_ADDED"
         or event == "PLAYER_TARGET_CHANGED"

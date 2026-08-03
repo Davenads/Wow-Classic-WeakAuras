@@ -26,6 +26,7 @@ aura_env.cfg = {
     enabled    = (c.enabled ~= false),              -- master switch
     chat       = (c.announceChat ~= false),         -- master for ALL /bg sends
     hp         = (c.announceHP ~= false),           -- HP milestones + periodic
+    mana       = (c.announceMana ~= false),         -- mana milestones (self-gates to mana-using FCs)
     debuffs    = (c.announceDebuffs ~= false),      -- hard-CC / snare calls
     dr         = (c.announceDR ~= false),           -- diminishing-returns calls
     share      = (c.shareAddon ~= false),           -- send/receive HP over addon bus
@@ -41,6 +42,16 @@ aura_env.cfg = {
 -- after the carrier heals back above tier + REARM.
 aura_env.TIERS = { 65, 50, 35, 20 }
 local REARM = 5
+
+-- Mana milestones (descending %). Unlike HP these are MILESTONE-ONLY (no periodic
+-- reminder): mana oscillates as the carrier drinks/casts, so a periodic call would spam.
+-- The deepest bucket (5) is announced as "OOM" rather than a %. Tracked with a single
+-- integer e.mLevel = "deepest bucket announced" (0 = none); one call per Tick handles a
+-- fast dive straight to OOM cleanly. Re-arm a bucket only after mana climbs back above
+-- bucket + MREARM (wide hysteresis to absorb the natural mana wobble). Self-gates to
+-- mana-primary FCs via UnitPowerType == 0 (excludes feral druids in bear/cat form).
+aura_env.MBUCKETS = { 30, 15, 5 }
+local MREARM = 10
 
 -- Addon bus (interop with the original messager). Fraction HP as "name@0.4213".
 local ADDON_PREFIX = "WSGFCNamesHP"
@@ -123,6 +134,7 @@ local function newState()
     return { name=nil, guid=nil, unit=nil,
              hp=nil, hpTS=0,                 -- our own direct read (fraction) + timestamp
              recvHP=nil, recvTS=0,           -- addon-received read (fraction) + timestamp
+             mp=nil, mpTS=0, mLevel=0,       -- mana fraction + timestamp; deepest bucket announced
              lastSent=0, lastPeriodic=0,
              seen={}, tier={}, dr={} }
 end
@@ -140,6 +152,7 @@ function aura_env.SetEFC(name)
     local e = aura_env.efc
     e.name, e.guid, e.unit = name, nil, nil
     e.hp, e.hpTS, e.recvHP, e.recvTS = nil, 0, nil, 0
+    e.mp, e.mpTS, e.mLevel = nil, 0, 0
     e.lastPeriodic = 0
     e.lastSent = 0                     -- don't inherit the previous carrier's throttle window
     wipe(e.seen); wipe(e.tier); wipe(e.dr)
@@ -149,6 +162,7 @@ function aura_env.ClearEFC()
     local e = aura_env.efc
     e.name, e.guid, e.unit = nil, nil, nil
     e.hp, e.recvHP = nil, nil
+    e.mp, e.mpTS, e.mLevel = nil, 0, 0
     wipe(e.seen); wipe(e.tier); wipe(e.dr)
 end
 
@@ -204,6 +218,39 @@ function aura_env.ReadEnemyHP()
             e.guid = e.guid or UnitGUID(u)
             local mx = UnitHealthMax(u)
             if mx and mx > 0 then return UnitHealth(u) / mx end
+        end
+    end
+    return nil
+end
+
+-- Return the EFC's MANA fraction (0-1) from a live unit token, or nil if unreadable or
+-- the carrier isn't mana-primary. Nameplates stream HEALTH but NOT power, so mana is only
+-- readable from real tokens: our own target/focus/mouseover, or raidNtarget (crowdsourced
+-- across the team — whatever any raid member is targeting). Gate on UnitPowerType(u) == 0
+-- so we only track true mana users: warriors/rogues read max 0, and a feral druid shifted
+-- into bear/cat still carries a hidden mana pool but reports rage/energy as primary — both
+-- are correctly excluded. NOT shared over the addon bus in this phase (that prefix is the
+-- wago HP-interop bus; adding mana would break it). Local reads only.
+function aura_env.ReadEnemyMana()
+    local e = aura_env.efc
+    if not e.name then return nil end
+    local function fromUnit(u)
+        if not tokenMatches(u) then return nil end
+        if not UnitPowerType then return nil end
+        if UnitPowerType(u) ~= 0 then return nil end          -- 0 = Mana; skip rage/energy primaries
+        local mx = UnitPowerMax(u, 0)
+        if mx and mx > 0 then return UnitPower(u, 0) / mx end
+        return nil
+    end
+    for _, u in ipairs({ "target", "focus", "mouseover" }) do
+        local mp = fromUnit(u); if mp then return mp end
+    end
+    for i = 1, 40 do
+        local u = "raid" .. i .. "target"
+        if UnitExists(u) and strip(UnitName(u)) == e.name and UnitCanAttack("player", u)
+           and UnitPowerType and UnitPowerType(u) == 0 then
+            local mx = UnitPowerMax(u, 0)
+            if mx and mx > 0 then return UnitPower(u, 0) / mx end
         end
     end
     return nil
@@ -276,6 +323,32 @@ function aura_env.Tick()
                 if pct <= cfg.hpThresh and (GetTime() - e.lastPeriodic) >= cfg.periodic then
                     e.lastPeriodic = GetTime()
                     aura_env.Announce(e.name .. " " .. math.floor(pct + 0.5) .. "%")
+                end
+            end
+        end
+        -- Mana milestones (mana-primary FCs only; no periodic — see MBUCKETS notes). Only a
+        -- LOCAL read (nameplates carry no power), so silent when nobody's targeting the EFC.
+        if cfg.mana then
+            local mp = aura_env.ReadEnemyMana()
+            if mp then
+                e.mp, e.mpTS = mp, GetTime()
+                local mpct = mp * 100
+                -- deepest bucket this reading falls into (index into MBUCKETS; 0 = none)
+                local hit = 0
+                for i, b in ipairs(aura_env.MBUCKETS) do
+                    if mpct <= b then hit = i end
+                end
+                if hit > e.mLevel then
+                    e.mLevel = hit
+                    local b = aura_env.MBUCKETS[hit]
+                    local body = (mpct <= b and hit == #aura_env.MBUCKETS)
+                        and (e.name .. " OOM")
+                        or  (e.name .. " " .. math.floor(mpct + 0.5) .. "% mana")
+                    aura_env.Announce(body)
+                elseif hit < e.mLevel then
+                    -- re-arm shallower buckets once mana climbs a full MREARM above their edge
+                    local edge = aura_env.MBUCKETS[e.mLevel]
+                    if mpct > edge + MREARM then e.mLevel = hit end
                 end
             end
         end

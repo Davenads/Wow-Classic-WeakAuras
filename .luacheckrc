@@ -33,7 +33,7 @@ read_globals = {
     "CopyTable", "unpack", "select", "format", "gsub", "strtrim", "tonumber", "tostring",
     -- Units
     "UnitExists", "UnitName", "UnitGUID", "UnitClass", "UnitRace", "UnitLevel",
-    "UnitHealth", "UnitHealthMax", "UnitPower", "UnitPowerMax", "UnitAffectingCombat",
+    "UnitHealth", "UnitHealthMax", "UnitPower", "UnitPowerMax", "UnitPowerType", "UnitAffectingCombat",
     "UnitIsUnit", "UnitIsPlayer", "UnitIsDead", "UnitIsDeadOrGhost", "UnitCanAttack",
     "UnitReaction", "UnitClassification", "UnitCreatureType", "UnitBuff", "UnitDebuff",
     "UnitAura", "UnitCastingInfo", "UnitChannelInfo", "AuraUtil",
