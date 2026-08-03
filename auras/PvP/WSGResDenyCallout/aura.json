@@ -1,0 +1,131 @@
+{
+  "m": "d",
+  "s": "5.20.6",
+  "d": {
+    "yOffset": 140,
+    "outline": "OUTLINE",
+    "desaturate": false,
+    "font": "Friz Quadrata TT",
+    "anchorFrameType": "SCREEN",
+    "animation": {
+      "main": {
+        "type": "none",
+        "duration_type": "seconds",
+        "easeType": "none",
+        "easeStrength": 3
+      },
+      "start": {
+        "type": "none",
+        "duration_type": "seconds",
+        "easeType": "none",
+        "easeStrength": 3
+      },
+      "finish": {
+        "type": "none",
+        "duration_type": "seconds",
+        "easeType": "none",
+        "easeStrength": 3
+      }
+    },
+    "keepAspectRatio": false,
+    "selfPoint": "CENTER",
+    "cooldownEdge": false,
+    "xOffset": 0,
+    "zoom": 0,
+    "desc": "Warsong Gulch: when a low-HP enemy (not the flag carrier) is about to be resurrectable, posts a rate-limited /bg callout to HOLD the kill until the graveyard timer resets, so they eat a near-full ~30s res timer.",
+    "authorOptions": [],
+    "wordWrap": "WordWrap",
+    "width": 64,
+    "height": 64,
+    "config": {},
+    "shadowXOffset": 1,
+    "uid": "wsgResDeny01",
+    "color": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "fixedWidth": 200,
+    "tocversion": 11508,
+    "customTextUpdate": "update",
+    "internalVersion": 33,
+    "subRegions": [],
+    "shadowYOffset": -1,
+    "anchorPoint": "CENTER",
+    "justify": "CENTER",
+    "shadowColor": [
+      0,
+      0,
+      0,
+      1
+    ],
+    "regionType": "text",
+    "auto": true,
+    "actions": {
+      "init": {
+        "do_custom": true,
+        "custom": "-- WSG Res-Deny Callout — Actions → On Init (actions.init.custom)\n-- Target: WoW Classic (Era/SoD/HC 1.15 + Cata/MoP Classic). enUS system strings.\n--\n-- PURPOSE\n--   Inside Warsong Gulch, when an enemy player is at LOW HP, is NOT the enemy flag\n--   carrier (EFC), AND the graveyard resurrection wave is IMMINENT, post a rate-limited\n--   /bg callout telling teammates to HOLD the kill until the res timer resets — so when\n--   the enemy is then killed they eat a near-full ~30s corpse/res timer (max downtime).\n--\n-- REUSE / ATTRIBUTION\n--   * Res-cycle clock (aura_env.rc): ported from the \"BG Rez Timer\" WeakAura\n--     (wago wm2BS70cN, semver 1.0.2). Cannot read the ENEMY graveyard timer directly\n--     (GetAreaSpiritHealerTime only returns YOUR group's, and only while a groupmate is\n--     a ghost). Instead: seed from the WSG start message, then self-correct by detecting\n--     friendly res WAVES (alive-count jumps) and optional manual/addon sync. Premise:\n--     both graveyards share ONE ~31.5s cycle, so a friendly-derived countdown predicts\n--     enemy waves.\n--   * strip / detectFaction / OnSystem EFC identity / Announce / enemy-HP acquisition:\n--     adapted from \"WSG Enemy FC Announcer\" (auras/Battlegrounds/WSG-EnemyFCAnnouncer).\n--\n-- SAFETY: ships in dry-run (mode \"SELF\" → local print) by default; flip dryRun off to go\n-- live on /bg. SendChatMessage is sandbox-allowed and needs no hardware event.\n\n-- ── config ────────────────────────────────────────────────────────────────────\nlocal c = aura_env.config or {}\nlocal dry = (c.dryRun ~= false)                       -- default TRUE (safe local print)\naura_env.cfg = {\n    enabled           = (c.enabled ~= false),         -- master switch\n    chat              = (c.announceChat ~= false),    -- master for ALL sends\n    mode              = dry and \"SELF\" or (c.channel or \"BG\"),  -- SELF | BG | RAID\n    prefix            = c.messagePrefix or \"\",        -- optional leading tag on each line\n    hpThreshold       = tonumber(c.hpThreshold) or 20,        -- only enemies at/under this % (%)\n    gyLowThreshold    = tonumber(c.gyLowThreshold) or 7,      -- only fire when rez ≤ this many s\n    perTargetCooldown = tonumber(c.perTargetCooldown) or 20,  -- min gap between calls on SAME enemy (s)\n    globalMinInterval = tonumber(c.globalMinInterval) or 8,   -- min gap between ANY two sends (s)\n    rollingCap        = tonumber(c.rollingCap) or 3,          -- max sends per rolling window\n    rollingWindow     = tonumber(c.rollingWindow) or 30,      -- rolling-cap window (s)\n    enemyGyOffset     = tonumber(c.enemyGyOffset) or 0,       -- +/- s: enemy GY phase vs ours\n    wsgRezThreshold   = tonumber(c.wsgRezThreshold) or 2,     -- alive-jump size to call a wave\n    startOffset       = tonumber(c.startOffset) or 5,         -- WSG gate opens ~5s after start msg\n    showIndicator     = (c.showIndicator ~= false),          -- draw the local status readout\n}\n\n-- Manual/addon sync bus — SAME prefix/event as BG Rez Timer, so we interoperate with its\n-- existing userbase (their macro re-anchors our clock too, and vice-versa).\naura_env.syncPrefix = \"AuroBGRez\"\nif C_ChatInfo and C_ChatInfo.RegisterAddonMessagePrefix then\n    C_ChatInfo.RegisterAddonMessagePrefix(aura_env.syncPrefix)\nend\naura_env.bgChannel = \"INSTANCE_CHAT\"                  -- \"BATTLEGROUND\" was removed in 4.0\n\nlocal WSG_START = \"Let the battle for Warsong Gulch begin!\"\n\nlocal function strip(name) return name and (name:gsub(\"%-.*$\", \"\")) or name end\naura_env.strip = strip\n\n-- Effective faction (mercenary-aware): a merc fights for the OTHER side, so the EFC is the\n-- carrier of your EFFECTIVE faction's flag. 81748/81744 are the merc buffs; fall back to\n-- UnitFactionGroup where absent. Guarded so a nil spell id can't error.\nlocal function detectFaction()\n    if GetSpellInfo and AuraUtil and AuraUtil.FindAuraByName then\n        local ally  = GetSpellInfo(81748)\n        local horde = GetSpellInfo(81744)\n        if ally  and AuraUtil.FindAuraByName(ally,  \"player\") then return \"Alliance\" end\n        if horde and AuraUtil.FindAuraByName(horde, \"player\") then return \"Horde\" end\n    end\n    return UnitFactionGroup(\"player\")\nend\naura_env.myFaction = detectFaction()\n\n-- ── res-cycle clock (ported from BG Rez Timer wm2BS70cN) ──────────────────────\nlocal REZ_INTERVAL = 31.5                              -- observed WSG/AV spirit-healer cycle\naura_env.rc = {\n    nextRez = nil, aliveLC = nil, totalLC = nil, lastChk = 0, throttle = 0.1,\n\n    -- alive / total group members (both graveyards share the cycle, so ours predicts theirs)\n    getRaid = function()\n        local alive, total = 0, 0\n        for unit in WA_IterateGroupMembers() do\n            total = total + 1\n            if not UnitIsDeadOrGhost(unit) then alive = alive + 1 end\n        end\n        return alive, total\n    end,\n\n    seedStart = function(self, offset)\n        self.nextRez = GetTime() + REZ_INTERVAL + (offset or 0)\n    end,\n\n    -- Re-anchor on a manual/addon SYNC or a friendly res wave.\n    syncNow = function(self)\n        self.nextRez = GetTime() + REZ_INTERVAL\n    end,\n\n    -- Detect a res WAVE: alive count jumps by ≥ threshold with the roster unchanged →\n    -- a spirit-healer just fired, so re-anchor the cycle. Throttled to ~0.1s.\n    detectWave = function(self, threshold)\n        local now = GetTime()\n        if self.aliveLC == nil or self.totalLC == nil then\n            self.aliveLC, self.totalLC = self.getRaid()\n            return\n        end\n        if self.lastChk + self.throttle > now then return end\n        local alive, total = self.getRaid()\n        if self.aliveLC + threshold <= alive and total == self.totalLC then\n            self.nextRez = now + REZ_INTERVAL\n        end\n        self.lastChk = now\n        self.aliveLC = alive\n        self.totalLC = total\n    end,\n\n    isSeeded = function(self) return self.nextRez ~= nil end,\n\n    -- Seconds until the ENEMY graveyard's next wave (with optional phase offset). Rolls the\n    -- cycle forward if we've drifted past a wave without a resync.\n    enemyRemaining = function(self, offset)\n        if not self.nextRez then return nil end\n        local r = self.nextRez - GetTime() + (offset or 0)\n        while r <= 0 do r = r + REZ_INTERVAL end\n        return r\n    end,\n\n    reset = function(self)\n        self.nextRez, self.aliveLC, self.totalLC, self.lastChk = nil, nil, nil, 0\n    end,\n}\n\n-- ── EFC identity (never suppress kills on the flag carrier) ───────────────────\naura_env.efc = aura_env.efc or { name = nil }\nfunction aura_env.SetEFC(name) aura_env.efc.name = name end\nfunction aura_env.ClearEFC() aura_env.efc.name = nil end\n\n-- Enemy carries YOUR (effective) faction's flag → EFC = whoever picked up that flag.\nfunction aura_env.OnSystem(msg)\n    if type(msg) ~= \"string\" then return end\n    if msg == WSG_START then\n        aura_env.rc:seedStart(aura_env.cfg.startOffset)\n        return\n    end\n    local faction = msg:match(\"[Tt]he (%a+) [Ff]lag\")\n    if not faction then\n        if msg:find(\"[Cc]aptured\") or msg:find(\"flags are reset\")\n           or msg:find(\"flags are now placed\") then\n            aura_env.ClearEFC()\n        end\n        return\n    end\n    if faction ~= aura_env.myFaction then return end          -- not OUR flag → ignore\n    local picked = msg:match(\"picked up by (.-)!\")\n    if picked then\n        aura_env.SetEFC(strip(picked))\n    elseif msg:find(\"was dropped by\") or msg:find(\"was returned\") or msg:find(\"[Cc]aptured\") then\n        aura_env.ClearEFC()\n    end\nend\n\n-- ── enemy scan (all visible living enemy players, deduped by GUID) ────────────\n-- Sources, cheapest first: your own tokens → enemy nameplates (need enemy nameplates ON)\n-- → raidNtarget crowdsource (HP of whatever any teammate targets).\nfunction aura_env.ScanEnemies()\n    local out, seen = {}, {}\n    local function consider(u)\n        if not UnitExists(u) or not UnitIsPlayer(u) then return end\n        if not UnitCanAttack(\"player\", u) or UnitIsDeadOrGhost(u) then return end\n        local guid = UnitGUID(u)\n        if not guid or seen[guid] then return end\n        local mx = UnitHealthMax(u)\n        if not mx or mx <= 0 then return end\n        seen[guid] = true\n        out[#out + 1] = {\n            name = strip(UnitName(u)), guid = guid,\n            pct = UnitHealth(u) / mx * 100, unit = u,\n        }\n    end\n    for _, u in ipairs({ \"target\", \"focus\", \"mouseover\" }) do consider(u) end\n    for i = 1, 40 do consider(\"nameplate\" .. i) end\n    for i = 1, 40 do consider(\"raid\" .. i .. \"target\") end\n    return out\nend\n\n-- ── rate limiter (global gap + per-target cooldown + rolling cap) ─────────────\naura_env.rl = {\n    lastGlobal = 0, perTarget = {}, recent = {},\n\n    allow = function(self, key)\n        local cfg, now = aura_env.cfg, GetTime()\n        if now - self.lastGlobal < cfg.globalMinInterval then return false end\n        local lt = self.perTarget[key]\n        if lt and now - lt < cfg.perTargetCooldown then return false end\n        local n = 0\n        for i = #self.recent, 1, -1 do\n            if now - self.recent[i] > cfg.rollingWindow then\n                table.remove(self.recent, i)\n            else\n                n = n + 1\n            end\n        end\n        if n >= cfg.rollingCap then return false end\n        return true\n    end,\n\n    commit = function(self, key)\n        local now = GetTime()\n        self.lastGlobal = now\n        self.perTarget[key] = now\n        self.recent[#self.recent + 1] = now\n    end,\n\n    reset = function(self)\n        self.lastGlobal = 0\n        wipe(self.perTarget); wipe(self.recent)\n    end,\n}\n\n-- ── send ──────────────────────────────────────────────────────────────────────\nfunction aura_env.Announce(body, key)\n    local cfg = aura_env.cfg\n    if not cfg.enabled or not cfg.chat then return end\n    local line = (cfg.prefix ~= \"\" and (cfg.prefix .. \" \") or \"\") .. body\n    if cfg.mode == \"SELF\" then\n        print(\"|cff33ff99[ResDeny]|r \" .. line)                -- local only (dry-run)\n    else\n        local ch = (cfg.mode == \"RAID\") and \"RAID\" or aura_env.bgChannel\n        SendChatMessage(line, ch)\n    end\n    aura_env.rl:commit(key)\nend\n\n-- ── decision core ─────────────────────────────────────────────────────────────\n-- Exposed for custom_text; refreshed every Evaluate().\naura_env.lastRem = nil\naura_env.candidateCount = 0\n\nfunction aura_env.Evaluate()\n    local cfg = aura_env.cfg\n    aura_env.candidateCount = 0\n    if not aura_env.enabled or not cfg.enabled then return end\n    if not aura_env.rc:isSeeded() then return end\n\n    local rem = aura_env.rc:enemyRemaining(cfg.enemyGyOffset)\n    aura_env.lastRem = rem\n    if not rem or rem > cfg.gyLowThreshold then return end     -- only when wave IMMINENT\n\n    local efcName = aura_env.efc.name\n    for _, cand in ipairs(aura_env.ScanEnemies()) do\n        if cand.pct <= cfg.hpThreshold and not (efcName and cand.name == efcName) then\n            aura_env.candidateCount = aura_env.candidateCount + 1\n            local key = cand.guid or cand.name\n            if aura_env.rl:allow(key) then\n                aura_env.Announce(string.format(\n                    \"[HOLD] %s @%d%% — enemy GY rez in %ds, wait for reset (full 30s down)\",\n                    cand.name, math.floor(cand.pct + 0.5), math.floor(rem + 0.5)), key)\n                return                                          -- one call per tick; throttle handles the rest\n            end\n        end\n    end\nend\n\n-- ── lifecycle ─────────────────────────────────────────────────────────────────\nfunction aura_env.Reset()\n    aura_env.enabled = (GetZoneText() == \"Warsong Gulch\")\n    aura_env.myFaction = detectFaction()\n    aura_env.rc:reset()\n    aura_env.rl:reset()\n    aura_env.ClearEFC()\n    aura_env.lastRem, aura_env.candidateCount = nil, 0\nend\n\n-- Seed enabled at load so a /reload while already in WSG shows the region on the first\n-- synthetic STATUS event (before ZONE_CHANGED/PLAYER_ENTERING_WORLD re-fires).\nif aura_env.enabled == nil then\n    aura_env.enabled = (GetZoneText() == \"Warsong Gulch\")\nend"
+      },
+      "start": {
+        "do_custom": true,
+        "custom": "-- WSG Res-Deny Callout — Actions → On Show (actions.start.custom)\n-- Arms the engine: a fast ticker drives the res-wave detector (needs ~0.1s resolution to\n-- catch a graveyard wave) and the decision core. Warns once if enemy nameplates are off —\n-- without them (or a teammate targeting the enemy) we can't read low-HP enemies.\n\nif aura_env.ticker then aura_env.ticker:Cancel() end\naura_env.ticker = C_Timer.NewTicker(0.1, function()\n    aura_env.rc:detectWave(aura_env.cfg.wsgRezThreshold)\n    aura_env.Evaluate()\nend)\n\nif aura_env.cfg.mode == \"SELF\" then\n    print(\"|cffffcc00[ResDeny]|r Dry-run ON — callouts print locally only. \"\n        .. \"Uncheck 'Dry run' in the aura's Custom Options to post to /bg.\")\nend\n\nif GetCVar and GetCVar(\"nameplateShowEnemies\") == \"0\" then\n    print(\"|cffffcc00[ResDeny]|r Enemy nameplates are OFF — press V (or run \"\n        .. \"/console nameplateShowEnemies 1) so low-HP enemies can be read. \"\n        .. \"(Teammates targeting them still shares HP via raid-target scan.)\")\nend"
+      },
+      "finish": {
+        "do_custom": true,
+        "custom": "-- WSG Res-Deny Callout — Actions → On Hide (actions.finish.custom)\n-- Cancels the ticker when the aura hides (leaving WSG) so it doesn't keep scanning /\n-- announcing outside the battleground.\n\nif aura_env.ticker then\n    aura_env.ticker:Cancel()\n    aura_env.ticker = nil\nend"
+      }
+    },
+    "frameStrata": 1,
+    "icon": true,
+    "conditions": [],
+    "customText": "-- WSG Res-Deny Callout — Display → Text, custom \"%c\" function\n-- Local status readout (this player only — never sent to chat). Shows the predicted enemy\n-- graveyard countdown and how many low-HP non-EFC targets are currently in \"hold\" range,\n-- so you can eyeball that the clock is seeded and the detector is live.\n\nfunction()\n    if not aura_env.cfg.showIndicator then return \"\" end\n    if not aura_env.enabled then return \"\" end\n    if not aura_env.rc:isSeeded() then\n        return \"|cff888888Res Deny: waiting for match start…|r\"\n    end\n    local rem = aura_env.lastRem or aura_env.rc:enemyRemaining(aura_env.cfg.enemyGyOffset)\n    local n = aura_env.candidateCount or 0\n    local col = (rem and rem <= aura_env.cfg.gyLowThreshold) and \"|cff55ff55\" or \"|cffffffff\"\n    return string.format(\"%sEnemy rez: %.1fs|r  |cffff5555hold: %d|r\", col, rem or 0, n)\nend\n",
+    "cooldownSwipe": true,
+    "cooldownTextDisabled": false,
+    "inverse": false,
+    "load": {
+      "use_zone": true,
+      "zone": "Warsong Gulch",
+      "use_never": false,
+      "class": {
+        "multi": {}
+      },
+      "spec": {
+        "multi": {}
+      },
+      "size": {
+        "multi": {}
+      },
+      "talent": {}
+    },
+    "alpha": 1,
+    "triggers": {
+      "1": {
+        "untrigger": {},
+        "trigger": {
+          "type": "custom",
+          "custom_type": "status",
+          "custom": "-- WSG Res-Deny Callout — Trigger 1 → Custom → Status (Check On: Event)\n-- Events box (comma-separated):\n--   PLAYER_ENTERING_WORLD, ZONE_CHANGED_NEW_AREA,\n--   CHAT_MSG_BG_SYSTEM_ALLIANCE, CHAT_MSG_BG_SYSTEM_HORDE, CHAT_MSG_BG_SYSTEM_NEUTRAL,\n--   CHAT_MSG_ADDON, BG_REZ_SYNC,\n--   NAME_PLATE_UNIT_ADDED, NAME_PLATE_UNIT_REMOVED,\n--   PLAYER_TARGET_CHANGED, UPDATE_MOUSEOVER_UNIT\n--\n-- Side-effect trigger: all real work is in aura_env helpers. Returning aura_env.enabled\n-- keeps the status region shown for the whole WSG match (so On Show/On Hide arm/cancel the\n-- ticker exactly once, and custom_text can draw the indicator). BG_REZ_SYNC is the SAME\n-- scan-event the BG Rez Timer macro fires — handling it keeps both auras' clocks aligned.\n\nfunction(event, ...)\n    if event == \"PLAYER_ENTERING_WORLD\" or event == \"ZONE_CHANGED_NEW_AREA\" then\n        aura_env.Reset()\n\n    elseif event == \"CHAT_MSG_BG_SYSTEM_ALLIANCE\"\n        or event == \"CHAT_MSG_BG_SYSTEM_HORDE\"\n        or event == \"CHAT_MSG_BG_SYSTEM_NEUTRAL\" then\n        aura_env.OnSystem(...)\n\n    elseif event == \"BG_REZ_SYNC\" then\n        -- Local manual resync (macro: /script WeakAuras.ScanEvents(\"BG_REZ_SYNC\",\"SYNC\"))\n        local _, inst = IsInInstance()\n        if inst == \"pvp\" and (...) == \"SYNC\" then\n            aura_env.rc:syncNow()\n            if C_ChatInfo and C_ChatInfo.SendAddonMessage then\n                C_ChatInfo.SendAddonMessage(aura_env.syncPrefix, \"SYNC\", \"INSTANCE_CHAT\")\n            end\n        end\n\n    elseif event == \"CHAT_MSG_ADDON\" then\n        local prefix, text = ...\n        if prefix == aura_env.syncPrefix and text == \"SYNC\" then\n            aura_env.rc:syncNow()                     -- peer (or BG Rez Timer user) resynced\n        end\n\n    elseif event == \"NAME_PLATE_UNIT_ADDED\"\n        or event == \"PLAYER_TARGET_CHANGED\"\n        or event == \"UPDATE_MOUSEOVER_UNIT\" then\n        -- A fresh enemy just became readable — opportunistic evaluate between ticks.\n        aura_env.Evaluate()\n    end\n\n    return aura_env.enabled == true\nend",
+          "check": "event",
+          "events": "PLAYER_ENTERING_WORLD, ZONE_CHANGED_NEW_AREA, CHAT_MSG_BG_SYSTEM_ALLIANCE, CHAT_MSG_BG_SYSTEM_HORDE, CHAT_MSG_BG_SYSTEM_NEUTRAL, CHAT_MSG_ADDON, BG_REZ_SYNC, NAME_PLATE_UNIT_ADDED, NAME_PLATE_UNIT_REMOVED, PLAYER_TARGET_CHANGED, UPDATE_MOUSEOVER_UNIT",
+          "custom_hide": "custom",
+          "debuffType": "HELPFUL",
+          "event": "Health",
+          "subeventPrefix": "SPELL",
+          "subeventSuffix": "_CAST_START",
+          "unevent": "auto",
+          "spellIds": {},
+          "names": {},
+          "unit": "player"
+        }
+      },
+      "disjunctive": "all",
+      "activeTriggerMode": 1
+    },
+    "automaticWidth": "Auto",
+    "displayText": "%c",
+    "id": "WSG Res Deny Callout",
+    "fontSize": 16
+  },
+  "v": 1421
+}

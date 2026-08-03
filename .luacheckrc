@@ -22,7 +22,9 @@ globals = {
 -- WoW + WeakAuras + Classic API surface (read-only). Not exhaustive — add IDs you use.
 read_globals = {
     -- WeakAuras
-    "WeakAuras", "Private", "OptionsPrivate",
+    "WeakAuras", "Private", "OptionsPrivate", "WA_IterateGroupMembers",
+    -- Addon comms (battleground callout auras)
+    "C_ChatInfo",
     -- Time / core
     "GetTime", "GetServerTime", "date", "time", "debugprofilestop",
     "C_Timer", "C_UnitAuras", "C_Spell", "C_Item", "C_ClassTalents", "C_Traits",
