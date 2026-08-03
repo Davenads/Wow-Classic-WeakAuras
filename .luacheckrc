@@ -61,8 +61,8 @@ read_globals = {
     "GetAreaSpiritHealerTime",
     -- Chat / CVars / output (announcer auras)
     "SendChatMessage", "UnitFactionGroup", "GetCVar", "SetCVar", "print",
-    -- Macro-set toggle flag read by the trinket auto-swap controller
-    "TRK_PAUSED",
+    -- Macro-set globals read by the trinket auto-swap controller
+    "TRK_PAUSED", "TRK_DEBUG", "TRK_IOTA",
     -- Build / flavor constants
     "GetBuildInfo", "WOW_PROJECT_ID", "WOW_PROJECT_CLASSIC",
     "WOW_PROJECT_CATACLYSM_CLASSIC", "WOW_PROJECT_MISTS_CLASSIC", "WOW_PROJECT_MAINLINE",

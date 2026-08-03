@@ -95,6 +95,13 @@ honors a plain global `TRK_PAUSED` that an out-of-sandbox macro flips. Make one 
 Click / keybind it to pause & resume. It resets to **ACTIVE** on `/reload` or login (default-on).
 For a persistent off, disable the aura in `/wa` (right-click ▸ Disable).
 
+Two more optional macro globals (same mechanism — flip from a macro, reset on `/reload`):
+
+```
+/run TRK_DEBUG = not TRK_DEBUG   -- prints "[TRK] insignia detected: <id>" / equip lines / a "no Insignia found" warning
+/run TRK_IOTA = 18852            -- hard-pin the Insignia id (bypass auto-detect); set TRK_IOTA = nil to resume auto
+```
+
 ---
 
 ## Code blocks (`code/`)
@@ -245,3 +252,15 @@ shelved — see the note under *Custom Options* and `archive/`.)
   on-use is unavailable during that ~30 s window. `init.lua` only. Re-embedded into `aura.json` +
   `package.json` engine child; rebuilt `export.txt` (6477) + `package.txt` (8394). Round-trip verified.
   Untested in-game.
+- **2026-08-03** — Fix (Horde Insignia never auto-equipped): auto-detect relied on `GetItemInfo()`
+  returning a name, which is `nil` for uncached items on Classic (the #1 caching gotcha). On a cold
+  cache detection silently no-op'd and `iotaId` stayed on the Alliance-default fallback `18864` —
+  invisible on Alliance (18864 is a valid owned trinket there, so the miss was masked) but broken on
+  Horde (18864 unowned → nothing to equip). `DetectInsignia()` now primes any uncached candidate
+  (`C_Item.RequestLoadItemDataByID` on Cata/MoP, a priming `GetItemInfo` on Era) and sets
+  `iotaScanPending`; the trigger listens for the new **`GET_ITEM_INFO_RECEIVED`** event and re-runs
+  detection + `Apply()` the moment names load. Added a `TRK_DEBUG` macro global (mirrors `TRK_PAUSED`)
+  that unmasks the previously-silent path, a one-time "no Insignia found; fallback not owned" warning,
+  and a `TRK_IOTA` macro to hard-pin the Insignia id in-game. `init.lua` + `trigger.lua`; re-embedded
+  into `aura.json` **and** the `package.json` engine child; rebuilt `export.txt` (7694) +
+  `package.txt` (9644). `.luacheckrc` globals updated. Round-trip verified. Untested in-game.

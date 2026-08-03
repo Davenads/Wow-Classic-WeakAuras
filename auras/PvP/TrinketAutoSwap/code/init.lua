@@ -18,6 +18,14 @@ aura_env.cfg = {
 -- true => user pinned iotaId in Custom Options; skip auto-detect and honor their value.
 aura_env.iotaLocked = iotaOverride ~= nil
 
+-- Debug print, gated by the `debug` Custom Option OR a global `TRK_DEBUG` you flip from a macro
+-- (same pattern as TRK_PAUSED):  /run TRK_DEBUG = not TRK_DEBUG
+function aura_env.Dbg(msg)
+    if aura_env.cfg.debug or TRK_DEBUG then
+        print("|cff66ccff[TRK]|r " .. tostring(msg))
+    end
+end
+
 -- Flavor-aware item-cooldown getter (global on Era; C_Container/C_Item on Cata/MoP).
 local function itemCooldown(itemId)
     if C_Container and C_Container.GetItemCooldown then
@@ -79,14 +87,34 @@ local function bagItemID(bag, slot)
     return GetContainerItemID(bag, slot)
 end
 
+-- Prime the client item cache for an id whose name isn't loaded yet. GetItemInfo returns nil for
+-- uncached items (the #1 Classic gotcha) and asynchronously fires GET_ITEM_INFO_RECEIVED once the
+-- server replies — the trigger listens for that event and re-runs detection. Without this, a cold
+-- cache made auto-detect silently no-op (iotaId stuck on the Alliance-default fallback → the Horde
+-- insignia was never picked up because 18864 isn't owned Horde-side).
+local function requestItem(itemId)
+    if not itemId then return end
+    if C_Item and C_Item.RequestLoadItemDataByID then
+        C_Item.RequestLoadItemDataByID(itemId)
+    else
+        GetItemInfo(itemId)  -- Era: querying an uncached id itself queues the async load
+    end
+end
+
 -- Auto-detect the PvP Insignia by name ("Insignia of the ...") so the aura is faction/class-
 -- agnostic with zero config. Scans worn trinket slots first, then bags. English clients only;
 -- other locales pin iotaId. Returns an item id or nil.
 function aura_env.DetectInsignia()
+    aura_env.iotaScanPending = false
     local function isInsignia(itemId)
         if not itemId then return false end
         local n = GetItemInfo(itemId)
-        return n ~= nil and n:find("Insignia of the", 1, true) ~= nil
+        if n == nil then
+            requestItem(itemId)           -- cold cache: prime it and flag a re-scan on load
+            aura_env.iotaScanPending = true
+            return false
+        end
+        return n:find("Insignia of the", 1, true) ~= nil
     end
     for _, s in ipairs({ 13, 14 }) do
         local id = GetInventoryItemID("player", s)
@@ -103,10 +131,28 @@ end
 -- Point cfg.iotaId at the detected Insignia unless the user pinned it. Cheap; safe to call often.
 function aura_env.RefreshInsignia()
     if aura_env.iotaLocked then return end
+    -- In-game manual override via a macro (same pattern as TRK_PAUSED), for non-English clients or
+    -- to force a specific id:  /run TRK_IOTA = 18852   (set TRK_IOTA = nil to resume auto-detect)
+    if type(TRK_IOTA) == "number" then
+        if aura_env.cfg.iotaId ~= TRK_IOTA then
+            aura_env.cfg.iotaId = TRK_IOTA
+            aura_env.Dbg("insignia pinned via TRK_IOTA: " .. TRK_IOTA)
+        end
+        return
+    end
     local found = aura_env.DetectInsignia()
-    if found and found ~= aura_env.cfg.iotaId then
-        aura_env.cfg.iotaId = found
-        if aura_env.cfg.debug then print("|cff66ccff[TRK]|r insignia detected: " .. found) end
+    if found then
+        aura_env.iotaWarned = false
+        if found ~= aura_env.cfg.iotaId then
+            aura_env.cfg.iotaId = found
+            aura_env.Dbg("insignia detected: " .. found)
+        end
+    elseif not aura_env.iotaScanPending and not aura_env.Owned(aura_env.cfg.iotaId) and not aura_env.iotaWarned then
+        -- Scan finished (nothing left to load) yet found no Insignia, and the Alliance-default
+        -- fallback isn't owned — warn once so this stops being a silent no-op (the Horde symptom).
+        aura_env.Dbg("no Insignia found; fallback id " .. tostring(aura_env.cfg.iotaId) ..
+            " not owned — carry an Insignia in bags, or /run TRK_IOTA = <yourId>")
+        aura_env.iotaWarned = true
     end
 end
 
@@ -198,7 +244,7 @@ function aura_env.Apply()
             if target then
                 EquipItemByName(id, target)
                 aura_env.lastEquip = now
-                if c.debug then print("|cff66ccff[TRK]|r equip " .. id .. " -> slot " .. target) end
+                aura_env.Dbg("equip " .. id .. " -> slot " .. target)
                 return
             end
         end

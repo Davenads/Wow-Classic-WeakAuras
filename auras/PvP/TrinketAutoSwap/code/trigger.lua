@@ -2,7 +2,7 @@
 -- Events box (Trigger ▸ Custom ▸ Events):
 --   PLAYER_ENTERING_WORLD PLAYER_REGEN_ENABLED PLAYER_REGEN_DISABLED
 --   BAG_UPDATE_COOLDOWN SPELL_UPDATE_COOLDOWN UNIT_INVENTORY_CHANGED
---   PLAYER_EQUIPMENT_CHANGED BAG_UPDATE
+--   PLAYER_EQUIPMENT_CHANGED BAG_UPDATE GET_ITEM_INFO_RECEIVED
 function(event, arg1)
     local e = aura_env
     if not e.cfg then return false end
@@ -17,6 +17,14 @@ function(event, arg1)
     elseif event == "BAG_UPDATE_COOLDOWN" or event == "SPELL_UPDATE_COOLDOWN" then
         e.WatchAGM()
         e.Apply()
+    elseif event == "GET_ITEM_INFO_RECEIVED" then
+        -- An item name finished loading. Only act while a cold-cache scan is outstanding, so we
+        -- ignore the flood of unrelated GET_ITEM_INFO_RECEIVED during zoning. This is what makes
+        -- Insignia auto-detect reliable regardless of cache timing (the Horde auto-equip fix).
+        if e.iotaScanPending then
+            e.RefreshInsignia()
+            e.Apply()
+        end
     else
         -- PLAYER_ENTERING_WORLD, PLAYER_EQUIPMENT_CHANGED, BAG_UPDATE
         e.Apply()
