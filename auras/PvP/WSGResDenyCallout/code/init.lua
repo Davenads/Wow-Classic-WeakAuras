@@ -262,7 +262,7 @@ function aura_env.Evaluate()
             local key = cand.guid or cand.name
             if aura_env.rl:allow(key) then
                 aura_env.Announce(string.format(
-                    "[HOLD] %s @%d%% — enemy GY rez in %ds, wait for reset (full 30s down)",
+                    "Don't kill yet: %s @%d%% — enemy rez in %ds, wait for reset (full 30s down)",
                     cand.name, math.floor(cand.pct + 0.5), math.floor(rem + 0.5)), key)
                 return                                          -- one call per tick; throttle handles the rest
             end

@@ -95,7 +95,7 @@ enemy — designed to read as coordination, not spam.
 
 1. **Dry-run detection (Phase 1).** Enter WSG with `dryRun = true`. Confirm the indicator
    seeds after the start message and the countdown rolls ~31.5s. Fight low-HP enemies and
-   verify `[HOLD] <name> @<hp>% …` lines print **locally** with correct names/HP.
+   verify `Don't kill yet: <name> @<hp>% …` lines print **locally** with correct names/HP.
 2. **Res clock (Phase 2).** Watch friendly deaths/waves; confirm the countdown re-anchors on
    waves and the `BG_REZ_SYNC` macro resyncs. Sanity-check the enemy phase (adjust
    `enemyGyOffset`) — the "both GYs in phase" assumption needs live confirmation.
