@@ -4,9 +4,13 @@
 -- client keeps running. SavedVariables only flush to disk on a clean logout/reload, so an outright
 -- client CRASH would lose the in-memory tail — the one durability caveat for this design.
 
-local s = aura_env.saved
-s.whispers = s.whispers or {}
-if s.capturing == nil then s.capturing = true end
+-- aura_env.saved is only present in the FULL environment; guard in case On Init ever runs in
+-- the config stage (it's re-guarded in the trigger too).
+if aura_env.saved then
+    local s = aura_env.saved
+    s.whispers = s.whispers or {}
+    if s.capturing == nil then s.capturing = true end
+end
 
 local PREFIX = "|cff66ccff[WhisperCatcher]|r "
 
@@ -17,6 +21,7 @@ end
 
 -- dump the whole log to your chat frame, newest last
 function aura_env.Dump()
+    if not aura_env.saved then return end
     local w = aura_env.saved.whispers or {}
     local n = #w
     if n == 0 then
@@ -32,6 +37,7 @@ end
 
 -- parse a self-whispered command; a 0.5s guard absorbs the INFORM + self-WHISPER double fire
 function aura_env.Command(text)
+    if not aura_env.saved then return end
     local now = GetTime()
     if aura_env.lastCmd and (now - aura_env.lastCmd) < 0.5 then return end
     aura_env.lastCmd = now
@@ -53,6 +59,7 @@ end
 
 -- one-line nudge on login/zone-in, and on the AFK -> back transition, if a backlog exists
 function aura_env.Remind(event)
+    if not aura_env.saved then return end
     if event == "PLAYER_FLAGS_CHANGED" then
         local afk = (UnitIsAFK and UnitIsAFK("player")) and true or false
         local returned = aura_env.wasAFK and not afk

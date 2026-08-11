@@ -16,17 +16,22 @@
 --   CHAT_MSG_WHISPER, CHAT_MSG_BN_WHISPER, CHAT_MSG_WHISPER_INFORM,
 --   PLAYER_ENTERING_WORLD, PLAYER_FLAGS_CHANGED
 function(event, ...)
+    -- aura_env.saved only exists in the FULL environment. At load WeakAuras fires a fake event
+    -- against the config-stage env (saved == nil) — bail so we don't index a nil table.
     local s = aura_env.saved
+    if not s then return false end
     s.whispers = s.whispers or {}
     if s.capturing == nil then s.capturing = true end
 
-    local me = aura_env.strip(UnitName("player"))
+    -- fall back to a local strip if On Init hasn't defined aura_env.strip yet
+    local strip = aura_env.strip or function(n) return n and (n:gsub("%-.*$", "")) or n end
+    local me = strip(UnitName("player"))
 
     if event == "CHAT_MSG_WHISPER" or event == "CHAT_MSG_BN_WHISPER" then
         local text, sender = ...
         -- a whisper from yourself is the command channel, not a real whisper -> never logged
-        if sender and aura_env.strip(sender) == me then
-            aura_env.Command(text or "")
+        if sender and strip(sender) == me then
+            if aura_env.Command then aura_env.Command(text or "") end
             return false
         end
         if s.capturing and text and text ~= "" then
@@ -37,12 +42,12 @@ function(event, ...)
     elseif event == "CHAT_MSG_WHISPER_INFORM" then
         -- outgoing whisper: only a command if you whispered YOURSELF
         local text, target = ...
-        if target and aura_env.strip(target) == me and text then
-            aura_env.Command(text)
+        if target and strip(target) == me and text then
+            if aura_env.Command then aura_env.Command(text) end
         end
 
     elseif event == "PLAYER_ENTERING_WORLD" or event == "PLAYER_FLAGS_CHANGED" then
-        aura_env.Remind(event)
+        if aura_env.Remind then aura_env.Remind(event) end
     end
 
     return false   -- always hidden: silent, side-effect-only logger

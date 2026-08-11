@@ -103,3 +103,9 @@ No On Show / On Hide code (the region never shows).
   `clear` / `off` / `on`) since the sandbox blocks `SlashCmdList`; login + AFK-return nudge.
   Fabricated export (cloned from the WSG Enemy FC Announcer text-region shape), round-trip
   verified lossless.
+- 2026-08-11 — Fix: `7x Lua error … attempt to index local 's' (a nil value)` at load. WeakAuras
+  fires a fake event against the **config-stage** environment during `LoadDisplays`, where
+  `aura_env.saved` is `nil` (it only exists in the full stage). The trigger now bails
+  (`if not s then return false end`) until `saved` is present, uses a local `strip` fallback, and
+  only calls `aura_env.Command`/`Remind` if defined; On Init + the helpers guard `aura_env.saved`
+  too. Re-exported (round-trip lossless).
