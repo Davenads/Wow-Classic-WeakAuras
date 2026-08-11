@@ -1,12 +1,13 @@
--- Dwarf Priest Cooldowns — Mind Blast (Shadow-only) — Trigger ▸ Custom ▸ Trigger State Updater
--- Reveals ONLY when the character knows Shadowform (i.e. a real Shadow build); otherwise stays
--- hidden and the dynamic group collapses the slot. Then tracks Mind Blast's cooldown BY NAME.
--- Spell ids (reference): Mind Blast 8092 · gate spell Shadowform 15473
---   https://www.wowhead.com/classic/spell=8092  https://www.wowhead.com/classic/spell=15473
--- Events box: SPELL_UPDATE_COOLDOWN SPELL_UPDATE_USABLE LEARNED_SPELL_IN_TAB PLAYER_ENTERING_WORLD
+-- Dwarf Priest Cooldowns — Mind Blast (Shadow-gated) — Trigger ▸ Custom ▸ Trigger State Updater
+-- Reveals ONLY when the character has Mind Flay talented (a real shadow investment, 10+ pts);
+-- otherwise stays hidden and the dynamic group collapses the slot. Then tracks Mind Blast BY NAME.
+-- Mind Flay is a talent-only spell, so "knows it" == "talented it" (no talent-tree parsing needed).
+-- Spell ids (reference): Mind Blast 8092 · gate spell Mind Flay 15407
+--   https://www.wowhead.com/classic/spell=8092  https://www.wowhead.com/classic/spell=15407
+-- Events box: SPELL_UPDATE_COOLDOWN SPELL_UPDATE_USABLE LEARNED_SPELL_IN_TAB CHARACTER_POINTS_CHANGED PLAYER_ENTERING_WORLD
 function(allstates)
     local name = "Mind Blast"
-    if not GetSpellInfo("Shadowform") then                  -- not a Shadow build -> hide
+    if not GetSpellInfo("Mind Flay") then                   -- Mind Flay not talented -> hide
         allstates[""] = { show = false, changed = true }
         return true
     end

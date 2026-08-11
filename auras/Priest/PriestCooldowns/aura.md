@@ -23,12 +23,12 @@ self-tailoring. Left → right:
 5. **Desperate Prayer** (Dwarf racial) — emergency instant heal
 6. **Stoneform** (Dwarf racial) — cleanse bleed/poison/disease + armor
 7. **Inner Focus** (Discipline talent) — free + crit next spell
-8. **Mind Blast** — hidden unless the character is a **Shadow build** (knows Shadowform)
+8. **Mind Blast** — hidden unless the character has **Mind Flay talented** (a real shadow investment)
 9. **Major Mana Potion** (item) — shows only while carried
 10. **Mana Rune** (item) — Dark or Demonic, whichever is carried
 
 It's a **dynamic group** (`grow = HORIZONTAL`, `space = 0`), so any icon that hides — an
-untalented spell, a not-carried item, Mind Blast on a non-Shadow build — collapses out and the
+untalented spell, a not-carried item, Mind Blast without Mind Flay — collapses out and the
 remaining icons stay flush and centered with no gap. For the reference 30/21 build carrying mana
 potions + a rune, **9 icons** show (Mind Blast hidden).
 
@@ -62,10 +62,14 @@ countdown is WA's built-in icon cooldown text (`cooldownTextDisabled = false`).
   [20594](https://www.wowhead.com/classic/spell=20594), Inner Focus
   [14751](https://www.wowhead.com/classic/spell=14751).
 - **Mind Blast icon (1, Shadow-gated):** same by-name logic, but first checks
-  `GetSpellInfo("Shadowform")` — if the character doesn't know Shadowform it stays hidden, so the
-  icon only appears on a real Shadow build (and pops into the row automatically after a respec).
-  Reference IDs: Mind Blast [8092](https://www.wowhead.com/classic/spell=8092), gate spell
-  Shadowform [15473](https://www.wowhead.com/classic/spell=15473).
+  `GetSpellInfo("Mind Flay")` — Mind Flay is a **talent-only** spell (tier 3 Shadow, 10 pts), so
+  "knows it" == "talented it" with no talent-tree parsing (`GetTalentInfo` indices shift; there's no
+  `GetSpecialization` on Era). If Mind Flay isn't talented the icon stays hidden, so Mind Blast
+  appears for any real shadow investment — full Shadow *and* shadow hybrids, not just 31-pt
+  Shadowform builds. `CHARACTER_POINTS_CHANGED` in the events box makes it pop in/out immediately on
+  respec (no `/reload`). Reference IDs: Mind Blast
+  [8092](https://www.wowhead.com/classic/spell=8092), gate spell Mind Flay
+  [15407](https://www.wowhead.com/classic/spell=15407).
 - **Item icons (2, possession-gated):** `GetItemCooldown` (flavor-aware `C_Container`/`C_Item`
   fallback) with art from `GetItemIcon`. Both first check `GetItemCount` and **hide when you carry
   none** (avoids a phantom icon painting the shared potion category CD when you have zero). Major
@@ -102,7 +106,7 @@ design (Wowhead Classic + Wowpedia):
 | Desperate Prayer | 10 min | instant, off-GCD emergency heal |
 | Stoneform | 3 min | 8 s active |
 | Inner Focus | 3 min | Discipline talent |
-| Mind Blast | 8 s (5.5 s w/ 5/5 Improved Mind Blast) | Shadow-only; short CD blinks in the row |
+| Mind Blast | 8 s (5.5 s w/ 5/5 Improved Mind Blast) | Mind Flay-gated; short CD blinks in the row |
 | Major Mana Potion | 2 min | shared combat-**potion** category |
 | Mana Rune (Dark/Demonic) | 2 min | **separate** category from potions — chainable with a potion |
 
@@ -115,8 +119,9 @@ grey out the rune and vice-versa).
 
 - Import `export.txt`, drag the group where you want it, then cast each ability / drink a potion /
   use a rune — the swipe + number should appear over the matching icon.
-- On the 30/21 build the **Mind Blast** slot should be absent (no Shadowform); respec Shadow and
-  it should appear. Empty bags → the **Mana Potion / Rune** slots should collapse out.
+- On the 30/21 build the **Mind Blast** slot should be absent (no Mind Flay); respec into Mind Flay
+  (10 pts Shadow) and it should appear immediately — `CHARACTER_POINTS_CHANGED` catches the respec
+  without a `/reload`. Empty bags → the **Mana Potion / Rune** slots should collapse out.
 - Cast **Power Word: Shield on yourself** — the PW:S icon should paint the ~15 s Weakened Soul swipe
   and clear when it fades. Shielding a *party member* shows only the 4 s spell cooldown (Weakened
   Soul lands on them, not you).
@@ -149,3 +154,8 @@ grey out the rune and vice-versa).
   `static` value=1/total=1 progress when ready (WA rendered that as a 100% swipe, dark under
   `inverse`). Ready now emits a zero-duration `timed` state that draws no swipe, so idle icons stay
   bright. Re-exported.
+- 2026-08-10 — Change the Mind Blast reveal gate from Shadowform (31 pts) to **Mind Flay** (10 pts,
+  talent-only spell). Now surfaces for any real shadow investment — full Shadow *and* shadow hybrids
+  — not just 31-pt Shadowform builds. Added `CHARACTER_POINTS_CHANGED` to the Mind Blast events box so
+  the icon appears/disappears immediately on respec. Re-exported (round-trip lossless). Mind Flay ref
+  [15407](https://www.wowhead.com/classic/spell=15407).
