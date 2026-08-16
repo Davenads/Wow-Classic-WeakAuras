@@ -1,4 +1,4 @@
--- Dwarf Priest Cooldowns — Power Word: Shield (4s CD + Weakened Soul lockout) — Trigger ▸ Custom ▸ Trigger State Updater
+-- Priest Cooldowns — Power Word: Shield (4s CD + Weakened Soul lockout) — Trigger ▸ Custom ▸ Trigger State Updater
 -- PW:S has TWO re-cast limiters in Classic Era: a real 4s spell cooldown (any target) and the
 -- Weakened Soul debuff (~15s) that blocks re-shielding the SAME unit. This icon shows PW:S art
 -- and paints whichever lockout ends later — the 4s cooldown always, plus the 15s Weakened Soul

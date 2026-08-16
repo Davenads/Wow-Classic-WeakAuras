@@ -1,4 +1,4 @@
--- Dwarf Priest Cooldowns — Mind Blast (Shadow-gated) — Trigger ▸ Custom ▸ Trigger State Updater
+-- Priest Cooldowns — Mind Blast (Shadow-gated) — Trigger ▸ Custom ▸ Trigger State Updater
 -- Reveals ONLY when the character has Mind Flay talented (a real shadow investment, 10+ pts);
 -- otherwise stays hidden and the dynamic group collapses the slot. Then tracks Mind Blast BY NAME.
 -- Mind Flay is a talent-only spell, so "knows it" == "talented it" (no talent-tree parsing needed).

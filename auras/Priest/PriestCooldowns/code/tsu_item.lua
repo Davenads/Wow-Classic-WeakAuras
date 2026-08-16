@@ -1,4 +1,4 @@
--- Dwarf Priest Cooldowns — Major Mana Potion — Trigger ▸ Custom ▸ Trigger State Updater
+-- Priest Cooldowns — Major Mana Potion — Trigger ▸ Custom ▸ Trigger State Updater
 -- Possession-gated ITEM icon: shows ONLY while you carry >=1 (dynamic group collapses the slot
 -- when you don't), then paints the shared ~2-min combat-potion cooldown. Swap ITEM_ID for a
 -- different potion (e.g. Superior Mana Potion 3827). Flavor-aware getters: global on Era,

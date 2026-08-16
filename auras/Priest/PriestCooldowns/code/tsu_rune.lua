@@ -1,4 +1,4 @@
--- Dwarf Priest Cooldowns — Mana Rune (Dark/Demonic) — Trigger ▸ Custom ▸ Trigger State Updater
+-- Priest Cooldowns — Mana Rune (Dark/Demonic) — Trigger ▸ Custom ▸ Trigger State Updater
 -- One smart icon for whichever mana rune you carry: scans the list, shows the FIRST one in your
 -- bags (its own art + live rune cooldown), and hides if you carry neither (group collapses).
 -- Item ids (reference): Dark Rune 20520 · Demonic Rune 12662

@@ -1,8 +1,8 @@
-# Dwarf Priest Cooldowns
+# Priest Cooldowns
 
 | Field | Value |
 |---|---|
-| **Display name** | `Dwarf Priest Cooldowns` |
+| **Display name** | `Priest Cooldowns` |
 | **Category / folder** | `Priest` |
 | **Target flavor(s)** | Classic Era (uses legacy `GetSpellInfo`/`GetSpellCooldown`/`GetItemCooldown`) |
 | **Min WeakAuras version** | 5.x |
@@ -180,3 +180,8 @@ grey out the rune and vice-versa).
   so no new logic and no `UnitRace`/level check: by-name returns nil off-race / before training, so
   Will of the Forsaken shows only for Undead and Devouring Plague only once learned; both collapse
   out on a Dwarf. Re-exported (round-trip lossless).
+- 2026-08-16 — Rename the display from *Dwarf Priest Cooldowns* to **Priest Cooldowns** now that the
+  row is race-adaptive (the "Dwarf" label was misleading for Undead priests). Same `uid`
+  (`priCdGrp1`), so WA still recognizes it as the same aura on re-import. Updated the group `id`,
+  every child `parent`, all in-code comment headers, docs, and catalog. Re-exported (round-trip
+  lossless).

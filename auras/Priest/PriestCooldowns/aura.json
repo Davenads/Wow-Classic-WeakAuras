@@ -2,7 +2,7 @@
   "m": "d",
   "s": "5.20.6",
   "d": {
-    "id": "Dwarf Priest Cooldowns",
+    "id": "Priest Cooldowns",
     "uid": "priCdGrp1",
     "regionType": "dynamicgroup",
     "internalVersion": 33,
@@ -123,7 +123,7 @@
     {
       "id": "Power Word: Shield",
       "uid": "priCdPWS1",
-      "parent": "Dwarf Priest Cooldowns",
+      "parent": "Priest Cooldowns",
       "regionType": "icon",
       "internalVersion": 33,
       "tocversion": 11508,
@@ -201,7 +201,7 @@
             "type": "custom",
             "custom_type": "stateupdate",
             "check": "event",
-            "custom": "-- Dwarf Priest Cooldowns — Power Word: Shield (4s CD + Weakened Soul lockout) — Trigger ▸ Custom ▸ Trigger State Updater\n-- PW:S has TWO re-cast limiters in Classic Era: a real 4s spell cooldown (any target) and the\n-- Weakened Soul debuff (~15s) that blocks re-shielding the SAME unit. This icon shows PW:S art\n-- and paints whichever lockout ends later — the 4s cooldown always, plus the 15s Weakened Soul\n-- window when you shield YOURSELF (it watches Weakened Soul on the player). Self-hides if the\n-- char doesn't know PW:S.\n-- Spell ids (reference): Power Word: Shield 17 · Weakened Soul 6788\n--   https://www.wowhead.com/classic/spell=17  https://www.wowhead.com/classic/spell=6788\n-- Events box: SPELL_UPDATE_COOLDOWN UNIT_AURA:player PLAYER_ENTERING_WORLD LEARNED_SPELL_IN_TAB\nfunction(allstates)\n    local sName, _, sIcon = GetSpellInfo(\"Power Word: Shield\")\n    if not sName then\n        allstates[\"\"] = { show = false, changed = true }    -- PW:S not known -> hide\n        return true\n    end\n    local bestDur, bestExp                                   -- show whichever lockout ends later\n    local start, dur = GetSpellCooldown(\"Power Word: Shield\") -- real 4s spell cooldown\n    if start and dur and dur > 1.5 then                      -- (> 1.5 skips the GCD)\n        bestDur, bestExp = dur, start + dur\n    end\n    for i = 1, 40 do                                         -- Weakened Soul on self = re-shield lockout\n        local n, _, _, _, d, e = UnitDebuff(\"player\", i)\n        if not n then break end\n        if n == \"Weakened Soul\" then\n            if not bestExp or e > bestExp then\n                bestDur, bestExp = d, e\n            end\n            break\n        end\n    end\n    local st = allstates[\"\"] or {}\n    st.show = true\n    st.changed = true\n    st.icon = sIcon\n    st.name = sName\n    if bestExp and bestDur and bestDur > 0 then\n        st.progressType = \"timed\"\n        st.duration = bestDur\n        st.expirationTime = bestExp\n    else\n        st.progressType = \"timed\"   -- ready: 0-duration draws no swipe (icon stays bright)\n        st.duration = 0\n        st.expirationTime = 0\n    end\n    allstates[\"\"] = st\n    return true\nend",
+            "custom": "-- Priest Cooldowns — Power Word: Shield (4s CD + Weakened Soul lockout) — Trigger ▸ Custom ▸ Trigger State Updater\n-- PW:S has TWO re-cast limiters in Classic Era: a real 4s spell cooldown (any target) and the\n-- Weakened Soul debuff (~15s) that blocks re-shielding the SAME unit. This icon shows PW:S art\n-- and paints whichever lockout ends later — the 4s cooldown always, plus the 15s Weakened Soul\n-- window when you shield YOURSELF (it watches Weakened Soul on the player). Self-hides if the\n-- char doesn't know PW:S.\n-- Spell ids (reference): Power Word: Shield 17 · Weakened Soul 6788\n--   https://www.wowhead.com/classic/spell=17  https://www.wowhead.com/classic/spell=6788\n-- Events box: SPELL_UPDATE_COOLDOWN UNIT_AURA:player PLAYER_ENTERING_WORLD LEARNED_SPELL_IN_TAB\nfunction(allstates)\n    local sName, _, sIcon = GetSpellInfo(\"Power Word: Shield\")\n    if not sName then\n        allstates[\"\"] = { show = false, changed = true }    -- PW:S not known -> hide\n        return true\n    end\n    local bestDur, bestExp                                   -- show whichever lockout ends later\n    local start, dur = GetSpellCooldown(\"Power Word: Shield\") -- real 4s spell cooldown\n    if start and dur and dur > 1.5 then                      -- (> 1.5 skips the GCD)\n        bestDur, bestExp = dur, start + dur\n    end\n    for i = 1, 40 do                                         -- Weakened Soul on self = re-shield lockout\n        local n, _, _, _, d, e = UnitDebuff(\"player\", i)\n        if not n then break end\n        if n == \"Weakened Soul\" then\n            if not bestExp or e > bestExp then\n                bestDur, bestExp = d, e\n            end\n            break\n        end\n    end\n    local st = allstates[\"\"] or {}\n    st.show = true\n    st.changed = true\n    st.icon = sIcon\n    st.name = sName\n    if bestExp and bestDur and bestDur > 0 then\n        st.progressType = \"timed\"\n        st.duration = bestDur\n        st.expirationTime = bestExp\n    else\n        st.progressType = \"timed\"   -- ready: 0-duration draws no swipe (icon stays bright)\n        st.duration = 0\n        st.expirationTime = 0\n    end\n    allstates[\"\"] = st\n    return true\nend",
             "events": "SPELL_UPDATE_COOLDOWN, UNIT_AURA:player, PLAYER_ENTERING_WORLD, LEARNED_SPELL_IN_TAB",
             "custom_hide": "custom"
           },
@@ -214,7 +214,7 @@
     {
       "id": "Fade",
       "uid": "priCdFade1",
-      "parent": "Dwarf Priest Cooldowns",
+      "parent": "Priest Cooldowns",
       "regionType": "icon",
       "internalVersion": 33,
       "tocversion": 11508,
@@ -292,7 +292,7 @@
             "type": "custom",
             "custom_type": "stateupdate",
             "check": "event",
-            "custom": "-- Dwarf Priest Cooldowns — Fade — Trigger ▸ Custom ▸ Trigger State Updater\n-- Tracks Fade's cooldown BY NAME (rank-proof; self-hides if the char doesn't know it,\n-- e.g. an untalented ability or the wrong race). WA renders the swipe + number from the timer.\n-- Spell id (reference): 586  https://www.wowhead.com/classic/spell=586\n-- Events box: SPELL_UPDATE_COOLDOWN SPELL_UPDATE_USABLE LEARNED_SPELL_IN_TAB PLAYER_ENTERING_WORLD\nfunction(allstates)\n    local name = \"Fade\"\n    local sName, _, sIcon = GetSpellInfo(name)\n    if not sName then\n        allstates[\"\"] = { show = false, changed = true }   -- spell not known -> hide (group collapses)\n        return true\n    end\n    local start, dur = GetSpellCooldown(name)\n    local st = allstates[\"\"] or {}\n    st.show = true\n    st.changed = true\n    st.icon = sIcon\n    st.name = sName\n    if start and dur and dur > 1.5 then                     -- dur > 1.5 filters the GCD\n        st.progressType = \"timed\"\n        st.duration = dur\n        st.expirationTime = start + dur\n    else\n        st.progressType = \"timed\"   -- ready: 0-duration draws no swipe (icon stays bright)\n        st.duration = 0\n        st.expirationTime = 0\n    end\n    allstates[\"\"] = st\n    return true\nend",
+            "custom": "-- Priest Cooldowns — Fade — Trigger ▸ Custom ▸ Trigger State Updater\n-- Tracks Fade's cooldown BY NAME (rank-proof; self-hides if the char doesn't know it,\n-- e.g. an untalented ability or the wrong race). WA renders the swipe + number from the timer.\n-- Spell id (reference): 586  https://www.wowhead.com/classic/spell=586\n-- Events box: SPELL_UPDATE_COOLDOWN SPELL_UPDATE_USABLE LEARNED_SPELL_IN_TAB PLAYER_ENTERING_WORLD\nfunction(allstates)\n    local name = \"Fade\"\n    local sName, _, sIcon = GetSpellInfo(name)\n    if not sName then\n        allstates[\"\"] = { show = false, changed = true }   -- spell not known -> hide (group collapses)\n        return true\n    end\n    local start, dur = GetSpellCooldown(name)\n    local st = allstates[\"\"] or {}\n    st.show = true\n    st.changed = true\n    st.icon = sIcon\n    st.name = sName\n    if start and dur and dur > 1.5 then                     -- dur > 1.5 filters the GCD\n        st.progressType = \"timed\"\n        st.duration = dur\n        st.expirationTime = start + dur\n    else\n        st.progressType = \"timed\"   -- ready: 0-duration draws no swipe (icon stays bright)\n        st.duration = 0\n        st.expirationTime = 0\n    end\n    allstates[\"\"] = st\n    return true\nend",
             "events": "SPELL_UPDATE_COOLDOWN, SPELL_UPDATE_USABLE, LEARNED_SPELL_IN_TAB, PLAYER_ENTERING_WORLD",
             "custom_hide": "custom"
           },
@@ -305,7 +305,7 @@
     {
       "id": "Psychic Scream",
       "uid": "priCdPScr1",
-      "parent": "Dwarf Priest Cooldowns",
+      "parent": "Priest Cooldowns",
       "regionType": "icon",
       "internalVersion": 33,
       "tocversion": 11508,
@@ -383,7 +383,7 @@
             "type": "custom",
             "custom_type": "stateupdate",
             "check": "event",
-            "custom": "-- Dwarf Priest Cooldowns — Psychic Scream — Trigger ▸ Custom ▸ Trigger State Updater\n-- Tracks Psychic Scream's cooldown BY NAME (rank-proof; self-hides if the char doesn't know it,\n-- e.g. an untalented ability or the wrong race). WA renders the swipe + number from the timer.\n-- Spell id (reference): 8122  https://www.wowhead.com/classic/spell=8122\n-- Events box: SPELL_UPDATE_COOLDOWN SPELL_UPDATE_USABLE LEARNED_SPELL_IN_TAB PLAYER_ENTERING_WORLD\nfunction(allstates)\n    local name = \"Psychic Scream\"\n    local sName, _, sIcon = GetSpellInfo(name)\n    if not sName then\n        allstates[\"\"] = { show = false, changed = true }   -- spell not known -> hide (group collapses)\n        return true\n    end\n    local start, dur = GetSpellCooldown(name)\n    local st = allstates[\"\"] or {}\n    st.show = true\n    st.changed = true\n    st.icon = sIcon\n    st.name = sName\n    if start and dur and dur > 1.5 then                     -- dur > 1.5 filters the GCD\n        st.progressType = \"timed\"\n        st.duration = dur\n        st.expirationTime = start + dur\n    else\n        st.progressType = \"timed\"   -- ready: 0-duration draws no swipe (icon stays bright)\n        st.duration = 0\n        st.expirationTime = 0\n    end\n    allstates[\"\"] = st\n    return true\nend",
+            "custom": "-- Priest Cooldowns — Psychic Scream — Trigger ▸ Custom ▸ Trigger State Updater\n-- Tracks Psychic Scream's cooldown BY NAME (rank-proof; self-hides if the char doesn't know it,\n-- e.g. an untalented ability or the wrong race). WA renders the swipe + number from the timer.\n-- Spell id (reference): 8122  https://www.wowhead.com/classic/spell=8122\n-- Events box: SPELL_UPDATE_COOLDOWN SPELL_UPDATE_USABLE LEARNED_SPELL_IN_TAB PLAYER_ENTERING_WORLD\nfunction(allstates)\n    local name = \"Psychic Scream\"\n    local sName, _, sIcon = GetSpellInfo(name)\n    if not sName then\n        allstates[\"\"] = { show = false, changed = true }   -- spell not known -> hide (group collapses)\n        return true\n    end\n    local start, dur = GetSpellCooldown(name)\n    local st = allstates[\"\"] or {}\n    st.show = true\n    st.changed = true\n    st.icon = sIcon\n    st.name = sName\n    if start and dur and dur > 1.5 then                     -- dur > 1.5 filters the GCD\n        st.progressType = \"timed\"\n        st.duration = dur\n        st.expirationTime = start + dur\n    else\n        st.progressType = \"timed\"   -- ready: 0-duration draws no swipe (icon stays bright)\n        st.duration = 0\n        st.expirationTime = 0\n    end\n    allstates[\"\"] = st\n    return true\nend",
             "events": "SPELL_UPDATE_COOLDOWN, SPELL_UPDATE_USABLE, LEARNED_SPELL_IN_TAB, PLAYER_ENTERING_WORLD",
             "custom_hide": "custom"
           },
@@ -396,7 +396,7 @@
     {
       "id": "Fear Ward",
       "uid": "priCdFWard1",
-      "parent": "Dwarf Priest Cooldowns",
+      "parent": "Priest Cooldowns",
       "regionType": "icon",
       "internalVersion": 33,
       "tocversion": 11508,
@@ -474,7 +474,7 @@
             "type": "custom",
             "custom_type": "stateupdate",
             "check": "event",
-            "custom": "-- Dwarf Priest Cooldowns — Fear Ward — Trigger ▸ Custom ▸ Trigger State Updater\n-- Tracks Fear Ward's cooldown BY NAME (rank-proof; self-hides if the char doesn't know it,\n-- e.g. an untalented ability or the wrong race). WA renders the swipe + number from the timer.\n-- Spell id (reference): 6346  https://www.wowhead.com/classic/spell=6346\n-- Events box: SPELL_UPDATE_COOLDOWN SPELL_UPDATE_USABLE LEARNED_SPELL_IN_TAB PLAYER_ENTERING_WORLD\nfunction(allstates)\n    local name = \"Fear Ward\"\n    local sName, _, sIcon = GetSpellInfo(name)\n    if not sName then\n        allstates[\"\"] = { show = false, changed = true }   -- spell not known -> hide (group collapses)\n        return true\n    end\n    local start, dur = GetSpellCooldown(name)\n    local st = allstates[\"\"] or {}\n    st.show = true\n    st.changed = true\n    st.icon = sIcon\n    st.name = sName\n    if start and dur and dur > 1.5 then                     -- dur > 1.5 filters the GCD\n        st.progressType = \"timed\"\n        st.duration = dur\n        st.expirationTime = start + dur\n    else\n        st.progressType = \"timed\"   -- ready: 0-duration draws no swipe (icon stays bright)\n        st.duration = 0\n        st.expirationTime = 0\n    end\n    allstates[\"\"] = st\n    return true\nend",
+            "custom": "-- Priest Cooldowns — Fear Ward — Trigger ▸ Custom ▸ Trigger State Updater\n-- Tracks Fear Ward's cooldown BY NAME (rank-proof; self-hides if the char doesn't know it,\n-- e.g. an untalented ability or the wrong race). WA renders the swipe + number from the timer.\n-- Spell id (reference): 6346  https://www.wowhead.com/classic/spell=6346\n-- Events box: SPELL_UPDATE_COOLDOWN SPELL_UPDATE_USABLE LEARNED_SPELL_IN_TAB PLAYER_ENTERING_WORLD\nfunction(allstates)\n    local name = \"Fear Ward\"\n    local sName, _, sIcon = GetSpellInfo(name)\n    if not sName then\n        allstates[\"\"] = { show = false, changed = true }   -- spell not known -> hide (group collapses)\n        return true\n    end\n    local start, dur = GetSpellCooldown(name)\n    local st = allstates[\"\"] or {}\n    st.show = true\n    st.changed = true\n    st.icon = sIcon\n    st.name = sName\n    if start and dur and dur > 1.5 then                     -- dur > 1.5 filters the GCD\n        st.progressType = \"timed\"\n        st.duration = dur\n        st.expirationTime = start + dur\n    else\n        st.progressType = \"timed\"   -- ready: 0-duration draws no swipe (icon stays bright)\n        st.duration = 0\n        st.expirationTime = 0\n    end\n    allstates[\"\"] = st\n    return true\nend",
             "events": "SPELL_UPDATE_COOLDOWN, SPELL_UPDATE_USABLE, LEARNED_SPELL_IN_TAB, PLAYER_ENTERING_WORLD",
             "custom_hide": "custom"
           },
@@ -487,7 +487,7 @@
     {
       "id": "Desperate Prayer",
       "uid": "priCdDPray1",
-      "parent": "Dwarf Priest Cooldowns",
+      "parent": "Priest Cooldowns",
       "regionType": "icon",
       "internalVersion": 33,
       "tocversion": 11508,
@@ -565,7 +565,7 @@
             "type": "custom",
             "custom_type": "stateupdate",
             "check": "event",
-            "custom": "-- Dwarf Priest Cooldowns — Desperate Prayer — Trigger ▸ Custom ▸ Trigger State Updater\n-- Tracks Desperate Prayer's cooldown BY NAME (rank-proof; self-hides if the char doesn't know it,\n-- e.g. an untalented ability or the wrong race). WA renders the swipe + number from the timer.\n-- Spell id (reference): 13908  https://www.wowhead.com/classic/spell=13908\n-- Events box: SPELL_UPDATE_COOLDOWN SPELL_UPDATE_USABLE LEARNED_SPELL_IN_TAB PLAYER_ENTERING_WORLD\nfunction(allstates)\n    local name = \"Desperate Prayer\"\n    local sName, _, sIcon = GetSpellInfo(name)\n    if not sName then\n        allstates[\"\"] = { show = false, changed = true }   -- spell not known -> hide (group collapses)\n        return true\n    end\n    local start, dur = GetSpellCooldown(name)\n    local st = allstates[\"\"] or {}\n    st.show = true\n    st.changed = true\n    st.icon = sIcon\n    st.name = sName\n    if start and dur and dur > 1.5 then                     -- dur > 1.5 filters the GCD\n        st.progressType = \"timed\"\n        st.duration = dur\n        st.expirationTime = start + dur\n    else\n        st.progressType = \"timed\"   -- ready: 0-duration draws no swipe (icon stays bright)\n        st.duration = 0\n        st.expirationTime = 0\n    end\n    allstates[\"\"] = st\n    return true\nend",
+            "custom": "-- Priest Cooldowns — Desperate Prayer — Trigger ▸ Custom ▸ Trigger State Updater\n-- Tracks Desperate Prayer's cooldown BY NAME (rank-proof; self-hides if the char doesn't know it,\n-- e.g. an untalented ability or the wrong race). WA renders the swipe + number from the timer.\n-- Spell id (reference): 13908  https://www.wowhead.com/classic/spell=13908\n-- Events box: SPELL_UPDATE_COOLDOWN SPELL_UPDATE_USABLE LEARNED_SPELL_IN_TAB PLAYER_ENTERING_WORLD\nfunction(allstates)\n    local name = \"Desperate Prayer\"\n    local sName, _, sIcon = GetSpellInfo(name)\n    if not sName then\n        allstates[\"\"] = { show = false, changed = true }   -- spell not known -> hide (group collapses)\n        return true\n    end\n    local start, dur = GetSpellCooldown(name)\n    local st = allstates[\"\"] or {}\n    st.show = true\n    st.changed = true\n    st.icon = sIcon\n    st.name = sName\n    if start and dur and dur > 1.5 then                     -- dur > 1.5 filters the GCD\n        st.progressType = \"timed\"\n        st.duration = dur\n        st.expirationTime = start + dur\n    else\n        st.progressType = \"timed\"   -- ready: 0-duration draws no swipe (icon stays bright)\n        st.duration = 0\n        st.expirationTime = 0\n    end\n    allstates[\"\"] = st\n    return true\nend",
             "events": "SPELL_UPDATE_COOLDOWN, SPELL_UPDATE_USABLE, LEARNED_SPELL_IN_TAB, PLAYER_ENTERING_WORLD",
             "custom_hide": "custom"
           },
@@ -578,7 +578,7 @@
     {
       "id": "Stoneform",
       "uid": "priCdStn1",
-      "parent": "Dwarf Priest Cooldowns",
+      "parent": "Priest Cooldowns",
       "regionType": "icon",
       "internalVersion": 33,
       "tocversion": 11508,
@@ -656,7 +656,7 @@
             "type": "custom",
             "custom_type": "stateupdate",
             "check": "event",
-            "custom": "-- Dwarf Priest Cooldowns — Stoneform — Trigger ▸ Custom ▸ Trigger State Updater\n-- Tracks Stoneform's cooldown BY NAME (rank-proof; self-hides if the char doesn't know it,\n-- e.g. an untalented ability or the wrong race). WA renders the swipe + number from the timer.\n-- Spell id (reference): 20594  https://www.wowhead.com/classic/spell=20594\n-- Events box: SPELL_UPDATE_COOLDOWN SPELL_UPDATE_USABLE LEARNED_SPELL_IN_TAB PLAYER_ENTERING_WORLD\nfunction(allstates)\n    local name = \"Stoneform\"\n    local sName, _, sIcon = GetSpellInfo(name)\n    if not sName then\n        allstates[\"\"] = { show = false, changed = true }   -- spell not known -> hide (group collapses)\n        return true\n    end\n    local start, dur = GetSpellCooldown(name)\n    local st = allstates[\"\"] or {}\n    st.show = true\n    st.changed = true\n    st.icon = sIcon\n    st.name = sName\n    if start and dur and dur > 1.5 then                     -- dur > 1.5 filters the GCD\n        st.progressType = \"timed\"\n        st.duration = dur\n        st.expirationTime = start + dur\n    else\n        st.progressType = \"timed\"   -- ready: 0-duration draws no swipe (icon stays bright)\n        st.duration = 0\n        st.expirationTime = 0\n    end\n    allstates[\"\"] = st\n    return true\nend",
+            "custom": "-- Priest Cooldowns — Stoneform — Trigger ▸ Custom ▸ Trigger State Updater\n-- Tracks Stoneform's cooldown BY NAME (rank-proof; self-hides if the char doesn't know it,\n-- e.g. an untalented ability or the wrong race). WA renders the swipe + number from the timer.\n-- Spell id (reference): 20594  https://www.wowhead.com/classic/spell=20594\n-- Events box: SPELL_UPDATE_COOLDOWN SPELL_UPDATE_USABLE LEARNED_SPELL_IN_TAB PLAYER_ENTERING_WORLD\nfunction(allstates)\n    local name = \"Stoneform\"\n    local sName, _, sIcon = GetSpellInfo(name)\n    if not sName then\n        allstates[\"\"] = { show = false, changed = true }   -- spell not known -> hide (group collapses)\n        return true\n    end\n    local start, dur = GetSpellCooldown(name)\n    local st = allstates[\"\"] or {}\n    st.show = true\n    st.changed = true\n    st.icon = sIcon\n    st.name = sName\n    if start and dur and dur > 1.5 then                     -- dur > 1.5 filters the GCD\n        st.progressType = \"timed\"\n        st.duration = dur\n        st.expirationTime = start + dur\n    else\n        st.progressType = \"timed\"   -- ready: 0-duration draws no swipe (icon stays bright)\n        st.duration = 0\n        st.expirationTime = 0\n    end\n    allstates[\"\"] = st\n    return true\nend",
             "events": "SPELL_UPDATE_COOLDOWN, SPELL_UPDATE_USABLE, LEARNED_SPELL_IN_TAB, PLAYER_ENTERING_WORLD",
             "custom_hide": "custom"
           },
@@ -669,7 +669,7 @@
     {
       "id": "Will of the Forsaken",
       "uid": "priCdWotF1",
-      "parent": "Dwarf Priest Cooldowns",
+      "parent": "Priest Cooldowns",
       "regionType": "icon",
       "internalVersion": 33,
       "tocversion": 11508,
@@ -747,7 +747,7 @@
             "type": "custom",
             "custom_type": "stateupdate",
             "check": "event",
-            "custom": "-- Dwarf Priest Cooldowns — Will of the Forsaken (Undead racial) — Trigger ▸ Custom ▸ Trigger State Updater\n-- Tracks Will of the Forsaken BY NAME. Only Undead know it, so by-name == \"show for Undead\" with\n-- no UnitRace check; it self-hides on every other race and the dynamic group collapses the slot.\n-- WA renders the swipe + number from the timer.\n-- Spell id (reference): 7744  https://www.wowhead.com/classic/spell=7744\n-- Events box: SPELL_UPDATE_COOLDOWN SPELL_UPDATE_USABLE LEARNED_SPELL_IN_TAB PLAYER_ENTERING_WORLD\nfunction(allstates)\n    local name = \"Will of the Forsaken\"\n    local sName, _, sIcon = GetSpellInfo(name)\n    if not sName then\n        allstates[\"\"] = { show = false, changed = true }   -- spell not known -> hide (group collapses)\n        return true\n    end\n    local start, dur = GetSpellCooldown(name)\n    local st = allstates[\"\"] or {}\n    st.show = true\n    st.changed = true\n    st.icon = sIcon\n    st.name = sName\n    if start and dur and dur > 1.5 then                     -- dur > 1.5 filters the GCD\n        st.progressType = \"timed\"\n        st.duration = dur\n        st.expirationTime = start + dur\n    else\n        st.progressType = \"timed\"   -- ready: 0-duration draws no swipe (icon stays bright)\n        st.duration = 0\n        st.expirationTime = 0\n    end\n    allstates[\"\"] = st\n    return true\nend",
+            "custom": "-- Priest Cooldowns — Will of the Forsaken (Undead racial) — Trigger ▸ Custom ▸ Trigger State Updater\n-- Tracks Will of the Forsaken BY NAME. Only Undead know it, so by-name == \"show for Undead\" with\n-- no UnitRace check; it self-hides on every other race and the dynamic group collapses the slot.\n-- WA renders the swipe + number from the timer.\n-- Spell id (reference): 7744  https://www.wowhead.com/classic/spell=7744\n-- Events box: SPELL_UPDATE_COOLDOWN SPELL_UPDATE_USABLE LEARNED_SPELL_IN_TAB PLAYER_ENTERING_WORLD\nfunction(allstates)\n    local name = \"Will of the Forsaken\"\n    local sName, _, sIcon = GetSpellInfo(name)\n    if not sName then\n        allstates[\"\"] = { show = false, changed = true }   -- spell not known -> hide (group collapses)\n        return true\n    end\n    local start, dur = GetSpellCooldown(name)\n    local st = allstates[\"\"] or {}\n    st.show = true\n    st.changed = true\n    st.icon = sIcon\n    st.name = sName\n    if start and dur and dur > 1.5 then                     -- dur > 1.5 filters the GCD\n        st.progressType = \"timed\"\n        st.duration = dur\n        st.expirationTime = start + dur\n    else\n        st.progressType = \"timed\"   -- ready: 0-duration draws no swipe (icon stays bright)\n        st.duration = 0\n        st.expirationTime = 0\n    end\n    allstates[\"\"] = st\n    return true\nend",
             "events": "SPELL_UPDATE_COOLDOWN, SPELL_UPDATE_USABLE, LEARNED_SPELL_IN_TAB, PLAYER_ENTERING_WORLD",
             "custom_hide": "custom"
           },
@@ -760,7 +760,7 @@
     {
       "id": "Inner Focus",
       "uid": "priCdIFoc1",
-      "parent": "Dwarf Priest Cooldowns",
+      "parent": "Priest Cooldowns",
       "regionType": "icon",
       "internalVersion": 33,
       "tocversion": 11508,
@@ -838,7 +838,7 @@
             "type": "custom",
             "custom_type": "stateupdate",
             "check": "event",
-            "custom": "-- Dwarf Priest Cooldowns — Inner Focus — Trigger ▸ Custom ▸ Trigger State Updater\n-- Tracks Inner Focus's cooldown BY NAME (rank-proof; self-hides if the char doesn't know it,\n-- e.g. an untalented ability or the wrong race). WA renders the swipe + number from the timer.\n-- Spell id (reference): 14751  https://www.wowhead.com/classic/spell=14751\n-- Events box: SPELL_UPDATE_COOLDOWN SPELL_UPDATE_USABLE LEARNED_SPELL_IN_TAB PLAYER_ENTERING_WORLD\nfunction(allstates)\n    local name = \"Inner Focus\"\n    local sName, _, sIcon = GetSpellInfo(name)\n    if not sName then\n        allstates[\"\"] = { show = false, changed = true }   -- spell not known -> hide (group collapses)\n        return true\n    end\n    local start, dur = GetSpellCooldown(name)\n    local st = allstates[\"\"] or {}\n    st.show = true\n    st.changed = true\n    st.icon = sIcon\n    st.name = sName\n    if start and dur and dur > 1.5 then                     -- dur > 1.5 filters the GCD\n        st.progressType = \"timed\"\n        st.duration = dur\n        st.expirationTime = start + dur\n    else\n        st.progressType = \"timed\"   -- ready: 0-duration draws no swipe (icon stays bright)\n        st.duration = 0\n        st.expirationTime = 0\n    end\n    allstates[\"\"] = st\n    return true\nend",
+            "custom": "-- Priest Cooldowns — Inner Focus — Trigger ▸ Custom ▸ Trigger State Updater\n-- Tracks Inner Focus's cooldown BY NAME (rank-proof; self-hides if the char doesn't know it,\n-- e.g. an untalented ability or the wrong race). WA renders the swipe + number from the timer.\n-- Spell id (reference): 14751  https://www.wowhead.com/classic/spell=14751\n-- Events box: SPELL_UPDATE_COOLDOWN SPELL_UPDATE_USABLE LEARNED_SPELL_IN_TAB PLAYER_ENTERING_WORLD\nfunction(allstates)\n    local name = \"Inner Focus\"\n    local sName, _, sIcon = GetSpellInfo(name)\n    if not sName then\n        allstates[\"\"] = { show = false, changed = true }   -- spell not known -> hide (group collapses)\n        return true\n    end\n    local start, dur = GetSpellCooldown(name)\n    local st = allstates[\"\"] or {}\n    st.show = true\n    st.changed = true\n    st.icon = sIcon\n    st.name = sName\n    if start and dur and dur > 1.5 then                     -- dur > 1.5 filters the GCD\n        st.progressType = \"timed\"\n        st.duration = dur\n        st.expirationTime = start + dur\n    else\n        st.progressType = \"timed\"   -- ready: 0-duration draws no swipe (icon stays bright)\n        st.duration = 0\n        st.expirationTime = 0\n    end\n    allstates[\"\"] = st\n    return true\nend",
             "events": "SPELL_UPDATE_COOLDOWN, SPELL_UPDATE_USABLE, LEARNED_SPELL_IN_TAB, PLAYER_ENTERING_WORLD",
             "custom_hide": "custom"
           },
@@ -851,7 +851,7 @@
     {
       "id": "Mind Blast",
       "uid": "priCdMBlast1",
-      "parent": "Dwarf Priest Cooldowns",
+      "parent": "Priest Cooldowns",
       "regionType": "icon",
       "internalVersion": 33,
       "tocversion": 11508,
@@ -929,7 +929,7 @@
             "type": "custom",
             "custom_type": "stateupdate",
             "check": "event",
-            "custom": "-- Dwarf Priest Cooldowns — Mind Blast (Shadow-gated) — Trigger ▸ Custom ▸ Trigger State Updater\n-- Reveals ONLY when the character has Mind Flay talented (a real shadow investment, 10+ pts);\n-- otherwise stays hidden and the dynamic group collapses the slot. Then tracks Mind Blast BY NAME.\n-- Mind Flay is a talent-only spell, so \"knows it\" == \"talented it\" (no talent-tree parsing needed).\n-- Spell ids (reference): Mind Blast 8092 · gate spell Mind Flay 15407\n--   https://www.wowhead.com/classic/spell=8092  https://www.wowhead.com/classic/spell=15407\n-- Events box: SPELL_UPDATE_COOLDOWN SPELL_UPDATE_USABLE LEARNED_SPELL_IN_TAB CHARACTER_POINTS_CHANGED PLAYER_ENTERING_WORLD\nfunction(allstates)\n    local name = \"Mind Blast\"\n    if not GetSpellInfo(\"Mind Flay\") then                   -- Mind Flay not talented -> hide\n        allstates[\"\"] = { show = false, changed = true }\n        return true\n    end\n    local sName, _, sIcon = GetSpellInfo(name)\n    if not sName then\n        allstates[\"\"] = { show = false, changed = true }\n        return true\n    end\n    local start, dur = GetSpellCooldown(name)\n    local st = allstates[\"\"] or {}\n    st.show = true\n    st.changed = true\n    st.icon = sIcon\n    st.name = sName\n    if start and dur and dur > 1.5 then\n        st.progressType = \"timed\"\n        st.duration = dur\n        st.expirationTime = start + dur\n    else\n        st.progressType = \"timed\"   -- ready: 0-duration draws no swipe (icon stays bright)\n        st.duration = 0\n        st.expirationTime = 0\n    end\n    allstates[\"\"] = st\n    return true\nend",
+            "custom": "-- Priest Cooldowns — Mind Blast (Shadow-gated) — Trigger ▸ Custom ▸ Trigger State Updater\n-- Reveals ONLY when the character has Mind Flay talented (a real shadow investment, 10+ pts);\n-- otherwise stays hidden and the dynamic group collapses the slot. Then tracks Mind Blast BY NAME.\n-- Mind Flay is a talent-only spell, so \"knows it\" == \"talented it\" (no talent-tree parsing needed).\n-- Spell ids (reference): Mind Blast 8092 · gate spell Mind Flay 15407\n--   https://www.wowhead.com/classic/spell=8092  https://www.wowhead.com/classic/spell=15407\n-- Events box: SPELL_UPDATE_COOLDOWN SPELL_UPDATE_USABLE LEARNED_SPELL_IN_TAB CHARACTER_POINTS_CHANGED PLAYER_ENTERING_WORLD\nfunction(allstates)\n    local name = \"Mind Blast\"\n    if not GetSpellInfo(\"Mind Flay\") then                   -- Mind Flay not talented -> hide\n        allstates[\"\"] = { show = false, changed = true }\n        return true\n    end\n    local sName, _, sIcon = GetSpellInfo(name)\n    if not sName then\n        allstates[\"\"] = { show = false, changed = true }\n        return true\n    end\n    local start, dur = GetSpellCooldown(name)\n    local st = allstates[\"\"] or {}\n    st.show = true\n    st.changed = true\n    st.icon = sIcon\n    st.name = sName\n    if start and dur and dur > 1.5 then\n        st.progressType = \"timed\"\n        st.duration = dur\n        st.expirationTime = start + dur\n    else\n        st.progressType = \"timed\"   -- ready: 0-duration draws no swipe (icon stays bright)\n        st.duration = 0\n        st.expirationTime = 0\n    end\n    allstates[\"\"] = st\n    return true\nend",
             "events": "SPELL_UPDATE_COOLDOWN, SPELL_UPDATE_USABLE, LEARNED_SPELL_IN_TAB, PLAYER_ENTERING_WORLD",
             "custom_hide": "custom"
           },
@@ -942,7 +942,7 @@
     {
       "id": "Devouring Plague",
       "uid": "priCdDPlag1",
-      "parent": "Dwarf Priest Cooldowns",
+      "parent": "Priest Cooldowns",
       "regionType": "icon",
       "internalVersion": 33,
       "tocversion": 11508,
@@ -1020,7 +1020,7 @@
             "type": "custom",
             "custom_type": "stateupdate",
             "check": "event",
-            "custom": "-- Dwarf Priest Cooldowns — Devouring Plague (Undead priest spell) — Trigger ▸ Custom ▸ Trigger State Updater\n-- Tracks Devouring Plague BY NAME. It's an Undead-only priest ability trained at level 20, so by-name\n-- returns nil until it's learned (icon hidden, group collapses) and auto-covers every rank once known.\n-- WA renders the swipe + number from the timer.\n-- Spell id (reference, rank 1): 19276  https://www.wowhead.com/classic/spell=19276\n-- Events box: SPELL_UPDATE_COOLDOWN SPELL_UPDATE_USABLE LEARNED_SPELL_IN_TAB PLAYER_ENTERING_WORLD\nfunction(allstates)\n    local name = \"Devouring Plague\"\n    local sName, _, sIcon = GetSpellInfo(name)\n    if not sName then\n        allstates[\"\"] = { show = false, changed = true }   -- spell not known -> hide (group collapses)\n        return true\n    end\n    local start, dur = GetSpellCooldown(name)\n    local st = allstates[\"\"] or {}\n    st.show = true\n    st.changed = true\n    st.icon = sIcon\n    st.name = sName\n    if start and dur and dur > 1.5 then                     -- dur > 1.5 filters the GCD\n        st.progressType = \"timed\"\n        st.duration = dur\n        st.expirationTime = start + dur\n    else\n        st.progressType = \"timed\"   -- ready: 0-duration draws no swipe (icon stays bright)\n        st.duration = 0\n        st.expirationTime = 0\n    end\n    allstates[\"\"] = st\n    return true\nend",
+            "custom": "-- Priest Cooldowns — Devouring Plague (Undead priest spell) — Trigger ▸ Custom ▸ Trigger State Updater\n-- Tracks Devouring Plague BY NAME. It's an Undead-only priest ability trained at level 20, so by-name\n-- returns nil until it's learned (icon hidden, group collapses) and auto-covers every rank once known.\n-- WA renders the swipe + number from the timer.\n-- Spell id (reference, rank 1): 19276  https://www.wowhead.com/classic/spell=19276\n-- Events box: SPELL_UPDATE_COOLDOWN SPELL_UPDATE_USABLE LEARNED_SPELL_IN_TAB PLAYER_ENTERING_WORLD\nfunction(allstates)\n    local name = \"Devouring Plague\"\n    local sName, _, sIcon = GetSpellInfo(name)\n    if not sName then\n        allstates[\"\"] = { show = false, changed = true }   -- spell not known -> hide (group collapses)\n        return true\n    end\n    local start, dur = GetSpellCooldown(name)\n    local st = allstates[\"\"] or {}\n    st.show = true\n    st.changed = true\n    st.icon = sIcon\n    st.name = sName\n    if start and dur and dur > 1.5 then                     -- dur > 1.5 filters the GCD\n        st.progressType = \"timed\"\n        st.duration = dur\n        st.expirationTime = start + dur\n    else\n        st.progressType = \"timed\"   -- ready: 0-duration draws no swipe (icon stays bright)\n        st.duration = 0\n        st.expirationTime = 0\n    end\n    allstates[\"\"] = st\n    return true\nend",
             "events": "SPELL_UPDATE_COOLDOWN, SPELL_UPDATE_USABLE, LEARNED_SPELL_IN_TAB, PLAYER_ENTERING_WORLD",
             "custom_hide": "custom"
           },
@@ -1033,7 +1033,7 @@
     {
       "id": "Major Mana Potion",
       "uid": "priCdMana1",
-      "parent": "Dwarf Priest Cooldowns",
+      "parent": "Priest Cooldowns",
       "regionType": "icon",
       "internalVersion": 33,
       "tocversion": 11508,
@@ -1111,7 +1111,7 @@
             "type": "custom",
             "custom_type": "stateupdate",
             "check": "event",
-            "custom": "-- Dwarf Priest Cooldowns — Major Mana Potion — Trigger ▸ Custom ▸ Trigger State Updater\n-- Possession-gated ITEM icon: shows ONLY while you carry >=1 (dynamic group collapses the slot\n-- when you don't), then paints the shared ~2-min combat-potion cooldown. Swap ITEM_ID for a\n-- different potion (e.g. Superior Mana Potion 3827). Flavor-aware getters: global on Era,\n-- C_Container/C_Item on Cata/MoP.\n-- Item id (reference): 13444  https://www.wowhead.com/classic/item=13444\n-- Events box: BAG_UPDATE_COOLDOWN SPELL_UPDATE_COOLDOWN BAG_UPDATE PLAYER_ENTERING_WORLD\nfunction(allstates)\n    local ITEM_ID = 13444\n    local function itemCd(itemId)\n        if C_Container and C_Container.GetItemCooldown then return C_Container.GetItemCooldown(itemId) end\n        if C_Item and C_Item.GetItemCooldown then return C_Item.GetItemCooldown(itemId) end\n        return GetItemCooldown(itemId)\n    end\n    local function itemCount(itemId)\n        if C_Item and C_Item.GetItemCount then return C_Item.GetItemCount(itemId) end\n        return GetItemCount(itemId)\n    end\n    if (itemCount(ITEM_ID) or 0) < 1 then                   -- not carried -> hide\n        allstates[\"\"] = { show = false, changed = true }\n        return true\n    end\n    local start, dur = itemCd(ITEM_ID)\n    local st = allstates[\"\"] or {}\n    st.show = true\n    st.changed = true\n    st.icon = GetItemIcon(ITEM_ID)\n    st.name = (GetItemInfo(ITEM_ID)) or \"Major Mana Potion\"\n    if start and dur and dur > 1.5 then\n        st.progressType = \"timed\"\n        st.duration = dur\n        st.expirationTime = start + dur\n    else\n        st.progressType = \"timed\"   -- ready: 0-duration draws no swipe (icon stays bright)\n        st.duration = 0\n        st.expirationTime = 0\n    end\n    allstates[\"\"] = st\n    return true\nend",
+            "custom": "-- Priest Cooldowns — Major Mana Potion — Trigger ▸ Custom ▸ Trigger State Updater\n-- Possession-gated ITEM icon: shows ONLY while you carry >=1 (dynamic group collapses the slot\n-- when you don't), then paints the shared ~2-min combat-potion cooldown. Swap ITEM_ID for a\n-- different potion (e.g. Superior Mana Potion 3827). Flavor-aware getters: global on Era,\n-- C_Container/C_Item on Cata/MoP.\n-- Item id (reference): 13444  https://www.wowhead.com/classic/item=13444\n-- Events box: BAG_UPDATE_COOLDOWN SPELL_UPDATE_COOLDOWN BAG_UPDATE PLAYER_ENTERING_WORLD\nfunction(allstates)\n    local ITEM_ID = 13444\n    local function itemCd(itemId)\n        if C_Container and C_Container.GetItemCooldown then return C_Container.GetItemCooldown(itemId) end\n        if C_Item and C_Item.GetItemCooldown then return C_Item.GetItemCooldown(itemId) end\n        return GetItemCooldown(itemId)\n    end\n    local function itemCount(itemId)\n        if C_Item and C_Item.GetItemCount then return C_Item.GetItemCount(itemId) end\n        return GetItemCount(itemId)\n    end\n    if (itemCount(ITEM_ID) or 0) < 1 then                   -- not carried -> hide\n        allstates[\"\"] = { show = false, changed = true }\n        return true\n    end\n    local start, dur = itemCd(ITEM_ID)\n    local st = allstates[\"\"] or {}\n    st.show = true\n    st.changed = true\n    st.icon = GetItemIcon(ITEM_ID)\n    st.name = (GetItemInfo(ITEM_ID)) or \"Major Mana Potion\"\n    if start and dur and dur > 1.5 then\n        st.progressType = \"timed\"\n        st.duration = dur\n        st.expirationTime = start + dur\n    else\n        st.progressType = \"timed\"   -- ready: 0-duration draws no swipe (icon stays bright)\n        st.duration = 0\n        st.expirationTime = 0\n    end\n    allstates[\"\"] = st\n    return true\nend",
             "events": "BAG_UPDATE_COOLDOWN, SPELL_UPDATE_COOLDOWN, BAG_UPDATE, PLAYER_ENTERING_WORLD",
             "custom_hide": "custom"
           },
@@ -1124,7 +1124,7 @@
     {
       "id": "Mana Rune",
       "uid": "priCdRune1",
-      "parent": "Dwarf Priest Cooldowns",
+      "parent": "Priest Cooldowns",
       "regionType": "icon",
       "internalVersion": 33,
       "tocversion": 11508,
@@ -1202,7 +1202,7 @@
             "type": "custom",
             "custom_type": "stateupdate",
             "check": "event",
-            "custom": "-- Dwarf Priest Cooldowns — Mana Rune (Dark/Demonic) — Trigger ▸ Custom ▸ Trigger State Updater\n-- One smart icon for whichever mana rune you carry: scans the list, shows the FIRST one in your\n-- bags (its own art + live rune cooldown), and hides if you carry neither (group collapses).\n-- Item ids (reference): Dark Rune 20520 · Demonic Rune 12662\n--   https://www.wowhead.com/classic/item=20520  https://www.wowhead.com/classic/item=12662\n-- Events box: BAG_UPDATE_COOLDOWN SPELL_UPDATE_COOLDOWN BAG_UPDATE PLAYER_ENTERING_WORLD\nfunction(allstates)\n    local RUNES = { 20520, 12662 }                          -- Dark Rune (Scholo), Demonic Rune (DM)\n    local function itemCd(itemId)\n        if C_Container and C_Container.GetItemCooldown then return C_Container.GetItemCooldown(itemId) end\n        if C_Item and C_Item.GetItemCooldown then return C_Item.GetItemCooldown(itemId) end\n        return GetItemCooldown(itemId)\n    end\n    local function itemCount(itemId)\n        if C_Item and C_Item.GetItemCount then return C_Item.GetItemCount(itemId) end\n        return GetItemCount(itemId)\n    end\n    local have\n    for _, id in ipairs(RUNES) do\n        if (itemCount(id) or 0) > 0 then\n            have = id\n            break\n        end\n    end\n    if not have then                                        -- no rune carried -> hide\n        allstates[\"\"] = { show = false, changed = true }\n        return true\n    end\n    local start, dur = itemCd(have)\n    local st = allstates[\"\"] or {}\n    st.show = true\n    st.changed = true\n    st.icon = GetItemIcon(have)\n    st.name = (GetItemInfo(have)) or \"Mana Rune\"\n    if start and dur and dur > 1.5 then\n        st.progressType = \"timed\"\n        st.duration = dur\n        st.expirationTime = start + dur\n    else\n        st.progressType = \"timed\"   -- ready: 0-duration draws no swipe (icon stays bright)\n        st.duration = 0\n        st.expirationTime = 0\n    end\n    allstates[\"\"] = st\n    return true\nend",
+            "custom": "-- Priest Cooldowns — Mana Rune (Dark/Demonic) — Trigger ▸ Custom ▸ Trigger State Updater\n-- One smart icon for whichever mana rune you carry: scans the list, shows the FIRST one in your\n-- bags (its own art + live rune cooldown), and hides if you carry neither (group collapses).\n-- Item ids (reference): Dark Rune 20520 · Demonic Rune 12662\n--   https://www.wowhead.com/classic/item=20520  https://www.wowhead.com/classic/item=12662\n-- Events box: BAG_UPDATE_COOLDOWN SPELL_UPDATE_COOLDOWN BAG_UPDATE PLAYER_ENTERING_WORLD\nfunction(allstates)\n    local RUNES = { 20520, 12662 }                          -- Dark Rune (Scholo), Demonic Rune (DM)\n    local function itemCd(itemId)\n        if C_Container and C_Container.GetItemCooldown then return C_Container.GetItemCooldown(itemId) end\n        if C_Item and C_Item.GetItemCooldown then return C_Item.GetItemCooldown(itemId) end\n        return GetItemCooldown(itemId)\n    end\n    local function itemCount(itemId)\n        if C_Item and C_Item.GetItemCount then return C_Item.GetItemCount(itemId) end\n        return GetItemCount(itemId)\n    end\n    local have\n    for _, id in ipairs(RUNES) do\n        if (itemCount(id) or 0) > 0 then\n            have = id\n            break\n        end\n    end\n    if not have then                                        -- no rune carried -> hide\n        allstates[\"\"] = { show = false, changed = true }\n        return true\n    end\n    local start, dur = itemCd(have)\n    local st = allstates[\"\"] or {}\n    st.show = true\n    st.changed = true\n    st.icon = GetItemIcon(have)\n    st.name = (GetItemInfo(have)) or \"Mana Rune\"\n    if start and dur and dur > 1.5 then\n        st.progressType = \"timed\"\n        st.duration = dur\n        st.expirationTime = start + dur\n    else\n        st.progressType = \"timed\"   -- ready: 0-duration draws no swipe (icon stays bright)\n        st.duration = 0\n        st.expirationTime = 0\n    end\n    allstates[\"\"] = st\n    return true\nend",
             "events": "BAG_UPDATE_COOLDOWN, SPELL_UPDATE_COOLDOWN, BAG_UPDATE, PLAYER_ENTERING_WORLD",
             "custom_hide": "custom"
           },

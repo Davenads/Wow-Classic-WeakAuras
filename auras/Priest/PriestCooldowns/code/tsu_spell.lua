@@ -1,4 +1,4 @@
--- Dwarf Priest Cooldowns — Fade — Trigger ▸ Custom ▸ Trigger State Updater
+-- Priest Cooldowns — Fade — Trigger ▸ Custom ▸ Trigger State Updater
 -- Tracks Fade's cooldown BY NAME (rank-proof; self-hides if the char doesn't know it,
 -- e.g. an untalented ability or the wrong race). WA renders the swipe + number from the timer.
 -- Spell id (reference): 586  https://www.wowhead.com/classic/spell=586
