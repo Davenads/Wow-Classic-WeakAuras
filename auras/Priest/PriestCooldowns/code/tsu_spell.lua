@@ -4,11 +4,14 @@
 -- Spell id (reference): 586  https://www.wowhead.com/classic/spell=586
 -- Events box: SPELL_UPDATE_COOLDOWN SPELL_UPDATE_USABLE LEARNED_SPELL_IN_TAB PLAYER_ENTERING_WORLD
 --
--- SHARED template for the six plain spell icons. Each pastes an identical block; the ONLY line
+-- SHARED template for the eight plain spell icons. Each pastes an identical block; the ONLY line
 -- that changes per icon is `local name = "..."` (and the reference comment):
 --   Fade (586) · Psychic Scream (8122) · Fear Ward (6346, Dwarf racial)
 --   Desperate Prayer (13908, Dwarf racial) · Stoneform (20594, Dwarf racial)
---   Inner Focus (14751, Discipline talent)
+--   Inner Focus (14751, Discipline talent) · Will of the Forsaken (7744, Undead racial)
+--   Devouring Plague (19276, Undead priest spell, trained lvl 20)
+-- Because by-name resolves nil when the spell isn't in the spellbook, the racials/class spells
+-- self-gate: Will of the Forsaken shows only for Undead; Devouring Plague only once learned.
 -- Mind Blast uses its own gated block (code/tsu_mindblast.lua); items use tsu_item / tsu_rune.
 function(allstates)
     local name = "Fade"

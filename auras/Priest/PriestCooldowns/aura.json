@@ -20,8 +20,10 @@
       "Fear Ward",
       "Desperate Prayer",
       "Stoneform",
+      "Will of the Forsaken",
       "Inner Focus",
       "Mind Blast",
+      "Devouring Plague",
       "Major Mana Potion",
       "Mana Rune"
     ],
@@ -114,7 +116,7 @@
       "disjunctive": "all",
       "activeTriggerMode": 1
     },
-    "desc": "Level 60 Dwarf Priest cooldown row (dynamic, self-collapsing): Power Word: Shield (Weakened Soul re-shield lockout), Fade, Psychic Scream, Fear Ward, Desperate Prayer, Stoneform, Inner Focus, Mind Blast (Shadow-only), Major Mana Potion, Mana Rune. Spells tracked by name (rank-proof; untalented/wrong-race icons hide); items possession-gated (hide when not carried); Mind Blast reveals only for a Shadow build; PW:S tracks the Weakened Soul self-lockout. English clients only."
+    "desc": "Level 60 Priest cooldown row (dynamic, self-collapsing, race-adaptive): Power Word: Shield (Weakened Soul re-shield lockout), Fade, Psychic Scream, Fear Ward, Desperate Prayer, Stoneform, Will of the Forsaken, Inner Focus, Mind Blast (Shadow-only), Devouring Plague, Major Mana Potion, Mana Rune. Spells tracked by name (rank-proof; untalented/wrong-race icons hide) — Dwarf racials show for Dwarves, Will of the Forsaken + Devouring Plague for Undead; items possession-gated (hide when not carried); Mind Blast reveals only for a Shadow build; PW:S tracks the Weakened Soul self-lockout. English clients only."
   },
   "v": 1421,
   "c": [
@@ -665,6 +667,97 @@
       }
     },
     {
+      "id": "Will of the Forsaken",
+      "uid": "priCdWotF1",
+      "parent": "Dwarf Priest Cooldowns",
+      "regionType": "icon",
+      "internalVersion": 33,
+      "tocversion": 11508,
+      "anchorFrameType": "SCREEN",
+      "anchorPoint": "CENTER",
+      "selfPoint": "CENTER",
+      "xOffset": 0,
+      "yOffset": 0,
+      "width": 40,
+      "height": 40,
+      "cooldown": true,
+      "cooldownSwipe": true,
+      "cooldownEdge": false,
+      "cooldownTextDisabled": false,
+      "inverse": true,
+      "icon": true,
+      "iconSource": -1,
+      "desaturate": false,
+      "keepAspectRatio": false,
+      "zoom": 0,
+      "color": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "alpha": 1,
+      "frameStrata": 1,
+      "auto": true,
+      "config": {},
+      "authorOptions": [],
+      "conditions": [],
+      "subRegions": [],
+      "animation": {
+        "main": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "start": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "finish": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        }
+      },
+      "load": {
+        "use_never": false,
+        "class": {
+          "multi": {}
+        },
+        "spec": {
+          "multi": {}
+        },
+        "size": {
+          "multi": {}
+        },
+        "talent": {}
+      },
+      "actions": {
+        "init": {},
+        "start": {},
+        "finish": {}
+      },
+      "triggers": {
+        "1": {
+          "trigger": {
+            "type": "custom",
+            "custom_type": "stateupdate",
+            "check": "event",
+            "custom": "-- Dwarf Priest Cooldowns — Will of the Forsaken (Undead racial) — Trigger ▸ Custom ▸ Trigger State Updater\n-- Tracks Will of the Forsaken BY NAME. Only Undead know it, so by-name == \"show for Undead\" with\n-- no UnitRace check; it self-hides on every other race and the dynamic group collapses the slot.\n-- WA renders the swipe + number from the timer.\n-- Spell id (reference): 7744  https://www.wowhead.com/classic/spell=7744\n-- Events box: SPELL_UPDATE_COOLDOWN SPELL_UPDATE_USABLE LEARNED_SPELL_IN_TAB PLAYER_ENTERING_WORLD\nfunction(allstates)\n    local name = \"Will of the Forsaken\"\n    local sName, _, sIcon = GetSpellInfo(name)\n    if not sName then\n        allstates[\"\"] = { show = false, changed = true }   -- spell not known -> hide (group collapses)\n        return true\n    end\n    local start, dur = GetSpellCooldown(name)\n    local st = allstates[\"\"] or {}\n    st.show = true\n    st.changed = true\n    st.icon = sIcon\n    st.name = sName\n    if start and dur and dur > 1.5 then                     -- dur > 1.5 filters the GCD\n        st.progressType = \"timed\"\n        st.duration = dur\n        st.expirationTime = start + dur\n    else\n        st.progressType = \"timed\"   -- ready: 0-duration draws no swipe (icon stays bright)\n        st.duration = 0\n        st.expirationTime = 0\n    end\n    allstates[\"\"] = st\n    return true\nend",
+            "events": "SPELL_UPDATE_COOLDOWN, SPELL_UPDATE_USABLE, LEARNED_SPELL_IN_TAB, PLAYER_ENTERING_WORLD",
+            "custom_hide": "custom"
+          },
+          "untrigger": {}
+        },
+        "disjunctive": "all",
+        "activeTriggerMode": 1
+      }
+    },
+    {
       "id": "Inner Focus",
       "uid": "priCdIFoc1",
       "parent": "Dwarf Priest Cooldowns",
@@ -837,6 +930,97 @@
             "custom_type": "stateupdate",
             "check": "event",
             "custom": "-- Dwarf Priest Cooldowns — Mind Blast (Shadow-gated) — Trigger ▸ Custom ▸ Trigger State Updater\n-- Reveals ONLY when the character has Mind Flay talented (a real shadow investment, 10+ pts);\n-- otherwise stays hidden and the dynamic group collapses the slot. Then tracks Mind Blast BY NAME.\n-- Mind Flay is a talent-only spell, so \"knows it\" == \"talented it\" (no talent-tree parsing needed).\n-- Spell ids (reference): Mind Blast 8092 · gate spell Mind Flay 15407\n--   https://www.wowhead.com/classic/spell=8092  https://www.wowhead.com/classic/spell=15407\n-- Events box: SPELL_UPDATE_COOLDOWN SPELL_UPDATE_USABLE LEARNED_SPELL_IN_TAB CHARACTER_POINTS_CHANGED PLAYER_ENTERING_WORLD\nfunction(allstates)\n    local name = \"Mind Blast\"\n    if not GetSpellInfo(\"Mind Flay\") then                   -- Mind Flay not talented -> hide\n        allstates[\"\"] = { show = false, changed = true }\n        return true\n    end\n    local sName, _, sIcon = GetSpellInfo(name)\n    if not sName then\n        allstates[\"\"] = { show = false, changed = true }\n        return true\n    end\n    local start, dur = GetSpellCooldown(name)\n    local st = allstates[\"\"] or {}\n    st.show = true\n    st.changed = true\n    st.icon = sIcon\n    st.name = sName\n    if start and dur and dur > 1.5 then\n        st.progressType = \"timed\"\n        st.duration = dur\n        st.expirationTime = start + dur\n    else\n        st.progressType = \"timed\"   -- ready: 0-duration draws no swipe (icon stays bright)\n        st.duration = 0\n        st.expirationTime = 0\n    end\n    allstates[\"\"] = st\n    return true\nend",
+            "events": "SPELL_UPDATE_COOLDOWN, SPELL_UPDATE_USABLE, LEARNED_SPELL_IN_TAB, PLAYER_ENTERING_WORLD",
+            "custom_hide": "custom"
+          },
+          "untrigger": {}
+        },
+        "disjunctive": "all",
+        "activeTriggerMode": 1
+      }
+    },
+    {
+      "id": "Devouring Plague",
+      "uid": "priCdDPlag1",
+      "parent": "Dwarf Priest Cooldowns",
+      "regionType": "icon",
+      "internalVersion": 33,
+      "tocversion": 11508,
+      "anchorFrameType": "SCREEN",
+      "anchorPoint": "CENTER",
+      "selfPoint": "CENTER",
+      "xOffset": 0,
+      "yOffset": 0,
+      "width": 40,
+      "height": 40,
+      "cooldown": true,
+      "cooldownSwipe": true,
+      "cooldownEdge": false,
+      "cooldownTextDisabled": false,
+      "inverse": true,
+      "icon": true,
+      "iconSource": -1,
+      "desaturate": false,
+      "keepAspectRatio": false,
+      "zoom": 0,
+      "color": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "alpha": 1,
+      "frameStrata": 1,
+      "auto": true,
+      "config": {},
+      "authorOptions": [],
+      "conditions": [],
+      "subRegions": [],
+      "animation": {
+        "main": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "start": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        },
+        "finish": {
+          "type": "none",
+          "duration_type": "seconds",
+          "easeType": "none",
+          "easeStrength": 3
+        }
+      },
+      "load": {
+        "use_never": false,
+        "class": {
+          "multi": {}
+        },
+        "spec": {
+          "multi": {}
+        },
+        "size": {
+          "multi": {}
+        },
+        "talent": {}
+      },
+      "actions": {
+        "init": {},
+        "start": {},
+        "finish": {}
+      },
+      "triggers": {
+        "1": {
+          "trigger": {
+            "type": "custom",
+            "custom_type": "stateupdate",
+            "check": "event",
+            "custom": "-- Dwarf Priest Cooldowns — Devouring Plague (Undead priest spell) — Trigger ▸ Custom ▸ Trigger State Updater\n-- Tracks Devouring Plague BY NAME. It's an Undead-only priest ability trained at level 20, so by-name\n-- returns nil until it's learned (icon hidden, group collapses) and auto-covers every rank once known.\n-- WA renders the swipe + number from the timer.\n-- Spell id (reference, rank 1): 19276  https://www.wowhead.com/classic/spell=19276\n-- Events box: SPELL_UPDATE_COOLDOWN SPELL_UPDATE_USABLE LEARNED_SPELL_IN_TAB PLAYER_ENTERING_WORLD\nfunction(allstates)\n    local name = \"Devouring Plague\"\n    local sName, _, sIcon = GetSpellInfo(name)\n    if not sName then\n        allstates[\"\"] = { show = false, changed = true }   -- spell not known -> hide (group collapses)\n        return true\n    end\n    local start, dur = GetSpellCooldown(name)\n    local st = allstates[\"\"] or {}\n    st.show = true\n    st.changed = true\n    st.icon = sIcon\n    st.name = sName\n    if start and dur and dur > 1.5 then                     -- dur > 1.5 filters the GCD\n        st.progressType = \"timed\"\n        st.duration = dur\n        st.expirationTime = start + dur\n    else\n        st.progressType = \"timed\"   -- ready: 0-duration draws no swipe (icon stays bright)\n        st.duration = 0\n        st.expirationTime = 0\n    end\n    allstates[\"\"] = st\n    return true\nend",
             "events": "SPELL_UPDATE_COOLDOWN, SPELL_UPDATE_USABLE, LEARNED_SPELL_IN_TAB, PLAYER_ENTERING_WORLD",
             "custom_hide": "custom"
           },

@@ -8,13 +8,14 @@
 | **Min WeakAuras version** | 5.x |
 | **wago URL** | n/a |
 | **wago version** | n/a |
-| **Region type** | `dynamicgroup` of 10 `icon` children |
+| **Region type** | `dynamicgroup` of 12 `icon` children |
 
 ## Purpose
 
-A centered horizontal row of the cooldowns a level 60 Dwarf Priest cares about, each an icon
+A centered horizontal row of the cooldowns a level 60 Priest cares about, each an icon
 with a live cooldown swipe + numeric countdown. Built for a **30 Holy / 21 Disc** build but
-self-tailoring. Left → right:
+self-tailoring — and **race-adaptive**: the Dwarf racials show for Dwarves, the Undead racial +
+Devouring Plague show for Undead, and each hides on the other race. Left → right:
 
 1. **Power Word: Shield** — 4 s spell cooldown + Weakened Soul re-shield lockout (see Triggers)
 2. **Fade** — threat drop
@@ -22,15 +23,19 @@ self-tailoring. Left → right:
 4. **Fear Ward** (Dwarf racial) — anti-fear
 5. **Desperate Prayer** (Dwarf racial) — emergency instant heal
 6. **Stoneform** (Dwarf racial) — cleanse bleed/poison/disease + armor
-7. **Inner Focus** (Discipline talent) — free + crit next spell
-8. **Mind Blast** — hidden unless the character has **Mind Flay talented** (a real shadow investment)
-9. **Major Mana Potion** (item) — shows only while carried
-10. **Mana Rune** (item) — Dark or Demonic, whichever is carried
+7. **Will of the Forsaken** (Undead racial) — break/immune charm, fear, sleep
+8. **Inner Focus** (Discipline talent) — free + crit next spell
+9. **Mind Blast** — hidden unless the character has **Mind Flay talented** (a real shadow investment)
+10. **Devouring Plague** (Undead priest spell) — hidden until learned (trained lvl 20, Undead-only)
+11. **Major Mana Potion** (item) — shows only while carried
+12. **Mana Rune** (item) — Dark or Demonic, whichever is carried
 
 It's a **dynamic group** (`grow = HORIZONTAL`, `space = 0`), so any icon that hides — an
-untalented spell, a not-carried item, Mind Blast without Mind Flay — collapses out and the
-remaining icons stay flush and centered with no gap. For the reference 30/21 build carrying mana
-potions + a rune, **9 icons** show (Mind Blast hidden).
+untalented spell, a not-carried item, Mind Blast without Mind Flay, a wrong-race racial —
+collapses out and the remaining icons stay flush and centered with no gap. For the reference
+30/21 **Dwarf** build carrying mana potions + a rune, **9 icons** show (Mind Blast + both Undead
+icons hidden); an **Undead** priest of the same build sees the Undead pair instead of the Dwarf
+racials, so the row stays clean either way.
 
 ## Triggers
 
@@ -49,10 +54,11 @@ countdown is WA's built-in icon cooldown text (`cooldownTextDisabled = false`).
   Events: `SPELL_UPDATE_COOLDOWN UNIT_AURA:player PLAYER_ENTERING_WORLD LEARNED_SPELL_IN_TAB`.
   Reference IDs: Power Word: Shield [17](https://www.wowhead.com/classic/spell=17), Weakened Soul
   [6788](https://www.wowhead.com/classic/spell=6788).
-- **Plain spell icons (6):** `GetSpellCooldown(name)` / `GetSpellInfo(name)`, tracked **by name**.
+- **Plain spell icons (8):** `GetSpellCooldown(name)` / `GetSpellInfo(name)`, tracked **by name**.
   By-name resolves the highest known rank automatically (Classic's per-rank spell IDs are the #1
   "aura won't fire" bug) and returns nil when the spell isn't in the spellbook — which hides
-  untalented (Inner Focus) or wrong-race (racials) icons.
+  untalented (Inner Focus), wrong-race (Dwarf racials / Will of the Forsaken), or not-yet-trained
+  (Devouring Plague) icons with **no `UnitRace`/level check**: "known" already encodes race + skill.
   Events: `SPELL_UPDATE_COOLDOWN SPELL_UPDATE_USABLE LEARNED_SPELL_IN_TAB PLAYER_ENTERING_WORLD`.
   Reference IDs (comment-only, not used by the logic): Fade
   [586](https://www.wowhead.com/classic/spell=586), Psychic Scream
@@ -60,7 +66,9 @@ countdown is WA's built-in icon cooldown text (`cooldownTextDisabled = false`).
   [6346](https://www.wowhead.com/classic/spell=6346), Desperate Prayer
   [13908](https://www.wowhead.com/classic/spell=13908), Stoneform
   [20594](https://www.wowhead.com/classic/spell=20594), Inner Focus
-  [14751](https://www.wowhead.com/classic/spell=14751).
+  [14751](https://www.wowhead.com/classic/spell=14751), Will of the Forsaken
+  [7744](https://www.wowhead.com/classic/spell=7744), Devouring Plague (rank 1)
+  [19276](https://www.wowhead.com/classic/spell=19276).
 - **Mind Blast icon (1, Shadow-gated):** same by-name logic, but first checks
   `GetSpellInfo("Mind Flay")` — Mind Flay is a **talent-only** spell (tier 3 Shadow, 10 pts), so
   "knows it" == "talented it" with no talent-tree parsing (`GetTalentInfo` indices shift; there's no
@@ -80,9 +88,10 @@ countdown is WA's built-in icon cooldown text (`cooldownTextDisabled = false`).
 ## Custom code
 
 - `code/tsu_pwshield.lua` — the Power Word: Shield icon (4 s spell CD + Weakened Soul self-lockout).
-- `code/tsu_spell.lua` — shared TSU pasted into the six plain spell icons; only the
+- `code/tsu_spell.lua` — shared TSU pasted into the eight plain spell icons; only the
   `name = "..."` line changes per icon (Fade / Psychic Scream / Fear Ward / Desperate Prayer /
-  Stoneform / Inner Focus).
+  Stoneform / Will of the Forsaken / Inner Focus / Devouring Plague). By-name self-hiding is what
+  makes Will of the Forsaken "Undead-only" and Devouring Plague "only once trained" for free.
 - `code/tsu_mindblast.lua` — the Shadowform-gated Mind Blast icon.
 - `code/tsu_item.lua` — the possession-gated Major Mana Potion icon (change `ITEM_ID` for a
   different potion).
@@ -105,8 +114,10 @@ design (Wowhead Classic + Wowpedia):
 | Fear Ward | 30 s | **Era keeps the 1.x value** (10-min ward); TBC 2.3.0 changed it to a 3-min CD |
 | Desperate Prayer | 10 min | instant, off-GCD emergency heal |
 | Stoneform | 3 min | 8 s active |
+| Will of the Forsaken | 3 min | Undead racial; Era value (TBC 2.x lowered it to 2 min) — shows only for Undead |
 | Inner Focus | 3 min | Discipline talent |
 | Mind Blast | 8 s (5.5 s w/ 5/5 Improved Mind Blast) | Mind Flay-gated; short CD blinks in the row |
+| Devouring Plague | 3 min | Undead priest DoT; hidden until trained (lvl 20) |
 | Major Mana Potion | 2 min | shared combat-**potion** category |
 | Mana Rune (Dark/Demonic) | 2 min | **separate** category from potions — chainable with a potion |
 
@@ -125,6 +136,9 @@ grey out the rune and vice-versa).
 - Cast **Power Word: Shield on yourself** — the PW:S icon should paint the ~15 s Weakened Soul swipe
   and clear when it fades. Shielding a *party member* shows only the 4 s spell cooldown (Weakened
   Soul lands on them, not you).
+- On an **Undead** priest the **Will of the Forsaken** slot should appear (and the Dwarf racials
+  collapse out); **Devouring Plague** should appear once trained at level 20 (`LEARNED_SPELL_IN_TAB`
+  pops it in without a `/reload`). On a **Dwarf** both Undead slots should be absent.
 - **Power Infusion** (needs 30 pts Disc) and **Silence** (Shadow) are intentionally omitted for
   this build; add spell icons for them if you respec.
 - Spell/item **names are enUS**; non-English clients need the localized names in each TSU.
@@ -159,3 +173,10 @@ grey out the rune and vice-versa).
   — not just 31-pt Shadowform builds. Added `CHARACTER_POINTS_CHANGED` to the Mind Blast events box so
   the icon appears/disappears immediately on respec. Re-exported (round-trip lossless). Mind Flay ref
   [15407](https://www.wowhead.com/classic/spell=15407).
+- 2026-08-16 — Make the row **race-adaptive** for Undead priests: add **Will of the Forsaken**
+  ([7744](https://www.wowhead.com/classic/spell=7744), Undead racial, after Stoneform) and
+  **Devouring Plague** ([19276](https://www.wowhead.com/classic/spell=19276), Undead priest spell,
+  after Mind Blast). Row is now 12 icons. Both reuse the shared by-name TSU (`code/tsu_spell.lua`),
+  so no new logic and no `UnitRace`/level check: by-name returns nil off-race / before training, so
+  Will of the Forsaken shows only for Undead and Devouring Plague only once learned; both collapse
+  out on a Dwarf. Re-exported (round-trip lossless).
