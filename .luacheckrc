@@ -17,6 +17,9 @@ self              = false
 -- The WeakAuras sandbox context (writable within custom code).
 globals = {
     "aura_env",
+    -- Shared cross-icon state frame for WSG Callout Bars (a named global frame; children
+    -- don't share aura_env, so the friendly-FC tracker lives here).
+    "WSGCalloutHub",
 }
 
 -- WoW + WeakAuras + Classic API surface (read-only). Not exhaustive — add IDs you use.
@@ -63,6 +66,9 @@ read_globals = {
     "COMBATLOG_OBJECT_REACTION_HOSTILE",
     -- Chat / CVars / output (announcer auras)
     "SendChatMessage", "UnitFactionGroup", "GetCVar", "SetCVar", "print",
+    -- Frames / input (click-button auras)
+    "CreateFrame", "IsControlKeyDown", "IsShiftKeyDown", "IsAltKeyDown",
+    "UnitIsGroupLeader", "UnitIsGroupAssistant",
     -- Macro-set globals read by the trinket auto-swap controller
     "TRK_PAUSED", "TRK_DEBUG", "TRK_IOTA",
     -- Build / flavor constants
