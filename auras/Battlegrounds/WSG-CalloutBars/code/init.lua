@@ -39,6 +39,11 @@ if not WSGCalloutHub then
         ["earthbind"]=true, ["dazed"]=true, ["improved hamstring"]=true, ["daze"]=true,
     }
 
+    -- WSG flag-carry buff spell IDs (wowhead.com/classic):
+    --   23333 Warsong Flag    = the HORDE flag    (held by an Alliance carrier)
+    --   23335 Silverwing Flag = the ALLIANCE flag (held by a Horde carrier)
+    local FLAG_WARSONG, FLAG_SILVERWING = 23333, 23335
+
     -- Who carries each flag (realm-stripped). Maintained from WSG system messages.
     NS.fc = { alliance = nil, horde = nil }
     NS.recvHP, NS.recvTS = nil, 0     -- enemy carrier HP received over the WSGFCNamesHP bus
@@ -95,8 +100,37 @@ if not WSGCalloutHub then
         end
     end)
 
+    -- Scan our OWN group for whoever holds the ENEMY flag buff. Own-team auras are always
+    -- readable across the whole map, so this finds OUR carrier with zero dependence on chat
+    -- parsing, message-format drift, or zone-in timing (the FlagCarriers aura's documented
+    -- "optional enhancement"). Matches by spellId (UnitAura's 10th return, locale-independent).
+    -- Returns (unit, strippedName) or nil.
+    local function ourFCScan()
+        local mine = myFaction()
+        local wantID = (mine == "Alliance") and FLAG_WARSONG
+                    or (mine == "Horde") and FLAG_SILVERWING or nil
+        if not wantID then return nil end
+        local units = { "player" }
+        local prefix = IsInRaid() and "raid" or "party"
+        for i = 1, (GetNumGroupMembers() or 0) do units[#units + 1] = prefix .. i end
+        for _, u in ipairs(units) do
+            if UnitExists(u) then
+                for i = 1, 40 do
+                    local nm, _, _, _, _, _, _, _, _, sid = UnitAura(u, i, "HELPFUL")
+                    if not nm then break end
+                    if sid == wantID then return u, strip(UnitName(u)) end
+                end
+            end
+        end
+        return nil
+    end
+    NS.ourFCScan = ourFCScan
+
     -- OUR carrier = teammate holding the ENEMY flag (opposite of our effective faction).
+    -- Prefer the live raid-aura scan; fall back to the chat-tracked name if the scan misses.
     function NS.ourFCName()
+        local _, name = ourFCScan()
+        if name then return name end
         local mine = myFaction()
         if mine == "Alliance" then return NS.fc.horde end
         if mine == "Horde" then return NS.fc.alliance end
@@ -167,9 +201,12 @@ if not WSGCalloutHub then
 
     -- " — Name 47% HP, 80% mana" for OUR carrier (mana omitted for rage/energy classes).
     function NS.FCSuffix()
-        local name = NS.ourFCName()
+        local u, name = ourFCScan()          -- live scan gives unit + name together
+        if not name then                      -- scan missed -> chat-tracked fallback name
+            name = NS.ourFCName()
+            u = name and resolveUnit(name) or nil
+        end
         if not name then return " — FC unknown" end
-        local u = resolveUnit(name)
         if not u then return " — " .. name .. " (out of group?)" end
         local out = " — " .. name
         local hx = UnitHealthMax(u)

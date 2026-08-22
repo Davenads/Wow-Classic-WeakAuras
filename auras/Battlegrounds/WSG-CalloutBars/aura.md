@@ -43,7 +43,12 @@ this repo cannot run WoW.
     (no `---CAP---`/`---PICK---` prefix, by request).
   - **Mana** is appended only when the carrier is mana-primary (`UnitPowerType == 0`) —
     warriors/rogues and shifted feral druids (rage/energy) show HP only.
-  - If no carrier is known yet (no pickup message seen since load/reload) → `— FC unknown`.
+  - **Who our carrier is** is resolved by a **live raid-aura scan** — the hub scans your own
+    group for the WSG flag-carry buff (`23333 Warsong Flag` / `23335 Silverwing Flag`,
+    matched by spell ID) and reports the holder. Own-team auras are always readable across the
+    map, so this works even after a reload mid-carry, with no dependence on chat parsing. The
+    chat-tracked name is only a fallback if the scan somehow misses.
+  - If no carrier can be found at all → `— FC unknown`.
 - **Shift+click** — sends the **enemy carrier** status line:
   - Location bars → `EFC <Location> — <Name> NN% HP[, MM% mana][, <CC> Ns…]`.
   - The two special bars (`---CAP---`, `---PICK---`) → **bare** `EFC <Name> NN% HP…`
@@ -77,12 +82,21 @@ the region and wires its `OnClick`.
     on `CHAT_MSG_ADDON`; when the sender's name matches the current enemy carrier it stores
     `recvHP`/`recvTS` (used as a `~`-marked HP fallback for Shift). It **never broadcasts** —
     it only listens to whatever bus traffic (e.g. `WSG-EnemyFCAnnouncer`) already exists.
-  - `ourFCName()` / `enemyFCName()` return the teammate carrying the **enemy** flag and the
-    enemy carrying **our** flag, using a **mercenary-aware effective faction** (buffs
-    `81748`/`81744`; adapted from `WSG-EnemyFCAnnouncer`).
-  - `FCSuffix()` (Ctrl) resolves our carrier to a live `raid`/`party`/`player` token and reads
-    HP (`UnitHealth`/`UnitHealthMax`) + mana (`UnitPower(u,0)`, gated on `UnitPowerType==0`).
-    Friendly raid-member health/power is always delivered to the client — no token search needed.
+  - `ourFCScan()` scans your own group (`player` + `raidN`/`partyN`) for the WSG flag-carry
+    buff — `23333 Warsong Flag` (the Horde flag, held by an Alliance carrier) / `23335
+    Silverwing Flag` (the Alliance flag, held by a Horde carrier), gated to the enemy-flag
+    color by **mercenary-aware effective faction** (buffs `81748`/`81744`) and matched by
+    **spell ID** (`UnitAura`'s 10th return, locale-independent). It returns the holder's unit
+    **and** name in one pass. This is the primary way our carrier is identified — own-team
+    auras are always readable across the map, so it needs no chat and survives a mid-carry
+    reload (the FlagCarriers aura's documented "optional enhancement").
+  - `ourFCName()` returns the scan's name, falling back to the chat-tracked
+    `WSGCalloutHub.fc.*`; `enemyFCName()` returns the enemy carrying **our** flag (chat-only —
+    enemy auras can't be scanned).
+  - `FCSuffix()` (Ctrl) takes the unit straight from `ourFCScan` (or resolves the fallback
+    name to a `raid`/`party`/`player` token) and reads HP (`UnitHealth`/`UnitHealthMax`) +
+    mana (`UnitPower(u,0)`, gated on `UnitPowerType==0`). Friendly raid-member health/power is
+    always delivered to the client — no token search needed.
   - `EFCStatus()` (Shift) finds a live **hostile** token for the enemy carrier via
     `findEnemyUnit` (target/focus/mouseover → nameplate → any `raidNtarget`), reads HP/mana the
     same way, scans harmful auras against a CC watch-list (`scanCC`, cap 3), and falls back to
@@ -138,7 +152,8 @@ identical except those three literals (full map below).
 4. **Ctrl+click**, mana carrier → `Our FC Is <loc> — <Name> NN% HP, MM% mana`.
 5. **Ctrl+click**, warrior/rogue/feral carrier → mana omitted.
 6. You are the carrier → resolves to `player`, HP/mana correct.
-7. Reload mid-carry → suffix reads `FC unknown` until the next pickup message re-syncs.
+7. Reload mid-carry → the raid-aura scan re-identifies our carrier immediately (no pickup
+   message needed); `/dump WSGCalloutHub.ourFCScan()` returns their unit + name.
 8. **Shift+click** while targeting the enemy carrier → `EFC <loc> — <Name> NN% HP[, MM% mana]`
    plus any watched CC (e.g. `Hamstring 4s`); as leader/assist it posts as a `RAID_WARNING`,
    otherwise to `/bg`.
@@ -158,6 +173,18 @@ pin) — not implemented, pending a decision.
 
 ## Changelog
 
+- 2026-08-22 — **Fix Ctrl+click "FC unknown"** by resolving our carrier from a **live
+  raid-aura scan** instead of the chat parser. Added `WSGCalloutHub.ourFCScan()`: scans
+  `player` + `raidN`/`partyN` for the WSG flag-carry buff (`23333 Warsong Flag` / `23335
+  Silverwing Flag`, verified on wowhead.com/classic), gated to the enemy-flag color by
+  effective faction and matched by spell ID (`UnitAura` 10th return), returning the holder’s
+  unit + name. `ourFCName()` now prefers the scan and falls back to the chat-tracked name;
+  `FCSuffix()` consumes the scan’s unit directly (so a scan-found carrier never mis-reports
+  "out of group?"). Own-team auras are always readable, so Ctrl now works with no dependence
+  on chat parsing, message-format drift, or zone-in/reload timing. All 27 children rebuilt
+  from `code/init.lua`; `export.txt` regenerated, `aura.json` refreshed, decode→encode→decode
+  **lossless**; `code/init.lua` re-passes a Lua 5.1 parse. **Pending in-game test** (and
+  `luacheck`, unavailable in the authoring environment).
 - 2026-08-21 — Rename display name to **`!Sweatybetty's WSG Callout Bars (Solid Colors)`**
   (prefix `Sweatybetty's`, kept the leading `!` sort marker). Changed only `d.id`; children
   carry no `parent` field in the transmission format (the `c` array defines the group), so no
