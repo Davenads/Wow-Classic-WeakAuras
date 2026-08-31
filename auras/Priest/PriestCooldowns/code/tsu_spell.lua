@@ -1,20 +1,21 @@
--- Priest Cooldowns — Fade — Trigger ▸ Custom ▸ Trigger State Updater
--- Tracks Fade's cooldown BY NAME (rank-proof; self-hides if the char doesn't know it,
+-- Priest Cooldowns — Psychic Scream — Trigger ▸ Custom ▸ Trigger State Updater
+-- Tracks Psychic Scream's cooldown BY NAME (rank-proof; self-hides if the char doesn't know it,
 -- e.g. an untalented ability or the wrong race). WA renders the swipe + number from the timer.
--- Spell id (reference): 586  https://www.wowhead.com/classic/spell=586
+-- Spell id (reference): 8122  https://www.wowhead.com/classic/spell=8122
 -- Events box: SPELL_UPDATE_COOLDOWN SPELL_UPDATE_USABLE LEARNED_SPELL_IN_TAB PLAYER_ENTERING_WORLD
 --
 -- SHARED template for the eight plain spell icons. Each pastes an identical block; the ONLY line
 -- that changes per icon is `local name = "..."` (and the reference comment):
---   Fade (586) · Psychic Scream (8122) · Fear Ward (6346, Dwarf racial)
---   Desperate Prayer (13908, Dwarf racial) · Stoneform (20594, Dwarf racial)
---   Inner Focus (14751, Discipline talent) · Will of the Forsaken (7744, Undead racial)
+--   Psychic Scream (8122) · Fear Ward (6346, Dwarf racial) · Desperate Prayer (13908, Dwarf racial)
+--   Stoneform (20594, Dwarf racial) · Will of the Forsaken (7744, Undead racial)
+--   Inner Focus (14751, Discipline talent) · Power Infusion (10060, Discipline talent)
 --   Devouring Plague (19276, Undead priest spell, trained lvl 20)
--- Because by-name resolves nil when the spell isn't in the spellbook, the racials/class spells
--- self-gate: Will of the Forsaken shows only for Undead; Devouring Plague only once learned.
--- Mind Blast uses its own gated block (code/tsu_mindblast.lua); items use tsu_item / tsu_rune.
+-- Because by-name resolves nil when the spell isn't in the spellbook, the racials/class/talent
+-- spells self-gate: Will of the Forsaken shows only for Undead, Devouring Plague only once learned,
+-- Power Infusion only when talented. Mind Blast uses its own gated block (code/tsu_mindblast.lua)
+-- and Fade its PvE-instance-gated block (code/tsu_fade.lua); items use tsu_item / tsu_rune.
 function(allstates)
-    local name = "Fade"
+    local name = "Psychic Scream"
     local sName, _, sIcon = GetSpellInfo(name)
     if not sName then
         allstates[""] = { show = false, changed = true }   -- spell not known -> hide (group collapses)
