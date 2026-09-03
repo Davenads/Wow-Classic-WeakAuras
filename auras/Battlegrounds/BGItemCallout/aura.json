@@ -170,14 +170,15 @@
           "message_format_1.sourceName_abbreviate": false,
           "do_message": true,
           "message_format_1.spellName_format": "none",
-          "message": "Swiftness Potion used by %1.sourceName",
+          "message": "[%c] Swiftness Potion used by %1.sourceName",
           "sound": "Interface\\Addons\\WeakAuras\\PowerAurasMedia\\Sounds\\sneeze.ogg",
           "custom": "",
           "do_sound": false,
           "message_format_1.sourceName_abbreviate_max": 8,
           "do_custom": true,
           "message_format_1.sourceName_format": "none",
-          "message_format_1.sourceName_realm_name": "never"
+          "message_format_1.sourceName_realm_name": "never",
+          "message_custom": "function()\n    return (BGICHub and BGICHub.stamp()) or date(\"%H:%M:%S\")\nend"
         },
         "init": [],
         "finish": []
@@ -330,14 +331,15 @@
           "message_format_1.sourceName_abbreviate": false,
           "do_message": true,
           "message_format_1.spellName_format": "none",
-          "message": "Swiftness Potion used! - DISPEL %1.sourceName",
+          "message": "[%c] Swiftness Potion used! - DISPEL %1.sourceName",
           "sound": "Interface\\Addons\\WeakAuras\\PowerAurasMedia\\Sounds\\sneeze.ogg",
           "custom": "",
           "do_sound": false,
           "message_format_1.sourceName_abbreviate_max": 8,
           "do_custom": true,
           "message_format_1.sourceName_format": "none",
-          "message_format_1.sourceName_realm_name": "never"
+          "message_format_1.sourceName_realm_name": "never",
+          "message_custom": "function()\n    return (BGICHub and BGICHub.stamp()) or date(\"%H:%M:%S\")\nend"
         },
         "init": [],
         "finish": []
@@ -503,14 +505,15 @@
           "message_format_1.sourceName_abbreviate": false,
           "do_message": true,
           "message_format_1.spellName_format": "none",
-          "message": "Leper Gnome used by %1.sourceName",
+          "message": "[%c] Leper Gnome used by %1.sourceName",
           "sound": "Interface\\Addons\\WeakAuras\\PowerAurasMedia\\Sounds\\sneeze.ogg",
           "custom": "",
           "do_sound": false,
           "message_format_1.sourceName_abbreviate_max": 8,
           "do_custom": true,
           "message_format_1.sourceName_format": "none",
-          "message_format_1.sourceName_realm_name": "never"
+          "message_format_1.sourceName_realm_name": "never",
+          "message_custom": "function()\n    return (BGICHub and BGICHub.stamp()) or date(\"%H:%M:%S\")\nend"
         },
         "init": [],
         "finish": []
@@ -663,14 +666,15 @@
           "message_format_1.sourceName_abbreviate": false,
           "do_message": true,
           "message_format_1.spellName_format": "none",
-          "message": "Rocket Boots used by %1.sourceName",
+          "message": "[%c] Rocket Boots used by %1.sourceName",
           "sound": "Interface\\Addons\\WeakAuras\\PowerAurasMedia\\Sounds\\sneeze.ogg",
           "custom": "",
           "do_sound": false,
           "message_format_1.sourceName_abbreviate_max": 8,
           "do_custom": true,
           "message_format_1.sourceName_format": "none",
-          "message_format_1.sourceName_realm_name": "never"
+          "message_format_1.sourceName_realm_name": "never",
+          "message_custom": "function()\n    return (BGICHub and BGICHub.stamp()) or date(\"%H:%M:%S\")\nend"
         },
         "init": [],
         "finish": []
@@ -823,14 +827,15 @@
           "message_format_1.sourceName_abbreviate": false,
           "do_message": true,
           "message_format_1.spellName_format": "none",
-          "message": "Resistance Potion used by %1.sourceName",
+          "message": "[%c] Resistance Potion used by %1.sourceName",
           "sound": "Interface\\Addons\\WeakAuras\\PowerAurasMedia\\Sounds\\sneeze.ogg",
           "custom": "",
           "do_sound": false,
           "message_format_1.sourceName_abbreviate_max": 8,
           "do_custom": true,
           "message_format_1.sourceName_format": "none",
-          "message_format_1.sourceName_realm_name": "never"
+          "message_format_1.sourceName_realm_name": "never",
+          "message_custom": "function()\n    return (BGICHub and BGICHub.stamp()) or date(\"%H:%M:%S\")\nend"
         },
         "init": [],
         "finish": []
@@ -983,14 +988,15 @@
           "message_format_1.sourceName_abbreviate": false,
           "do_message": true,
           "message_format_1.spellName_format": "none",
-          "message": "Magic Dust used by %1.sourceName",
+          "message": "[%c] Magic Dust used by %1.sourceName",
           "sound": "Interface\\Addons\\WeakAuras\\PowerAurasMedia\\Sounds\\sneeze.ogg",
           "custom": "",
           "do_sound": false,
           "message_format_1.sourceName_abbreviate_max": 8,
           "do_custom": true,
           "message_format_1.sourceName_format": "none",
-          "message_format_1.sourceName_realm_name": "never"
+          "message_format_1.sourceName_realm_name": "never",
+          "message_custom": "function()\n    return (BGICHub and BGICHub.stamp()) or date(\"%H:%M:%S\")\nend"
         },
         "init": [],
         "finish": []
@@ -1143,14 +1149,15 @@
           "message_format_1.sourceName_abbreviate": false,
           "do_message": true,
           "message_format_1.spellName_format": "none",
-          "message": "AGM trinket used by %1.sourceName",
+          "message": "[%c] AGM trinket used by %1.sourceName",
           "sound": "Interface\\Addons\\WeakAuras\\PowerAurasMedia\\Sounds\\sneeze.ogg",
           "custom": "",
           "do_sound": false,
           "message_format_1.sourceName_abbreviate_max": 8,
           "do_custom": true,
           "message_format_1.sourceName_format": "none",
-          "message_format_1.sourceName_realm_name": "never"
+          "message_format_1.sourceName_realm_name": "never",
+          "message_custom": "function()\n    return (BGICHub and BGICHub.stamp()) or date(\"%H:%M:%S\")\nend"
         },
         "init": [],
         "finish": []
@@ -1303,14 +1310,15 @@
           "message_format_1.sourceName_abbreviate": false,
           "do_message": true,
           "message_format_1.spellName_format": "none",
-          "message": "AGM trinket used! - DISPEL %1.sourceName",
+          "message": "[%c] AGM trinket used! - DISPEL %1.sourceName",
           "sound": "Interface\\Addons\\WeakAuras\\PowerAurasMedia\\Sounds\\sneeze.ogg",
           "custom": "",
           "do_sound": false,
           "message_format_1.sourceName_abbreviate_max": 8,
           "do_custom": true,
           "message_format_1.sourceName_format": "none",
-          "message_format_1.sourceName_realm_name": "never"
+          "message_format_1.sourceName_realm_name": "never",
+          "message_custom": "function()\n    return (BGICHub and BGICHub.stamp()) or date(\"%H:%M:%S\")\nend"
         },
         "init": [],
         "finish": []
@@ -1476,14 +1484,15 @@
           "message_format_1.sourceName_abbreviate": false,
           "do_message": true,
           "message_format_1.spellName_format": "none",
-          "message": "AGM down on %1.sourceName",
+          "message": "[%c] AGM down on %1.sourceName",
           "sound": "Interface\\Addons\\WeakAuras\\PowerAurasMedia\\Sounds\\sneeze.ogg",
           "custom": "",
           "do_sound": false,
           "message_format_1.sourceName_abbreviate_max": 8,
           "do_custom": true,
           "message_format_1.sourceName_format": "none",
-          "message_format_1.sourceName_realm_name": "never"
+          "message_format_1.sourceName_realm_name": "never",
+          "message_custom": "function()\n    return (BGICHub and BGICHub.stamp()) or date(\"%H:%M:%S\")\nend"
         },
         "init": [],
         "finish": []
@@ -1636,14 +1645,15 @@
           "message_format_1.sourceName_abbreviate": false,
           "do_message": true,
           "message_format_1.spellName_format": "none",
-          "message": "AGM down on %1.sourceName",
+          "message": "[%c] AGM down on %1.sourceName",
           "sound": "Interface\\Addons\\WeakAuras\\PowerAurasMedia\\Sounds\\sneeze.ogg",
           "custom": "",
           "do_sound": false,
           "message_format_1.sourceName_abbreviate_max": 8,
           "do_custom": true,
           "message_format_1.sourceName_format": "none",
-          "message_format_1.sourceName_realm_name": "never"
+          "message_format_1.sourceName_realm_name": "never",
+          "message_custom": "function()\n    return (BGICHub and BGICHub.stamp()) or date(\"%H:%M:%S\")\nend"
         },
         "init": [],
         "finish": []

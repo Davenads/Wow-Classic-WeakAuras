@@ -67,11 +67,17 @@ Each child is a `text` region driven by a **Combat Log** trigger:
 
 ## Actions (announces)
 
-- **Base children** → `message_type = SMARTRAID` (e.g. `Swiftness Potion used by
+- **Base children** → `message_type = SMARTRAID` (e.g. `[%c] Swiftness Potion used by
   %1.sourceName`) — party/raid/instance chat, no range limit.
-- **`-Say` children** → `message_type = SAY` (e.g. `Swiftness Potion used! - DISPEL
-  %1.sourceName`, `AGM trinket used! - DISPEL %1.sourceName`, `AGM down on %1.sourceName`) —
-  local `/say`, gated by the 40 yd range check.
+- **`-Say` children** → `message_type = SAY` (e.g. `[%c] Swiftness Potion used! - DISPEL
+  %1.sourceName`, `[%c] AGM trinket used! - DISPEL %1.sourceName`, `[%c] AGM down on
+  %1.sourceName`) — local `/say`, gated by the 40 yd range check.
+- **Timestamp (v2 Phase 1, 2026-09-03).** Every message is prefixed with `[%c]`, where `%c`
+  is a per-child **`actions.start.message_custom`** function returning the **server-synced**
+  `HH:MM:SS` (`BGICHub.stamp()` → `GetServerTime()`; falls back to local `date()` if the hub
+  isn't up). Purely additive — the `message_type` channel and the `%1.sourceName` replacement
+  are unchanged, so the only behavior change is the leading timestamp. Full `m/d/y` is reserved
+  for the stored log/report (Phase 4), per the locked decisions.
 
 ## Custom code
 
@@ -86,10 +92,16 @@ Each child is a `text` region driven by a **Combat Log** trigger:
   and registers the `BGIC` addon prefix with a **no-op receiver**. **Changes no behavior yet**
   — the 10 children keep their existing triggers and built-in announces. Later phases route
   announces through the hub (timestamps → teammates → corroboration).
+- `code/message_custom.lua` — **v2 Phase 1** (added 2026-09-03), the `%c` **chat-message**
+  function pasted into each child's Send Chat Message → Message (stored in
+  `actions.start.message_custom`), **identical in all 10 children**. Returns the server-synced
+  `HH:MM:SS` timestamp via `BGICHub.stamp()` (local-time fallback). This is the message `%c`,
+  distinct from the display `%c` in `custom_text.lua`.
 
-Detection and the live announces are still all built in the WA UI (the children's action
-`custom` boxes are enabled but empty). The only executable custom code today is the `%c` text
-function and the (inert) On Init hub scaffold.
+Detection is still all built in the WA UI. Executable custom code today: the `%c` display-text
+function (`custom_text.lua`), the `%c` chat-message timestamp function (`message_custom.lua`),
+and the On Init hub scaffold (`init.lua`). The children's action `custom` boxes (On Show custom
+Lua) remain enabled but empty — announces still use the built-in Send Chat Message.
 
 ## Notes / iteration hooks
 
@@ -126,9 +138,23 @@ function and the (inert) On Init hub scaffold.
 6. **Hub scaffold (v2 Phase 0):** after import, load a BG and confirm no Lua error on group
    init; `/run print(BGICHub)` returns a frame and `/run print(BGICHub.now())` prints a server
    epoch. Behavior must be **unchanged** from v1 (hub is inert — enemy callouts only).
+7. **Timestamps (v2 Phase 1):** trigger any callout and confirm the chat line is prefixed with
+   the current time, e.g. `[21:14:07] Swiftness Potion used by <Name>`, on the same channel as
+   before (SMARTRAID / `/say`). If `BGICHub` failed to init, the time still shows (local-time
+   fallback). Confirm the time matches other players' clients (server-synced).
 
 ## Changelog
 
+- 2026-09-03 — **v2 Phase 1: server-synced timestamps on every callout.** Added
+  `code/message_custom.lua` and wired a `%c` chat-message function into all 10 children's Send
+  Chat Message (`actions.start.message_custom`), prefixing each message with `[%c]` →
+  `[HH:MM:SS]` from `BGICHub.stamp()` / `GetServerTime()` (local-time fallback). Chose the
+  message-`%c` mechanism over a custom-code announce rewrite: it's purely additive — channel
+  (`message_type`) and `%1.sourceName` are untouched, so the only change is the leading
+  timestamp. Field name `message_custom` verified against the WeakAuras2 source
+  (`WeakAuras.lua`: `LoadFunction("return "..actions.start.message_custom)`). Rebuilt
+  `export.txt`, regenerated `aura.json`, decode→encode→decode **lossless**. Lua 5.1 syntax OK.
+  **Pending in-game test.**
 - 2026-09-03 — **v2 Phase 0: hub scaffold (no behavior change).** Added `code/init.lua` and
   wired it into the **group's Actions → On Init**: creates the `BGICHub` named global frame
   once (server-time helpers, locked config defaults, empty state stores, `BGIC` addon prefix
