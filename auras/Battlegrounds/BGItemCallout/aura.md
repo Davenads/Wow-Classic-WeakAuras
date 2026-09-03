@@ -100,16 +100,27 @@ Each child is a `text` region driven by a **Combat Log** trigger:
   Resolves the caster's class + name from `GetPlayerInfoByGUID(state.sourceGUID)` and
   returns the name wrapped in the class color (`RAID_CLASS_COLORS`), falling back to the raw
   `sourceName` when the GUID isn't a cached player.
-- `code/init.lua` — **the `BGICHub` hub** (added v2 Phase 0, extended v2 Phase 2, 2026-09-03),
-  pasted into the **group's Actions → On Init**. Creates the `BGICHub` named global frame once
-  (children don't share `aura_env`, so cross-child state needs a named global — same mechanism as
-  `WSGCalloutHub`): server-time helpers (`GetServerTime`), locked config defaults, state stores,
-  and the `BGIC` addon prefix (receiver still a Phase 3 no-op). **Phase 2** added the **ally
-  path**: `refreshZone()` arms `COMBAT_LOG_EVENT_UNFILTERED` only inside a BG (`IsInInstance() ==
-  "pvp"`), and `onCombatLog()` matches friendly `SPELL_CAST_SUCCESS` of the five consumables in
-  `NS.allyItems` (AGM excluded), skips `AFFILIATION_MINE`, and `SendChatMessage`s the `(ally)`
-  callout via `smartChannel()`. The 10 children are still untouched — enemy callouts are 100%
-  as-was; the hub owns the ally callouts. Later phases add multi-witness corroboration on the bus.
+- `code/init.lua` — **the `BGICHub` hub** (added v2 Phase 0, extended v2 Phase 2 + Phase 3a,
+  2026-09-03), pasted into the **group's Actions → On Init**. Creates the `BGICHub` named global
+  frame once (children don't share `aura_env`, so cross-child state needs a named global — same
+  mechanism as `WSGCalloutHub`): server-time helpers (`GetServerTime`), locked config defaults,
+  state stores, and the `BGIC` addon prefix. **Phase 2** added the **ally path**: `refreshZone()`
+  arms `COMBAT_LOG_EVENT_UNFILTERED` only inside a BG (`IsInInstance() == "pvp"`), and
+  `onCombatLog()` matches non-self `SPELL_CAST_SUCCESS` of the tracked items, skips
+  `AFFILIATION_MINE`, and `SendChatMessage`s the `(ally)` callout for the five items in
+  `NS.allyAnnounce` (AGM excluded) via `smartChannel()`. **Phase 3a** added the **corroboration
+  engine** (runs **silently** — no visible chat change): the six watched IDs now live in
+  `NS.trackedItems` (was `NS.allyItems`), with `NS.allyAnnounce` the five-item announce subset.
+  Every non-self sighting (enemy **or** ally) is recorded and broadcast once on the `BGIC` addon
+  bus (`witnessLocal` → `broadcast`, payload `schema|EVT|guid|spellId|serverTime|reactionChar|name`,
+  ≤255 chars, `INSTANCE_CHAT`). Incoming attestations (`onAddon`) are aggregated into a per-event
+  **witness set** keyed by `casterGUID|spellId|serverTimeBucket` (`resolveKey`, `NS.WINDOW = 4` s
+  with ±1-bucket tolerance). The trusted witness identity is the **server-stamped `sender`** of
+  `CHAT_MSG_ADDON` (unspoofable) — the payload's name/reaction are display-only. State
+  (`NS.seen/witnesses/events/log`) is wiped per match on `PLAYER_ENTERING_WORLD`. Toggle
+  `BGICHub.cfg.debug = true` to watch the ledger build. The live witness-count tag + announce
+  election are Phase 3b; the on-demand report that surfaces the ledger is Phase 4. The 10 children
+  are still untouched — enemy callouts are 100% as-was.
 - `code/message_custom.lua` — **v2 Phase 1** (added 2026-09-03), the `%c` **chat-message**
   function pasted into each child's Send Chat Message → Message (stored in
   `actions.start.message_custom`), **identical in all 10 children**. Returns the server-synced
@@ -170,9 +181,35 @@ Message; ally announces are sent by the hub via `SendChatMessage`.
    (AGM is enemy-only); (c) the ally line lands in the same channel as enemy `SMARTRAID` calls
    (BG/`INSTANCE_CHAT`) — if it doesn't, adjust `NS.smartChannel()`; (d) nothing fires outside a
    BG (the watch only arms on `IsInInstance() == "pvp"`); (e) enemy callouts are unchanged.
+9. **Corroboration engine (v2 Phase 3a):** set `/run BGICHub.cfg.debug = true`. With **two**
+   BGIC users in the same BG, have any tracked consumable used by a **third** player (enemy or
+   ally). Verify: (a) each user prints `BGIC <reaction> <item> by <caster> — witnesses: 1` for
+   their own sighting, then `BGIC +witness <otherUser> … — witnesses: 2` when the other user's
+   addon message arrives; (b) `/run print(BGICHub.witnessCount(next(BGICHub.witnesses)))` reports
+   the expected count; (c) the ledger resets on zone-in (`BGICHub.log` empties). Confirm the
+   `sender` shown is the real caster's account name (server-stamped) and that no visible chat line
+   changed (3a is silent). Tune `BGICHub.WINDOW` if witnesses' detection times split an event.
 
 ## Changelog
 
+- 2026-09-03 — **v2 Phase 3a: multi-witness corroboration engine (silent).** Extended
+  `code/init.lua` (the `BGICHub` hub) with the anti-forgery corroboration ledger. Renamed
+  `NS.allyItems` → `NS.trackedItems` (now the six watched IDs, used for both enemy and ally
+  corroboration) and added `NS.allyAnnounce` (the five-item ally-announce subset, unchanged
+  behavior). `onCombatLog()` now folds **every non-self sighting** (enemy or ally) into the ledger
+  via `witnessLocal()`, which records the event, adds ourselves as a witness, and `broadcast()`s
+  once per event on the `BGIC` addon bus (payload `schema|EVT|guid|spellId|serverTime|reactionChar|
+  name`, ≤255 chars, `INSTANCE_CHAT`). Incoming attestations (`onAddon` via `CHAT_MSG_ADDON`) are
+  aggregated into a witness set keyed by `casterGUID|spellId|serverTimeBucket` (`resolveKey`,
+  `NS.WINDOW = 4` s, ±1-bucket tolerance); the trusted identity is the **server-stamped `sender`**
+  (unspoofable) — payload name/reaction are display-only. State (`seen/witnesses/events/log`) wipes
+  per match on `PLAYER_ENTERING_WORLD`. Runs **silently** (no chat change); `BGICHub.cfg.debug =
+  true` prints the ledger building. Deferred: live witness-count tag + announce election (Phase 3b),
+  presence census (Phase 3c), on-demand report (Phase 4). No new `.luacheckrc` globals needed
+  (`strsplit`, `UnitName`, `math`, `print`, `C_ChatInfo` already allowlisted). Rebuilt `export.txt`,
+  regenerated `aura.json`, decode→encode→decode **lossless** (10 children intact). Lua 5.1 syntax
+  OK; free globals all allowlisted. **Pending in-game test** (see testing note 9 — esp. `sender`
+  unspoofability, `INSTANCE_CHAT` addon delivery scope, and `WINDOW` bucket tuning).
 - 2026-09-03 — **v2 Phase 2: ally callouts (announce friendly consumable use).** Extended
   `code/init.lua` (the `BGICHub` hub) with an ally-only combat-log path: `refreshZone()` arms
   `COMBAT_LOG_EVENT_UNFILTERED` only inside a battleground, and `onCombatLog()` announces
