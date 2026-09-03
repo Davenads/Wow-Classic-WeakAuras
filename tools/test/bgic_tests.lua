@@ -115,5 +115,62 @@ eq(H.registered["COMBAT_LOG_EVENT_UNFILTERED"], nil, "unarmed outside a BG")
 _instanceType = "pvp"; H.refreshZone()
 eq(H.registered["COMBAT_LOG_EVENT_UNFILTERED"], true, "re-armed inside a BG")
 
+-- ===== Phase 4: reporting =====================================================
+-- Fresh match + fresh saved history.
+_instanceType = "pvp"
+H._on(H, "PLAYER_ENTERING_WORLD")
+wipe(aura_env.saved.matches)
+resetSinks()
+-- Build: one enemy event with 2 witnesses (evidence), one ally event solo (info).
+fireCLE("SPELL_CAST_SUCCESS", "E1", "Xandrella-WM", HOSTILE, 2379, 1000)   -- self witness
+fireAddon("1|EVT|E1|2379|1001|e|Charlie-WM", "Charlie-WM")                 -- 2nd witness
+fireCLE("SPELL_CAST_SUCCESS", "A1", "Buddy-WM", FRIENDLY, 8892, 1000)      -- ally, solo
+
+print("T14 live report classifies evidence vs info and marks self")
+local liveRec = { t0 = 1000, t1 = _now, events = H.collectEvents() }
+eq(#liveRec.events, 2, "two events collected from the live ledger")
+local liveText = table.concat(H.buildReport(liveRec, "live"), "\n")
+ok(liveText:find("2 event(s)", 1, true) ~= nil, "report header counts events")
+ok(liveText:find("[EVIDENCE]", 1, true) ~= nil, "2-witness enemy event tagged EVIDENCE")
+ok(liveText:find("[info]", 1, true) ~= nil, "solo ally event tagged info")
+ok(liveText:find("(you)", 1, true) ~= nil, "own witness entry marked (you)")
+ok(liveText:find("guid=E1", 1, true) ~= nil, "caster GUID present in report")
+ok(liveText:find("Charlie", 1, true) ~= nil, "remote witness named in report")
+
+print("T15 PLAYER_ENTERING_WORLD snapshots the match then wipes the ledger")
+_now = 1500
+H._on(H, "PLAYER_ENTERING_WORLD")
+eq(#aura_env.saved.matches, 1, "one match snapshotted to saved")
+eq(#aura_env.saved.matches[1].events, 2, "snapshot preserved both events")
+eq(#H.collectEvents(), 0, "live ledger wiped after snapshot")
+
+print("T16 'last' report renders the saved match")
+local lastRec = aura_env.saved.matches[#aura_env.saved.matches]
+local lastText = table.concat(H.buildReport(lastRec, "last"), "\n")
+ok(lastText:find("[EVIDENCE]", 1, true) ~= nil, "saved match still shows EVIDENCE tag")
+
+print("T17 saved history is capped at 5 matches (ring buffer)")
+wipe(aura_env.saved.matches)
+for i = 1, 6 do
+    H._on(H, "PLAYER_ENTERING_WORLD")            -- wipe (empty; no-op snapshot)
+    fireCLE("SPELL_CAST_SUCCESS", "G" .. i, "Foe" .. i, HOSTILE, 2379, 2000 + i * 10)
+    H._on(H, "PLAYER_ENTERING_WORLD")            -- snapshot this 1-event match
+end
+eq(#aura_env.saved.matches, 5, "history capped to the last 5 matches")
+
+print("T18 self-whisper debounce absorbs the WHISPER + INFORM double-fire")
+H.lastCmd = nil
+_clock = 10.0; H.onWhisper("bgic"); eq(H.lastCmd, 10.0, "first command accepted")
+_clock = 10.2; H.onWhisper("bgic"); eq(H.lastCmd, 10.0, "duplicate within 0.5s suppressed")
+_clock = 11.0; H.onWhisper("bgic"); eq(H.lastCmd, 11.0, "command after window accepted")
+
+print("T19 only self-whispers trigger; 'bgic clear' wipes saved reports")
+_clock = 100; H.lastCmd = nil
+H._on(H, "CHAT_MSG_WHISPER_INFORM", "bgic clear", "Griefer-WM")   -- not self
+eq(#aura_env.saved.matches, 5, "non-self whisper ignored")
+_clock = 101
+H._on(H, "CHAT_MSG_WHISPER_INFORM", "bgic clear", "Me")          -- self
+eq(#aura_env.saved.matches, 0, "self 'bgic clear' cleared saved reports")
+
 print(string.format("\n%d passed, %d failed", pass, fail))
 if fail > 0 then error(fail .. " test(s) failed") end

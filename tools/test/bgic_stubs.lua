@@ -2,11 +2,16 @@
 -- under a plain Lua VM (fengari). Nothing here ships in-game; it only fakes the
 -- Classic globals init.lua touches so the corroboration logic can be exercised.
 
--- ---- controllable clock ----------------------------------------------------
-_now = 0                                   -- GetServerTime() returns this
+-- ---- controllable clocks ---------------------------------------------------
+_now = 0                                   -- GetServerTime() returns this (realm epoch)
 function GetServerTime() return _now end
 function time() return _now end
 function date(_, _) return "00:00:00" end  -- format irrelevant to logic tests
+_clock = 0                                  -- GetTime() returns this (local monotonic, s)
+function GetTime() return _clock end
+
+-- Persistent SavedVariables table (aura_env.saved survives reload in-game; a plain table here).
+aura_env = { saved = {} }
 
 -- ---- capture sinks ---------------------------------------------------------
 _sent = {}   -- {prefix, payload, channel} pushed by C_ChatInfo.SendAddonMessage

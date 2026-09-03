@@ -28,13 +28,16 @@ enemy-only (equipment, not a no-consume item).
 
 `export.txt` is the source of truth — imported verbatim from the shared string, unchanged.
 `decode → encode → decode` is **lossless** (`tools/cmp.js` → `LOSSLESS`). `code/custom_text.lua`
-passes a Lua 5.1 parse. The **Phase 3a corroboration logic** in `code/init.lua` is exercised by a
-headless harness — `tools/test/` loads the real `init.lua` under a Lua VM (fengari) with the WoW
-API stubbed and asserts bucket keying + ±1 tolerance, send-once dedupe, self/AGM/schema/untracked
-filters, the ally-announce subset, sender-based witness dedup, per-match wipe, and pvp gating (run
-`npm test` in `tools/`; 33 assertions). That covers the **pure logic**; the remaining **in-game**
-unknowns (real spellIds firing, `sender` unspoofability in practice, `INSTANCE_CHAT` delivery
-scope, `WINDOW` tuning) are **not yet tested in-game** — this repo cannot run WoW.
+passes a Lua 5.1 parse. The **Phase 3a corroboration + Phase 4 reporting logic** in `code/init.lua`
+is exercised by a headless harness — `tools/test/` loads the real `init.lua` under a Lua VM
+(fengari) with the WoW API stubbed and asserts bucket keying + ±1 tolerance, send-once dedupe,
+self/AGM/schema/untracked filters, the ally-announce subset, sender-based witness dedup, per-match
+wipe, pvp gating, and (Phase 4) the evidence/info report tagging, the `aura_env.saved` snapshot +
+5-match ring cap, and the self-whisper read-back debounce/gating (run `npm test` in `tools/`; 50
+assertions). That covers the **pure logic**; the remaining **in-game** unknowns (real spellIds
+firing, `sender` unspoofability in practice, `INSTANCE_CHAT` delivery scope, `WINDOW` tuning,
+whether a group's On Init actually exposes `aura_env.saved`) are **not yet tested in-game** — this
+repo cannot run WoW.
 
 ## Purpose
 
@@ -124,8 +127,18 @@ Each child is a `text` region driven by a **Combat Log** trigger:
   `CHAT_MSG_ADDON` (unspoofable) — the payload's name/reaction are display-only. State
   (`NS.seen/witnesses/events/log`) is wiped per match on `PLAYER_ENTERING_WORLD`. Toggle
   `BGICHub.cfg.debug = true` to watch the ledger build. The live witness-count tag + announce
-  election are Phase 3b; the on-demand report that surfaces the ledger is Phase 4. The 10 children
-  are still untouched — enemy callouts are 100% as-was.
+  election are Phase 3b. The 10 children are still untouched — enemy callouts are 100% as-was.
+  **Phase 4** added **reporting**: `NS.collectEvents()` flattens the ledger into event records
+  (each with its distinct witness NAME list); `NS.snapshot()` persists a finished match into
+  `aura_env.saved.matches` (captured once at hub creation, guarded for the config stage; last 5
+  matches kept) — called from the `PLAYER_ENTERING_WORLD` handler *before* the per-match wipe.
+  `NS.buildReport(rec, title)` renders a match into chat lines (pure — the harness asserts on it),
+  tagging each event `[EVIDENCE]` when its witness count `>= cfg.minWitnesses` (2) else `[info]`,
+  naming the caster GUID and the real witness list (your own entry marked `(you)`). `NS.report`
+  prints it. Read-back uses the **WhisperCatcher trick** (`NS.onWhisper`): whisper *yourself*
+  `bgic` (current match), `bgic last` (last saved match) or `bgic clear` — the hub listens on
+  `CHAT_MSG_WHISPER`/`_INFORM`, acts only on whispers to/from yourself, and a 0.5 s guard absorbs
+  the self-whisper double-fire. Reporting is **on-demand** (`reportMode="ondemand"`) — no auto-spam.
 - `code/message_custom.lua` — **v2 Phase 1** (added 2026-09-03), the `%c` **chat-message**
   function pasted into each child's Send Chat Message → Message (stored in
   `actions.start.message_custom`), **identical in all 10 children**. Returns the server-synced
@@ -194,9 +207,38 @@ Message; ally announces are sent by the hub via `SendChatMessage`.
    the expected count; (c) the ledger resets on zone-in (`BGICHub.log` empties). Confirm the
    `sender` shown is the real caster's account name (server-stamped) and that no visible chat line
    changed (3a is silent). Tune `BGICHub.WINDOW` if witnesses' detection times split an event.
+10. **Reporting / read-back (v2 Phase 4):** during a BG with some recorded events, whisper
+    **yourself** `bgic` → a multi-line report prints to your chat frame (screenshot/copy source):
+    a header with the event count, then per event a `[MM/DD/YY HH:MM:SS] <Item> (<spellId>)` line,
+    the caster + GUID, and a `witnesses (n): …  [EVIDENCE|info]` line (`[EVIDENCE]` at ≥2 distinct
+    witnesses). Verify: (a) leaving the BG (a `PLAYER_ENTERING_WORLD`) snapshots the match, so
+    `bgic last` still prints it afterward (from `aura_env.saved`); (b) `bgic clear` empties the
+    saved history; (c) whispering the keyword to **someone else** does nothing (self-only); (d) the
+    double self-whisper fires the report **once** (0.5 s guard). If `bgic last` never has data,
+    confirm the **group's On Init actually exposes `aura_env.saved`** — if not, live `bgic` still
+    works but cross-match/post-leave read-back won't (persistence is guarded, degrades to no-op).
 
 ## Changelog
 
+- 2026-09-03 — **v2 Phase 4: on-demand evidence report + persistent match log.** Extended
+  `code/init.lua` (the `BGICHub` hub) with the reporting layer that surfaces the Phase 3a witness
+  ledger — the actual Discord-evidence artifact. `NS.collectEvents()` flattens the ledger into
+  event records carrying each event's distinct witness NAME list; `NS.snapshot()` (called from the
+  `PLAYER_ENTERING_WORLD` handler **before** the per-match wipe) persists a finished match into
+  `aura_env.saved.matches` (captured once at hub creation, guarded for the config stage; ring-capped
+  to the last 5 matches). `NS.buildReport(rec, title)` renders a match into chat lines, tagging each
+  event `[EVIDENCE]` at `>= cfg.minWitnesses` (2) distinct server-verified witnesses else `[info]`,
+  and naming the caster GUID + witness list (own entry marked `(you)`); `NS.report` prints it.
+  Read-back via the WhisperCatcher trick (`NS.onWhisper`): whisper **yourself** `bgic` / `bgic last`
+  / `bgic clear` — the hub now also registers `CHAT_MSG_WHISPER`/`_INFORM`, acts only on
+  self-whispers, with a 0.5 s guard absorbing the double-fire. On-demand only
+  (`reportMode="ondemand"`); the 10 children and all live callouts are untouched. **No new
+  `.luacheckrc` globals** (`aura_env`, `GetTime`, `UnitName`, `date`, `table`, `wipe`, `print`
+  already allowlisted). Logic covered by the headless harness (`tools/test/`, now 50 assertions:
+  evidence/info tagging, snapshot + 5-match cap, self-whisper debounce/gating). Rebuilt `export.txt`,
+  regenerated `aura.json`, decode→encode→decode **lossless** (10 children intact). Lua 5.1 syntax
+  OK; free globals all allowlisted. **Pending in-game test** (see testing note 10 — esp. whether a
+  group's On Init exposes `aura_env.saved`).
 - 2026-09-03 — **v2 Phase 3a: multi-witness corroboration engine (silent).** Extended
   `code/init.lua` (the `BGICHub` hub) with the anti-forgery corroboration ledger. Renamed
   `NS.allyItems` → `NS.trackedItems` (now the six watched IDs, used for both enemy and ally
