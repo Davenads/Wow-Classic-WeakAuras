@@ -1,0 +1,1816 @@
+{
+  "s": "5.21.9",
+  "m": "d",
+  "d": {
+    "grow": "DOWN",
+    "borderBackdrop": "Blizzard Tooltip",
+    "wagoID": "LypllcBL5",
+    "authorOptions": [],
+    "groupIcon": "135805",
+    "anchorPoint": "CENTER",
+    "borderColor": [
+      0,
+      0,
+      0,
+      1
+    ],
+    "rowSpace": 1,
+    "url": "https://wago.io/LypllcBL5/8",
+    "actions": {
+      "start": [],
+      "init": [],
+      "finish": []
+    },
+    "triggers": [
+      {
+        "trigger": {
+          "debuffType": "HELPFUL",
+          "type": "aura2",
+          "spellIds": [],
+          "subeventSuffix": "_CAST_START",
+          "subeventPrefix": "SPELL",
+          "unit": "player",
+          "event": "Health",
+          "names": []
+        },
+        "untrigger": []
+      }
+    ],
+    "columnSpace": 1,
+    "radius": 200,
+    "internalVersion": 90,
+    "selfPoint": "TOP",
+    "align": "CENTER",
+    "rotation": 0,
+    "version": 8,
+    "subRegions": [],
+    "useLimit": false,
+    "animation": {
+      "start": {
+        "type": "none",
+        "easeStrength": 3,
+        "duration_type": "seconds",
+        "easeType": "none"
+      },
+      "main": {
+        "type": "none",
+        "easeStrength": 3,
+        "duration_type": "seconds",
+        "easeType": "none"
+      },
+      "finish": {
+        "type": "none",
+        "easeStrength": 3,
+        "duration_type": "seconds",
+        "easeType": "none"
+      }
+    },
+    "load": {
+      "talent": {
+        "multi": []
+      },
+      "spec": {
+        "multi": []
+      },
+      "class": {
+        "multi": []
+      },
+      "size": {
+        "multi": []
+      }
+    },
+    "fullCircle": true,
+    "backdropColor": [
+      1,
+      1,
+      1,
+      0.5
+    ],
+    "uid": "1CEMCeYQ1HI",
+    "animate": false,
+    "config": [],
+    "scale": 1,
+    "centerType": "LR",
+    "border": false,
+    "borderEdge": "Square Full White",
+    "regionType": "dynamicgroup",
+    "borderSize": 2,
+    "sort": "none",
+    "limit": 5,
+    "sortHybridTable": {
+      "ArenaGrandMaster-Dispeled-Say": false,
+      "Swiftness": false,
+      "Discombob": false,
+      "ArenaGrandMaster": false,
+      "RocketBoots": false,
+      "ArenaGrandMaster-Dispeled": false,
+      "MagicDust": false,
+      "Resistance": false,
+      "ArenaGrandMaster -Say": false,
+      "Swiftness-Say": false
+    },
+    "gridWidth": 5,
+    "yOffset": 285.45288085938,
+    "constantFactor": "RADIUS",
+    "stepAngle": 15,
+    "borderOffset": 4,
+    "semver": "1.0.7",
+    "tocversion": 11509,
+    "id": "Betty's BG Item Callout (19 bracket)",
+    "xOffset": 3.2821044921875,
+    "alpha": 1,
+    "anchorFrameType": "SCREEN",
+    "arcLength": 360,
+    "borderInset": 1,
+    "frameStrata": 1,
+    "gridType": "RD",
+    "space": 2,
+    "conditions": [],
+    "information": {
+      "showNilIsFalse": true
+    },
+    "stagger": 0
+  },
+  "c": [
+    {
+      "outline": "OUTLINE",
+      "wagoID": "LypllcBL5",
+      "color": [
+        1,
+        0.97254908084869,
+        0.92941182851791,
+        1
+      ],
+      "displayText_format_p_time_dynamic_threshold": 60,
+      "customText": "function()\n    local state = aura_env.state\n    \n    if state and state.sourceGUID and state.sourceName then\n        local class = select(2, GetPlayerInfoByGUID(state.sourceGUID))\n        local name = select(6, GetPlayerInfoByGUID(state.sourceGUID))\n        \n        if not class then\n            -- The GUID isn’t for a known player, or data isn’t cached yet\n            return (name or state.sourceName)\n        end\n        \n        local color = RAID_CLASS_COLORS[class]\n        return string.format(\"|cFF%02x%02x%02x%s|r\", color.r * 255, color.g * 255, color.b * 255, name or state.sourceName)\n    end\n    return state and state.sourceName or nil\nend",
+      "displayText_format_1.sourceName_abbreviate": false,
+      "anchorPoint": "CENTER",
+      "displayText_format_1.spellName_format": "none",
+      "displayText_format_c_abbreviate_max": 8,
+      "displayText_format_p_time_format": 0,
+      "customTextUpdate": "event",
+      "automaticWidth": "Auto",
+      "actions": {
+        "start": {
+          "message_type": "SMARTRAID",
+          "message_format_1.sourceName_abbreviate": false,
+          "do_message": true,
+          "message_format_1.spellName_format": "none",
+          "message": "Swiftness Potion used by %1.sourceName",
+          "sound": "Interface\\Addons\\WeakAuras\\PowerAurasMedia\\Sounds\\sneeze.ogg",
+          "custom": "",
+          "do_sound": false,
+          "message_format_1.sourceName_abbreviate_max": 8,
+          "do_custom": true,
+          "message_format_1.sourceName_format": "none",
+          "message_format_1.sourceName_realm_name": "never"
+        },
+        "init": [],
+        "finish": []
+      },
+      "triggers": {
+        "1": {
+          "trigger": {
+            "type": "combatlog",
+            "spellId": [
+              2379
+            ],
+            "subeventSuffix": "_CAST_SUCCESS",
+            "debuffType": "HELPFUL",
+            "duration": "10",
+            "event": "Combat Log",
+            "names": [],
+            "use_sourceFlags2": true,
+            "use_spellName": false,
+            "spellIds": [],
+            "use_spellId": true,
+            "sourceFlags2": "Hostile",
+            "unit": "player",
+            "subeventPrefix": "SPELL",
+            "spellName": [
+              "Goblin Sapper Charge"
+            ]
+          },
+          "untrigger": []
+        },
+        "activeTriggerMode": -10
+      },
+      "displayText_format_p_time_mod_rate": true,
+      "internalVersion": 90,
+      "animation": {
+        "start": {
+          "type": "none",
+          "easeStrength": 3,
+          "duration_type": "seconds",
+          "easeType": "none"
+        },
+        "main": {
+          "type": "none",
+          "easeStrength": 3,
+          "duration_type": "seconds",
+          "easeType": "none"
+        },
+        "finish": {
+          "type": "none",
+          "easeStrength": 3,
+          "duration_type": "seconds",
+          "easeType": "none"
+        }
+      },
+      "displayText_format_1.sourceName_format": "Number",
+      "displayText": "%c",
+      "yOffset": 0,
+      "font": "Fira Sans Condensed Black",
+      "version": 8,
+      "subRegions": [
+        {
+          "type": "subbackground"
+        }
+      ],
+      "displayText_format_c_pad": false,
+      "displayText_format_1.sourceName_realm_name": "never",
+      "load": {
+        "use_size": true,
+        "use_level": true,
+        "talent": {
+          "multi": []
+        },
+        "level_operator": [
+          "<"
+        ],
+        "spec": {
+          "multi": []
+        },
+        "class": {
+          "multi": []
+        },
+        "level": [
+          "20"
+        ],
+        "ingroup": [],
+        "size": {
+          "single": "pvp",
+          "multi": {
+            "pvp": true
+          }
+        }
+      },
+      "displayText_format_p_format": "timed",
+      "displayText_format_p_time_legacy_floor": false,
+      "fontSize": 30,
+      "uid": "wTxruVjP00W",
+      "wordWrap": "WordWrap",
+      "shadowXOffset": 1,
+      "shadowYOffset": -1,
+      "xOffset": 0,
+      "displayText_format_1.sourceName_abbreviate_max": 8,
+      "regionType": "text",
+      "fixedWidth": 200,
+      "displayText_format_c_format": "Unit",
+      "url": "https://wago.io/LypllcBL5/8",
+      "displayText_format_1.sourceName_color": "class",
+      "displayText_format_c_pad_max": 8,
+      "displayText_format_c_color": true,
+      "selfPoint": "BOTTOM",
+      "semver": "1.0.7",
+      "authorOptions": [],
+      "displayText_format_c_abbreviate": false,
+      "tocversion": 11509,
+      "id": "Swiftness",
+      "displayText_format_1.sourceName_decimal_precision": 1,
+      "frameStrata": 1,
+      "anchorFrameType": "SCREEN",
+      "displayText_format_c_pad_mode": "left",
+      "config": [],
+      "justify": "LEFT",
+      "displayText_format_p_time_precision": 1,
+      "shadowColor": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "conditions": [],
+      "information": {
+        "showNilIsFalse": true
+      },
+      "displayText_format_c_realm_name": "never"
+    },
+    {
+      "outline": "OUTLINE",
+      "wagoID": "LypllcBL5",
+      "color": [
+        1,
+        0.97254908084869,
+        0.92941182851791,
+        1
+      ],
+      "displayText_format_p_time_dynamic_threshold": 60,
+      "customText": "function()\n    local state = aura_env.state\n    \n    if state and state.sourceGUID and state.sourceName then\n        local class = select(2, GetPlayerInfoByGUID(state.sourceGUID))\n        local name = select(6, GetPlayerInfoByGUID(state.sourceGUID))\n        \n        if not class then\n            -- The GUID isn’t for a known player, or data isn’t cached yet\n            return (name or state.sourceName)\n        end\n        \n        local color = RAID_CLASS_COLORS[class]\n        return string.format(\"|cFF%02x%02x%02x%s|r\", color.r * 255, color.g * 255, color.b * 255, name or state.sourceName)\n    end\n    return state and state.sourceName or nil\nend",
+      "displayText_format_1.sourceName_abbreviate": false,
+      "anchorPoint": "CENTER",
+      "displayText_format_1.spellName_format": "none",
+      "displayText_format_c_abbreviate_max": 8,
+      "displayText_format_p_time_format": 0,
+      "customTextUpdate": "event",
+      "automaticWidth": "Auto",
+      "actions": {
+        "start": {
+          "message_type": "SAY",
+          "message_format_1.sourceName_abbreviate": false,
+          "do_message": true,
+          "message_format_1.spellName_format": "none",
+          "message": "Swiftness Potion used! - DISPEL %1.sourceName",
+          "sound": "Interface\\Addons\\WeakAuras\\PowerAurasMedia\\Sounds\\sneeze.ogg",
+          "custom": "",
+          "do_sound": false,
+          "message_format_1.sourceName_abbreviate_max": 8,
+          "do_custom": true,
+          "message_format_1.sourceName_format": "none",
+          "message_format_1.sourceName_realm_name": "never"
+        },
+        "init": [],
+        "finish": []
+      },
+      "triggers": {
+        "1": {
+          "trigger": {
+            "type": "combatlog",
+            "spellId": [
+              2379
+            ],
+            "subeventSuffix": "_CAST_SUCCESS",
+            "debuffType": "HELPFUL",
+            "duration": "10",
+            "event": "Combat Log",
+            "names": [],
+            "use_sourceFlags2": true,
+            "use_spellName": false,
+            "spellIds": [],
+            "use_spellId": true,
+            "sourceFlags2": "Hostile",
+            "unit": "player",
+            "subeventPrefix": "SPELL",
+            "spellName": [
+              "Goblin Sapper Charge"
+            ]
+          },
+          "untrigger": []
+        },
+        "2": {
+          "trigger": {
+            "debuffType": "HELPFUL",
+            "type": "unit",
+            "range_operator": "<=",
+            "use_range": true,
+            "range": "40",
+            "unit": "player",
+            "event": "Range Check",
+            "use_unit": true
+          },
+          "untrigger": []
+        },
+        "activeTriggerMode": -10
+      },
+      "displayText_format_p_time_mod_rate": true,
+      "internalVersion": 90,
+      "animation": {
+        "start": {
+          "type": "none",
+          "easeStrength": 3,
+          "duration_type": "seconds",
+          "easeType": "none"
+        },
+        "main": {
+          "type": "none",
+          "easeStrength": 3,
+          "duration_type": "seconds",
+          "easeType": "none"
+        },
+        "finish": {
+          "type": "none",
+          "easeStrength": 3,
+          "duration_type": "seconds",
+          "easeType": "none"
+        }
+      },
+      "displayText_format_1.sourceName_format": "Number",
+      "displayText": "%c",
+      "yOffset": 0,
+      "font": "Fira Sans Condensed Black",
+      "version": 8,
+      "subRegions": [
+        {
+          "type": "subbackground"
+        }
+      ],
+      "displayText_format_c_pad": false,
+      "displayText_format_1.sourceName_realm_name": "never",
+      "load": {
+        "use_size": true,
+        "use_level": true,
+        "talent": {
+          "multi": []
+        },
+        "level_operator": [
+          "<"
+        ],
+        "spec": {
+          "multi": []
+        },
+        "class": {
+          "multi": []
+        },
+        "level": [
+          "20"
+        ],
+        "ingroup": [],
+        "size": {
+          "single": "pvp",
+          "multi": {
+            "pvp": true
+          }
+        }
+      },
+      "displayText_format_p_format": "timed",
+      "displayText_format_p_time_legacy_floor": false,
+      "fontSize": 30,
+      "uid": "aUTt5tUxr4a",
+      "wordWrap": "WordWrap",
+      "shadowXOffset": 1,
+      "shadowYOffset": -1,
+      "xOffset": 0,
+      "displayText_format_1.sourceName_abbreviate_max": 8,
+      "regionType": "text",
+      "fixedWidth": 200,
+      "displayText_format_c_format": "Unit",
+      "url": "https://wago.io/LypllcBL5/8",
+      "displayText_format_1.sourceName_color": "class",
+      "displayText_format_c_pad_max": 8,
+      "displayText_format_c_color": true,
+      "selfPoint": "BOTTOM",
+      "semver": "1.0.7",
+      "authorOptions": [],
+      "displayText_format_c_abbreviate": false,
+      "tocversion": 11509,
+      "id": "Swiftness-Say",
+      "displayText_format_1.sourceName_decimal_precision": 1,
+      "frameStrata": 1,
+      "anchorFrameType": "SCREEN",
+      "displayText_format_c_pad_mode": "left",
+      "config": [],
+      "justify": "LEFT",
+      "displayText_format_p_time_precision": 1,
+      "shadowColor": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "conditions": [],
+      "information": {
+        "showNilIsFalse": true
+      },
+      "displayText_format_c_realm_name": "never"
+    },
+    {
+      "outline": "OUTLINE",
+      "wagoID": "LypllcBL5",
+      "color": [
+        1,
+        0.97254908084869,
+        0.92941182851791,
+        1
+      ],
+      "displayText_format_p_time_dynamic_threshold": 60,
+      "customText": "function()\n    local state = aura_env.state\n    \n    if state and state.sourceGUID and state.sourceName then\n        local class = select(2, GetPlayerInfoByGUID(state.sourceGUID))\n        local name = select(6, GetPlayerInfoByGUID(state.sourceGUID))\n        \n        if not class then\n            -- The GUID isn’t for a known player, or data isn’t cached yet\n            return (name or state.sourceName)\n        end\n        \n        local color = RAID_CLASS_COLORS[class]\n        return string.format(\"|cFF%02x%02x%02x%s|r\", color.r * 255, color.g * 255, color.b * 255, name or state.sourceName)\n    end\n    return state and state.sourceName or nil\nend",
+      "displayText_format_1.sourceName_abbreviate": false,
+      "anchorPoint": "CENTER",
+      "displayText_format_1.spellName_format": "none",
+      "displayText_format_c_abbreviate_max": 8,
+      "displayText_format_p_time_format": 0,
+      "customTextUpdate": "event",
+      "automaticWidth": "Auto",
+      "actions": {
+        "start": {
+          "message_type": "SMARTRAID",
+          "message_format_1.sourceName_abbreviate": false,
+          "do_message": true,
+          "message_format_1.spellName_format": "none",
+          "message": "Leper Gnome used by %1.sourceName",
+          "sound": "Interface\\Addons\\WeakAuras\\PowerAurasMedia\\Sounds\\sneeze.ogg",
+          "custom": "",
+          "do_sound": false,
+          "message_format_1.sourceName_abbreviate_max": 8,
+          "do_custom": true,
+          "message_format_1.sourceName_format": "none",
+          "message_format_1.sourceName_realm_name": "never"
+        },
+        "init": [],
+        "finish": []
+      },
+      "triggers": {
+        "1": {
+          "trigger": {
+            "type": "combatlog",
+            "spellId": [
+              4060
+            ],
+            "subeventSuffix": "_CAST_SUCCESS",
+            "debuffType": "HELPFUL",
+            "duration": "10",
+            "event": "Combat Log",
+            "names": [],
+            "use_sourceFlags2": true,
+            "use_spellName": false,
+            "spellIds": [],
+            "use_spellId": true,
+            "sourceFlags2": "Hostile",
+            "unit": "player",
+            "subeventPrefix": "SPELL",
+            "spellName": [
+              "Goblin Sapper Charge"
+            ]
+          },
+          "untrigger": []
+        },
+        "activeTriggerMode": -10
+      },
+      "displayText_format_p_time_mod_rate": true,
+      "internalVersion": 90,
+      "animation": {
+        "start": {
+          "type": "none",
+          "easeStrength": 3,
+          "duration_type": "seconds",
+          "easeType": "none"
+        },
+        "main": {
+          "type": "none",
+          "easeStrength": 3,
+          "duration_type": "seconds",
+          "easeType": "none"
+        },
+        "finish": {
+          "type": "none",
+          "easeStrength": 3,
+          "duration_type": "seconds",
+          "easeType": "none"
+        }
+      },
+      "displayText_format_1.sourceName_format": "Number",
+      "displayText": "%c",
+      "yOffset": 0,
+      "font": "Fira Sans Condensed Black",
+      "version": 8,
+      "subRegions": [
+        {
+          "type": "subbackground"
+        }
+      ],
+      "displayText_format_c_pad": false,
+      "displayText_format_1.sourceName_realm_name": "never",
+      "load": {
+        "use_size": true,
+        "use_level": true,
+        "talent": {
+          "multi": []
+        },
+        "level_operator": [
+          "<"
+        ],
+        "spec": {
+          "multi": []
+        },
+        "class": {
+          "multi": []
+        },
+        "level": [
+          "20"
+        ],
+        "ingroup": [],
+        "size": {
+          "single": "pvp",
+          "multi": {
+            "pvp": true
+          }
+        }
+      },
+      "displayText_format_p_format": "timed",
+      "displayText_format_p_time_legacy_floor": false,
+      "fontSize": 30,
+      "uid": "UZHgckdf7ip",
+      "wordWrap": "WordWrap",
+      "shadowXOffset": 1,
+      "shadowYOffset": -1,
+      "xOffset": 0,
+      "displayText_format_1.sourceName_abbreviate_max": 8,
+      "regionType": "text",
+      "fixedWidth": 200,
+      "displayText_format_c_format": "Unit",
+      "url": "https://wago.io/LypllcBL5/8",
+      "displayText_format_1.sourceName_color": "class",
+      "displayText_format_c_pad_max": 8,
+      "displayText_format_c_color": true,
+      "selfPoint": "BOTTOM",
+      "semver": "1.0.7",
+      "authorOptions": [],
+      "displayText_format_c_abbreviate": false,
+      "tocversion": 11509,
+      "id": "Discombob",
+      "displayText_format_1.sourceName_decimal_precision": 1,
+      "frameStrata": 1,
+      "anchorFrameType": "SCREEN",
+      "displayText_format_c_pad_mode": "left",
+      "config": [],
+      "justify": "LEFT",
+      "displayText_format_p_time_precision": 1,
+      "shadowColor": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "conditions": [],
+      "information": {
+        "showNilIsFalse": true
+      },
+      "displayText_format_c_realm_name": "never"
+    },
+    {
+      "outline": "OUTLINE",
+      "wagoID": "LypllcBL5",
+      "color": [
+        1,
+        0.97254908084869,
+        0.92941182851791,
+        1
+      ],
+      "displayText_format_p_time_dynamic_threshold": 60,
+      "customText": "function()\n    local state = aura_env.state\n    \n    if state and state.sourceGUID and state.sourceName then\n        local class = select(2, GetPlayerInfoByGUID(state.sourceGUID))\n        local name = select(6, GetPlayerInfoByGUID(state.sourceGUID))\n        \n        if not class then\n            -- The GUID isn’t for a known player, or data isn’t cached yet\n            return (name or state.sourceName)\n        end\n        \n        local color = RAID_CLASS_COLORS[class]\n        return string.format(\"|cFF%02x%02x%02x%s|r\", color.r * 255, color.g * 255, color.b * 255, name or state.sourceName)\n    end\n    return state and state.sourceName or nil\nend",
+      "displayText_format_1.sourceName_abbreviate": false,
+      "anchorPoint": "CENTER",
+      "displayText_format_1.spellName_format": "none",
+      "displayText_format_c_abbreviate_max": 8,
+      "displayText_format_p_time_format": 0,
+      "customTextUpdate": "event",
+      "automaticWidth": "Auto",
+      "actions": {
+        "start": {
+          "message_type": "SMARTRAID",
+          "message_format_1.sourceName_abbreviate": false,
+          "do_message": true,
+          "message_format_1.spellName_format": "none",
+          "message": "Rocket Boots used by %1.sourceName",
+          "sound": "Interface\\Addons\\WeakAuras\\PowerAurasMedia\\Sounds\\sneeze.ogg",
+          "custom": "",
+          "do_sound": false,
+          "message_format_1.sourceName_abbreviate_max": 8,
+          "do_custom": true,
+          "message_format_1.sourceName_format": "none",
+          "message_format_1.sourceName_realm_name": "never"
+        },
+        "init": [],
+        "finish": []
+      },
+      "triggers": {
+        "1": {
+          "trigger": {
+            "type": "combatlog",
+            "spellId": [
+              8892
+            ],
+            "subeventSuffix": "_CAST_SUCCESS",
+            "debuffType": "HELPFUL",
+            "duration": "10",
+            "event": "Combat Log",
+            "names": [],
+            "use_sourceFlags2": true,
+            "use_spellName": false,
+            "spellIds": [],
+            "use_spellId": true,
+            "sourceFlags2": "Hostile",
+            "unit": "player",
+            "subeventPrefix": "SPELL",
+            "spellName": [
+              "Goblin Sapper Charge"
+            ]
+          },
+          "untrigger": []
+        },
+        "activeTriggerMode": -10
+      },
+      "displayText_format_p_time_mod_rate": true,
+      "internalVersion": 90,
+      "animation": {
+        "start": {
+          "type": "none",
+          "easeStrength": 3,
+          "duration_type": "seconds",
+          "easeType": "none"
+        },
+        "main": {
+          "type": "none",
+          "easeStrength": 3,
+          "duration_type": "seconds",
+          "easeType": "none"
+        },
+        "finish": {
+          "type": "none",
+          "easeStrength": 3,
+          "duration_type": "seconds",
+          "easeType": "none"
+        }
+      },
+      "displayText_format_1.sourceName_format": "Number",
+      "displayText": "%c",
+      "yOffset": 0,
+      "font": "Fira Sans Condensed Black",
+      "version": 8,
+      "subRegions": [
+        {
+          "type": "subbackground"
+        }
+      ],
+      "displayText_format_c_pad": false,
+      "displayText_format_1.sourceName_realm_name": "never",
+      "load": {
+        "use_size": true,
+        "use_level": true,
+        "talent": {
+          "multi": []
+        },
+        "level_operator": [
+          "<"
+        ],
+        "spec": {
+          "multi": []
+        },
+        "class": {
+          "multi": []
+        },
+        "level": [
+          "20"
+        ],
+        "ingroup": [],
+        "size": {
+          "single": "pvp",
+          "multi": {
+            "pvp": true
+          }
+        }
+      },
+      "displayText_format_p_format": "timed",
+      "displayText_format_p_time_legacy_floor": false,
+      "fontSize": 30,
+      "uid": "oa3dgQyAIAw",
+      "wordWrap": "WordWrap",
+      "shadowXOffset": 1,
+      "shadowYOffset": -1,
+      "xOffset": 0,
+      "displayText_format_1.sourceName_abbreviate_max": 8,
+      "regionType": "text",
+      "fixedWidth": 200,
+      "displayText_format_c_format": "Unit",
+      "url": "https://wago.io/LypllcBL5/8",
+      "displayText_format_1.sourceName_color": "class",
+      "displayText_format_c_pad_max": 8,
+      "displayText_format_c_color": true,
+      "selfPoint": "BOTTOM",
+      "semver": "1.0.7",
+      "authorOptions": [],
+      "displayText_format_c_abbreviate": false,
+      "tocversion": 11509,
+      "id": "RocketBoots",
+      "displayText_format_1.sourceName_decimal_precision": 1,
+      "frameStrata": 1,
+      "anchorFrameType": "SCREEN",
+      "displayText_format_c_pad_mode": "left",
+      "config": [],
+      "justify": "LEFT",
+      "displayText_format_p_time_precision": 1,
+      "shadowColor": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "conditions": [],
+      "information": {
+        "showNilIsFalse": true
+      },
+      "displayText_format_c_realm_name": "never"
+    },
+    {
+      "outline": "OUTLINE",
+      "wagoID": "LypllcBL5",
+      "color": [
+        1,
+        0.97254908084869,
+        0.92941182851791,
+        1
+      ],
+      "displayText_format_p_time_dynamic_threshold": 60,
+      "customText": "function()\n    local state = aura_env.state\n    \n    if state and state.sourceGUID and state.sourceName then\n        local class = select(2, GetPlayerInfoByGUID(state.sourceGUID))\n        local name = select(6, GetPlayerInfoByGUID(state.sourceGUID))\n        \n        if not class then\n            -- The GUID isn’t for a known player, or data isn’t cached yet\n            return (name or state.sourceName)\n        end\n        \n        local color = RAID_CLASS_COLORS[class]\n        return string.format(\"|cFF%02x%02x%02x%s|r\", color.r * 255, color.g * 255, color.b * 255, name or state.sourceName)\n    end\n    return state and state.sourceName or nil\nend",
+      "displayText_format_1.sourceName_abbreviate": false,
+      "anchorPoint": "CENTER",
+      "displayText_format_1.spellName_format": "none",
+      "displayText_format_c_abbreviate_max": 8,
+      "displayText_format_p_time_format": 0,
+      "customTextUpdate": "event",
+      "automaticWidth": "Auto",
+      "actions": {
+        "start": {
+          "message_type": "SMARTRAID",
+          "message_format_1.sourceName_abbreviate": false,
+          "do_message": true,
+          "message_format_1.spellName_format": "none",
+          "message": "Resistance Potion used by %1.sourceName",
+          "sound": "Interface\\Addons\\WeakAuras\\PowerAurasMedia\\Sounds\\sneeze.ogg",
+          "custom": "",
+          "do_sound": false,
+          "message_format_1.sourceName_abbreviate_max": 8,
+          "do_custom": true,
+          "message_format_1.sourceName_format": "none",
+          "message_format_1.sourceName_realm_name": "never"
+        },
+        "init": [],
+        "finish": []
+      },
+      "triggers": {
+        "1": {
+          "trigger": {
+            "type": "combatlog",
+            "spellId": [
+              2380
+            ],
+            "subeventSuffix": "_CAST_SUCCESS",
+            "debuffType": "HELPFUL",
+            "duration": "10",
+            "event": "Combat Log",
+            "names": [],
+            "use_sourceFlags2": true,
+            "use_spellName": false,
+            "spellIds": [],
+            "use_spellId": true,
+            "sourceFlags2": "Hostile",
+            "unit": "player",
+            "subeventPrefix": "SPELL",
+            "spellName": [
+              "Goblin Sapper Charge"
+            ]
+          },
+          "untrigger": []
+        },
+        "activeTriggerMode": -10
+      },
+      "displayText_format_p_time_mod_rate": true,
+      "internalVersion": 90,
+      "animation": {
+        "start": {
+          "type": "none",
+          "easeStrength": 3,
+          "duration_type": "seconds",
+          "easeType": "none"
+        },
+        "main": {
+          "type": "none",
+          "easeStrength": 3,
+          "duration_type": "seconds",
+          "easeType": "none"
+        },
+        "finish": {
+          "type": "none",
+          "easeStrength": 3,
+          "duration_type": "seconds",
+          "easeType": "none"
+        }
+      },
+      "displayText_format_1.sourceName_format": "Number",
+      "displayText": "%c",
+      "yOffset": 0,
+      "font": "Fira Sans Condensed Black",
+      "version": 8,
+      "subRegions": [
+        {
+          "type": "subbackground"
+        }
+      ],
+      "displayText_format_c_pad": false,
+      "displayText_format_1.sourceName_realm_name": "never",
+      "load": {
+        "use_size": true,
+        "use_level": true,
+        "talent": {
+          "multi": []
+        },
+        "level_operator": [
+          "<"
+        ],
+        "spec": {
+          "multi": []
+        },
+        "class": {
+          "multi": []
+        },
+        "level": [
+          "20"
+        ],
+        "ingroup": [],
+        "size": {
+          "single": "pvp",
+          "multi": {
+            "pvp": true
+          }
+        }
+      },
+      "displayText_format_p_format": "timed",
+      "displayText_format_p_time_legacy_floor": false,
+      "fontSize": 30,
+      "uid": "wP9NjkN7X2j",
+      "wordWrap": "WordWrap",
+      "shadowXOffset": 1,
+      "shadowYOffset": -1,
+      "xOffset": 0,
+      "displayText_format_1.sourceName_abbreviate_max": 8,
+      "regionType": "text",
+      "fixedWidth": 200,
+      "displayText_format_c_format": "Unit",
+      "url": "https://wago.io/LypllcBL5/8",
+      "displayText_format_1.sourceName_color": "class",
+      "displayText_format_c_pad_max": 8,
+      "displayText_format_c_color": true,
+      "selfPoint": "BOTTOM",
+      "semver": "1.0.7",
+      "authorOptions": [],
+      "displayText_format_c_abbreviate": false,
+      "tocversion": 11509,
+      "id": "Resistance",
+      "displayText_format_1.sourceName_decimal_precision": 1,
+      "frameStrata": 1,
+      "anchorFrameType": "SCREEN",
+      "displayText_format_c_pad_mode": "left",
+      "config": [],
+      "justify": "LEFT",
+      "displayText_format_p_time_precision": 1,
+      "shadowColor": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "conditions": [],
+      "information": {
+        "showNilIsFalse": true
+      },
+      "displayText_format_c_realm_name": "never"
+    },
+    {
+      "outline": "OUTLINE",
+      "wagoID": "LypllcBL5",
+      "color": [
+        1,
+        0.97254908084869,
+        0.92941182851791,
+        1
+      ],
+      "displayText_format_p_time_dynamic_threshold": 60,
+      "customText": "function()\n    local state = aura_env.state\n    \n    if state and state.sourceGUID and state.sourceName then\n        local class = select(2, GetPlayerInfoByGUID(state.sourceGUID))\n        local name = select(6, GetPlayerInfoByGUID(state.sourceGUID))\n        \n        if not class then\n            -- The GUID isn’t for a known player, or data isn’t cached yet\n            return (name or state.sourceName)\n        end\n        \n        local color = RAID_CLASS_COLORS[class]\n        return string.format(\"|cFF%02x%02x%02x%s|r\", color.r * 255, color.g * 255, color.b * 255, name or state.sourceName)\n    end\n    return state and state.sourceName or nil\nend",
+      "displayText_format_1.sourceName_abbreviate": false,
+      "anchorPoint": "CENTER",
+      "displayText_format_1.spellName_format": "none",
+      "displayText_format_c_abbreviate_max": 8,
+      "displayText_format_p_time_format": 0,
+      "customTextUpdate": "event",
+      "automaticWidth": "Auto",
+      "actions": {
+        "start": {
+          "message_type": "SMARTRAID",
+          "message_format_1.sourceName_abbreviate": false,
+          "do_message": true,
+          "message_format_1.spellName_format": "none",
+          "message": "Magic Dust used by %1.sourceName",
+          "sound": "Interface\\Addons\\WeakAuras\\PowerAurasMedia\\Sounds\\sneeze.ogg",
+          "custom": "",
+          "do_sound": false,
+          "message_format_1.sourceName_abbreviate_max": 8,
+          "do_custom": true,
+          "message_format_1.sourceName_format": "none",
+          "message_format_1.sourceName_realm_name": "never"
+        },
+        "init": [],
+        "finish": []
+      },
+      "triggers": {
+        "1": {
+          "trigger": {
+            "type": "combatlog",
+            "spellId": [
+              1090
+            ],
+            "subeventSuffix": "_CAST_SUCCESS",
+            "debuffType": "HELPFUL",
+            "duration": "10",
+            "event": "Combat Log",
+            "names": [],
+            "use_sourceFlags2": true,
+            "use_spellName": false,
+            "spellIds": [],
+            "use_spellId": true,
+            "sourceFlags2": "Hostile",
+            "unit": "player",
+            "subeventPrefix": "SPELL",
+            "spellName": [
+              "Goblin Sapper Charge"
+            ]
+          },
+          "untrigger": []
+        },
+        "activeTriggerMode": -10
+      },
+      "displayText_format_p_time_mod_rate": true,
+      "internalVersion": 90,
+      "animation": {
+        "start": {
+          "type": "none",
+          "easeStrength": 3,
+          "duration_type": "seconds",
+          "easeType": "none"
+        },
+        "main": {
+          "type": "none",
+          "easeStrength": 3,
+          "duration_type": "seconds",
+          "easeType": "none"
+        },
+        "finish": {
+          "type": "none",
+          "easeStrength": 3,
+          "duration_type": "seconds",
+          "easeType": "none"
+        }
+      },
+      "displayText_format_1.sourceName_format": "Number",
+      "displayText": "%c",
+      "yOffset": 0,
+      "font": "Fira Sans Condensed Black",
+      "version": 8,
+      "subRegions": [
+        {
+          "type": "subbackground"
+        }
+      ],
+      "displayText_format_c_pad": false,
+      "displayText_format_1.sourceName_realm_name": "never",
+      "load": {
+        "use_size": true,
+        "use_level": true,
+        "talent": {
+          "multi": []
+        },
+        "level_operator": [
+          "<"
+        ],
+        "spec": {
+          "multi": []
+        },
+        "class": {
+          "multi": []
+        },
+        "level": [
+          "20"
+        ],
+        "ingroup": [],
+        "size": {
+          "single": "pvp",
+          "multi": {
+            "pvp": true
+          }
+        }
+      },
+      "displayText_format_p_format": "timed",
+      "displayText_format_p_time_legacy_floor": false,
+      "fontSize": 30,
+      "uid": "UiU)8Zkm5tj",
+      "wordWrap": "WordWrap",
+      "shadowXOffset": 1,
+      "shadowYOffset": -1,
+      "xOffset": 0,
+      "displayText_format_1.sourceName_abbreviate_max": 8,
+      "regionType": "text",
+      "fixedWidth": 200,
+      "displayText_format_c_format": "Unit",
+      "url": "https://wago.io/LypllcBL5/8",
+      "displayText_format_1.sourceName_color": "class",
+      "displayText_format_c_pad_max": 8,
+      "displayText_format_c_color": true,
+      "selfPoint": "BOTTOM",
+      "semver": "1.0.7",
+      "authorOptions": [],
+      "displayText_format_c_abbreviate": false,
+      "tocversion": 11509,
+      "id": "MagicDust",
+      "displayText_format_1.sourceName_decimal_precision": 1,
+      "frameStrata": 1,
+      "anchorFrameType": "SCREEN",
+      "displayText_format_c_pad_mode": "left",
+      "config": [],
+      "justify": "LEFT",
+      "displayText_format_p_time_precision": 1,
+      "shadowColor": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "conditions": [],
+      "information": {
+        "showNilIsFalse": true
+      },
+      "displayText_format_c_realm_name": "never"
+    },
+    {
+      "outline": "OUTLINE",
+      "wagoID": "LypllcBL5",
+      "color": [
+        1,
+        0.97254908084869,
+        0.92941182851791,
+        1
+      ],
+      "displayText_format_p_time_dynamic_threshold": 60,
+      "customText": "function()\n    local state = aura_env.state\n    \n    if state and state.sourceGUID and state.sourceName then\n        local class = select(2, GetPlayerInfoByGUID(state.sourceGUID))\n        local name = select(6, GetPlayerInfoByGUID(state.sourceGUID))\n        \n        if not class then\n            -- The GUID isn’t for a known player, or data isn’t cached yet\n            return (name or state.sourceName)\n        end\n        \n        local color = RAID_CLASS_COLORS[class]\n        return string.format(\"|cFF%02x%02x%02x%s|r\", color.r * 255, color.g * 255, color.b * 255, name or state.sourceName)\n    end\n    return state and state.sourceName or nil\nend",
+      "displayText_format_1.sourceName_abbreviate": false,
+      "anchorPoint": "CENTER",
+      "displayText_format_1.spellName_format": "none",
+      "displayText_format_c_abbreviate_max": 8,
+      "displayText_format_p_time_format": 0,
+      "customTextUpdate": "event",
+      "automaticWidth": "Auto",
+      "actions": {
+        "start": {
+          "message_type": "SMARTRAID",
+          "message_format_1.sourceName_abbreviate": false,
+          "do_message": true,
+          "message_format_1.spellName_format": "none",
+          "message": "AGM trinket used by %1.sourceName",
+          "sound": "Interface\\Addons\\WeakAuras\\PowerAurasMedia\\Sounds\\sneeze.ogg",
+          "custom": "",
+          "do_sound": false,
+          "message_format_1.sourceName_abbreviate_max": 8,
+          "do_custom": true,
+          "message_format_1.sourceName_format": "none",
+          "message_format_1.sourceName_realm_name": "never"
+        },
+        "init": [],
+        "finish": []
+      },
+      "triggers": {
+        "1": {
+          "trigger": {
+            "type": "combatlog",
+            "spellId": [
+              23506
+            ],
+            "subeventSuffix": "_CAST_SUCCESS",
+            "debuffType": "HELPFUL",
+            "duration": "10",
+            "event": "Combat Log",
+            "names": [],
+            "use_sourceFlags2": true,
+            "use_spellName": false,
+            "spellIds": [],
+            "use_spellId": true,
+            "sourceFlags2": "Hostile",
+            "unit": "player",
+            "subeventPrefix": "SPELL",
+            "spellName": [
+              "Goblin Sapper Charge"
+            ]
+          },
+          "untrigger": []
+        },
+        "activeTriggerMode": -10
+      },
+      "displayText_format_p_time_mod_rate": true,
+      "internalVersion": 90,
+      "animation": {
+        "start": {
+          "type": "none",
+          "easeStrength": 3,
+          "duration_type": "seconds",
+          "easeType": "none"
+        },
+        "main": {
+          "type": "none",
+          "easeStrength": 3,
+          "duration_type": "seconds",
+          "easeType": "none"
+        },
+        "finish": {
+          "type": "none",
+          "easeStrength": 3,
+          "duration_type": "seconds",
+          "easeType": "none"
+        }
+      },
+      "displayText_format_1.sourceName_format": "Number",
+      "displayText": "%c",
+      "yOffset": 0,
+      "font": "Fira Sans Condensed Black",
+      "version": 8,
+      "subRegions": [
+        {
+          "type": "subbackground"
+        }
+      ],
+      "displayText_format_c_pad": false,
+      "displayText_format_1.sourceName_realm_name": "never",
+      "load": {
+        "use_size": true,
+        "use_level": true,
+        "talent": {
+          "multi": []
+        },
+        "level_operator": [
+          "<"
+        ],
+        "spec": {
+          "multi": []
+        },
+        "class": {
+          "multi": []
+        },
+        "level": [
+          "20"
+        ],
+        "ingroup": [],
+        "size": {
+          "single": "pvp",
+          "multi": {
+            "pvp": true
+          }
+        }
+      },
+      "displayText_format_p_format": "timed",
+      "displayText_format_p_time_legacy_floor": false,
+      "fontSize": 30,
+      "uid": "rqmSYo2wi(H",
+      "wordWrap": "WordWrap",
+      "shadowXOffset": 1,
+      "shadowYOffset": -1,
+      "xOffset": 0,
+      "displayText_format_1.sourceName_abbreviate_max": 8,
+      "regionType": "text",
+      "fixedWidth": 200,
+      "displayText_format_c_format": "Unit",
+      "url": "https://wago.io/LypllcBL5/8",
+      "displayText_format_1.sourceName_color": "class",
+      "displayText_format_c_pad_max": 8,
+      "displayText_format_c_color": true,
+      "selfPoint": "BOTTOM",
+      "semver": "1.0.7",
+      "authorOptions": [],
+      "displayText_format_c_abbreviate": false,
+      "tocversion": 11509,
+      "id": "ArenaGrandMaster",
+      "displayText_format_1.sourceName_decimal_precision": 1,
+      "frameStrata": 1,
+      "anchorFrameType": "SCREEN",
+      "displayText_format_c_pad_mode": "left",
+      "config": [],
+      "justify": "LEFT",
+      "displayText_format_p_time_precision": 1,
+      "shadowColor": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "conditions": [],
+      "information": {
+        "showNilIsFalse": true
+      },
+      "displayText_format_c_realm_name": "never"
+    },
+    {
+      "outline": "OUTLINE",
+      "wagoID": "LypllcBL5",
+      "color": [
+        1,
+        0.97254908084869,
+        0.92941182851791,
+        1
+      ],
+      "displayText_format_p_time_dynamic_threshold": 60,
+      "customText": "function()\n    local state = aura_env.state\n    \n    if state and state.sourceGUID and state.sourceName then\n        local class = select(2, GetPlayerInfoByGUID(state.sourceGUID))\n        local name = select(6, GetPlayerInfoByGUID(state.sourceGUID))\n        \n        if not class then\n            -- The GUID isn’t for a known player, or data isn’t cached yet\n            return (name or state.sourceName)\n        end\n        \n        local color = RAID_CLASS_COLORS[class]\n        return string.format(\"|cFF%02x%02x%02x%s|r\", color.r * 255, color.g * 255, color.b * 255, name or state.sourceName)\n    end\n    return state and state.sourceName or nil\nend",
+      "displayText_format_1.sourceName_abbreviate": false,
+      "anchorPoint": "CENTER",
+      "displayText_format_1.spellName_format": "none",
+      "displayText_format_c_abbreviate_max": 8,
+      "displayText_format_p_time_format": 0,
+      "customTextUpdate": "event",
+      "automaticWidth": "Auto",
+      "actions": {
+        "start": {
+          "message_type": "SAY",
+          "message_format_1.sourceName_abbreviate": false,
+          "do_message": true,
+          "message_format_1.spellName_format": "none",
+          "message": "AGM trinket used! - DISPEL %1.sourceName",
+          "sound": "Interface\\Addons\\WeakAuras\\PowerAurasMedia\\Sounds\\sneeze.ogg",
+          "custom": "",
+          "do_sound": false,
+          "message_format_1.sourceName_abbreviate_max": 8,
+          "do_custom": true,
+          "message_format_1.sourceName_format": "none",
+          "message_format_1.sourceName_realm_name": "never"
+        },
+        "init": [],
+        "finish": []
+      },
+      "triggers": {
+        "1": {
+          "trigger": {
+            "type": "combatlog",
+            "spellId": [
+              23506
+            ],
+            "subeventSuffix": "_CAST_SUCCESS",
+            "debuffType": "HELPFUL",
+            "duration": "10",
+            "event": "Combat Log",
+            "names": [],
+            "use_sourceFlags2": true,
+            "use_spellName": false,
+            "spellIds": [],
+            "use_spellId": true,
+            "sourceFlags2": "Hostile",
+            "unit": "player",
+            "subeventPrefix": "SPELL",
+            "spellName": [
+              "Goblin Sapper Charge"
+            ]
+          },
+          "untrigger": []
+        },
+        "2": {
+          "trigger": {
+            "debuffType": "HELPFUL",
+            "type": "unit",
+            "range_operator": "<=",
+            "use_range": true,
+            "range": "40",
+            "unit": "player",
+            "event": "Range Check",
+            "use_unit": true
+          },
+          "untrigger": []
+        },
+        "activeTriggerMode": -10
+      },
+      "displayText_format_p_time_mod_rate": true,
+      "internalVersion": 90,
+      "animation": {
+        "start": {
+          "type": "none",
+          "easeStrength": 3,
+          "duration_type": "seconds",
+          "easeType": "none"
+        },
+        "main": {
+          "type": "none",
+          "easeStrength": 3,
+          "duration_type": "seconds",
+          "easeType": "none"
+        },
+        "finish": {
+          "type": "none",
+          "easeStrength": 3,
+          "duration_type": "seconds",
+          "easeType": "none"
+        }
+      },
+      "displayText_format_1.sourceName_format": "Number",
+      "displayText": "%c",
+      "yOffset": 0,
+      "font": "Fira Sans Condensed Black",
+      "version": 8,
+      "subRegions": [
+        {
+          "type": "subbackground"
+        }
+      ],
+      "displayText_format_c_pad": false,
+      "displayText_format_1.sourceName_realm_name": "never",
+      "load": {
+        "use_size": true,
+        "use_level": true,
+        "talent": {
+          "multi": []
+        },
+        "level_operator": [
+          "<"
+        ],
+        "spec": {
+          "multi": []
+        },
+        "class": {
+          "multi": []
+        },
+        "level": [
+          "20"
+        ],
+        "ingroup": [],
+        "size": {
+          "single": "pvp",
+          "multi": {
+            "pvp": true
+          }
+        }
+      },
+      "displayText_format_p_format": "timed",
+      "displayText_format_p_time_legacy_floor": false,
+      "fontSize": 30,
+      "uid": "0Ej1ifQWXF2",
+      "wordWrap": "WordWrap",
+      "shadowXOffset": 1,
+      "shadowYOffset": -1,
+      "xOffset": 0,
+      "displayText_format_1.sourceName_abbreviate_max": 8,
+      "regionType": "text",
+      "fixedWidth": 200,
+      "displayText_format_c_format": "Unit",
+      "url": "https://wago.io/LypllcBL5/8",
+      "displayText_format_1.sourceName_color": "class",
+      "displayText_format_c_pad_max": 8,
+      "displayText_format_c_color": true,
+      "selfPoint": "BOTTOM",
+      "semver": "1.0.7",
+      "authorOptions": [],
+      "displayText_format_c_abbreviate": false,
+      "tocversion": 11509,
+      "id": "ArenaGrandMaster -Say",
+      "displayText_format_1.sourceName_decimal_precision": 1,
+      "frameStrata": 1,
+      "anchorFrameType": "SCREEN",
+      "displayText_format_c_pad_mode": "left",
+      "config": [],
+      "justify": "LEFT",
+      "displayText_format_p_time_precision": 1,
+      "shadowColor": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "conditions": [],
+      "information": {
+        "showNilIsFalse": true
+      },
+      "displayText_format_c_realm_name": "never"
+    },
+    {
+      "outline": "OUTLINE",
+      "wagoID": "LypllcBL5",
+      "color": [
+        1,
+        0.97254908084869,
+        0.92941182851791,
+        1
+      ],
+      "displayText_format_p_time_dynamic_threshold": 60,
+      "customText": "function()\n    local state = aura_env.state\n    \n    if state and state.sourceGUID and state.sourceName then\n        local class = select(2, GetPlayerInfoByGUID(state.sourceGUID))\n        local name = select(6, GetPlayerInfoByGUID(state.sourceGUID))\n        \n        if not class then\n            -- The GUID isn’t for a known player, or data isn’t cached yet\n            return (name or state.sourceName)\n        end\n        \n        local color = RAID_CLASS_COLORS[class]\n        return string.format(\"|cFF%02x%02x%02x%s|r\", color.r * 255, color.g * 255, color.b * 255, name or state.sourceName)\n    end\n    return state and state.sourceName or nil\nend",
+      "displayText_format_1.sourceName_abbreviate": false,
+      "anchorPoint": "CENTER",
+      "displayText_format_1.spellName_format": "none",
+      "displayText_format_c_abbreviate_max": 8,
+      "displayText_format_p_time_format": 0,
+      "customTextUpdate": "event",
+      "automaticWidth": "Auto",
+      "actions": {
+        "start": {
+          "message_type": "SMARTRAID",
+          "message_format_1.sourceName_abbreviate": false,
+          "do_message": true,
+          "message_format_1.spellName_format": "none",
+          "message": "AGM down on %1.sourceName",
+          "sound": "Interface\\Addons\\WeakAuras\\PowerAurasMedia\\Sounds\\sneeze.ogg",
+          "custom": "",
+          "do_sound": false,
+          "message_format_1.sourceName_abbreviate_max": 8,
+          "do_custom": true,
+          "message_format_1.sourceName_format": "none",
+          "message_format_1.sourceName_realm_name": "never"
+        },
+        "init": [],
+        "finish": []
+      },
+      "triggers": {
+        "1": {
+          "trigger": {
+            "type": "combatlog",
+            "spellId": [
+              23506
+            ],
+            "subeventSuffix": "_AURA_REMOVED",
+            "debuffType": "HELPFUL",
+            "duration": "10",
+            "event": "Combat Log",
+            "names": [],
+            "use_sourceFlags2": true,
+            "use_spellName": false,
+            "spellIds": [],
+            "use_spellId": true,
+            "sourceFlags2": "Hostile",
+            "unit": "player",
+            "subeventPrefix": "SPELL",
+            "spellName": [
+              "Goblin Sapper Charge"
+            ]
+          },
+          "untrigger": []
+        },
+        "activeTriggerMode": -10
+      },
+      "displayText_format_p_time_mod_rate": true,
+      "internalVersion": 90,
+      "animation": {
+        "start": {
+          "type": "none",
+          "easeStrength": 3,
+          "duration_type": "seconds",
+          "easeType": "none"
+        },
+        "main": {
+          "type": "none",
+          "easeStrength": 3,
+          "duration_type": "seconds",
+          "easeType": "none"
+        },
+        "finish": {
+          "type": "none",
+          "easeStrength": 3,
+          "duration_type": "seconds",
+          "easeType": "none"
+        }
+      },
+      "displayText_format_1.sourceName_format": "Number",
+      "displayText": "%c",
+      "yOffset": 0,
+      "font": "Fira Sans Condensed Black",
+      "version": 8,
+      "subRegions": [
+        {
+          "type": "subbackground"
+        }
+      ],
+      "displayText_format_c_pad": false,
+      "displayText_format_1.sourceName_realm_name": "never",
+      "load": {
+        "use_size": true,
+        "use_level": true,
+        "talent": {
+          "multi": []
+        },
+        "level_operator": [
+          "<"
+        ],
+        "spec": {
+          "multi": []
+        },
+        "class": {
+          "multi": []
+        },
+        "level": [
+          "20"
+        ],
+        "ingroup": [],
+        "size": {
+          "single": "pvp",
+          "multi": {
+            "pvp": true
+          }
+        }
+      },
+      "displayText_format_p_format": "timed",
+      "displayText_format_p_time_legacy_floor": false,
+      "fontSize": 30,
+      "uid": "5Rfbn65rhfs",
+      "wordWrap": "WordWrap",
+      "shadowXOffset": 1,
+      "shadowYOffset": -1,
+      "xOffset": 0,
+      "displayText_format_1.sourceName_abbreviate_max": 8,
+      "regionType": "text",
+      "fixedWidth": 200,
+      "displayText_format_c_format": "Unit",
+      "url": "https://wago.io/LypllcBL5/8",
+      "displayText_format_1.sourceName_color": "class",
+      "displayText_format_c_pad_max": 8,
+      "displayText_format_c_color": true,
+      "selfPoint": "BOTTOM",
+      "semver": "1.0.7",
+      "authorOptions": [],
+      "displayText_format_c_abbreviate": false,
+      "tocversion": 11509,
+      "id": "ArenaGrandMaster-Dispeled",
+      "displayText_format_1.sourceName_decimal_precision": 1,
+      "frameStrata": 1,
+      "anchorFrameType": "SCREEN",
+      "displayText_format_c_pad_mode": "left",
+      "config": [],
+      "justify": "LEFT",
+      "displayText_format_p_time_precision": 1,
+      "shadowColor": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "conditions": [],
+      "information": {
+        "showNilIsFalse": true
+      },
+      "displayText_format_c_realm_name": "never"
+    },
+    {
+      "outline": "OUTLINE",
+      "wagoID": "LypllcBL5",
+      "color": [
+        1,
+        0.97254908084869,
+        0.92941182851791,
+        1
+      ],
+      "displayText_format_p_time_dynamic_threshold": 60,
+      "customText": "function()\n    local state = aura_env.state\n    \n    if state and state.sourceGUID and state.sourceName then\n        local class = select(2, GetPlayerInfoByGUID(state.sourceGUID))\n        local name = select(6, GetPlayerInfoByGUID(state.sourceGUID))\n        \n        if not class then\n            -- The GUID isn’t for a known player, or data isn’t cached yet\n            return (name or state.sourceName)\n        end\n        \n        local color = RAID_CLASS_COLORS[class]\n        return string.format(\"|cFF%02x%02x%02x%s|r\", color.r * 255, color.g * 255, color.b * 255, name or state.sourceName)\n    end\n    return state and state.sourceName or nil\nend",
+      "displayText_format_1.sourceName_abbreviate": false,
+      "anchorPoint": "CENTER",
+      "displayText_format_1.spellName_format": "none",
+      "displayText_format_c_abbreviate_max": 8,
+      "displayText_format_p_time_format": 0,
+      "customTextUpdate": "event",
+      "automaticWidth": "Auto",
+      "actions": {
+        "start": {
+          "message_type": "SAY",
+          "message_format_1.sourceName_abbreviate": false,
+          "do_message": true,
+          "message_format_1.spellName_format": "none",
+          "message": "AGM down on %1.sourceName",
+          "sound": "Interface\\Addons\\WeakAuras\\PowerAurasMedia\\Sounds\\sneeze.ogg",
+          "custom": "",
+          "do_sound": false,
+          "message_format_1.sourceName_abbreviate_max": 8,
+          "do_custom": true,
+          "message_format_1.sourceName_format": "none",
+          "message_format_1.sourceName_realm_name": "never"
+        },
+        "init": [],
+        "finish": []
+      },
+      "triggers": {
+        "1": {
+          "trigger": {
+            "type": "combatlog",
+            "spellId": [
+              23506
+            ],
+            "subeventSuffix": "_AURA_REMOVED",
+            "debuffType": "HELPFUL",
+            "duration": "10",
+            "event": "Combat Log",
+            "names": [],
+            "use_sourceFlags2": true,
+            "use_spellName": false,
+            "spellIds": [],
+            "use_spellId": true,
+            "sourceFlags2": "Hostile",
+            "unit": "player",
+            "subeventPrefix": "SPELL",
+            "spellName": [
+              "Goblin Sapper Charge"
+            ]
+          },
+          "untrigger": []
+        },
+        "2": {
+          "trigger": {
+            "debuffType": "HELPFUL",
+            "type": "unit",
+            "range_operator": "<=",
+            "use_range": true,
+            "range": "40",
+            "unit": "player",
+            "event": "Range Check",
+            "use_unit": true
+          },
+          "untrigger": []
+        },
+        "activeTriggerMode": -10
+      },
+      "displayText_format_p_time_mod_rate": true,
+      "internalVersion": 90,
+      "animation": {
+        "start": {
+          "type": "none",
+          "easeStrength": 3,
+          "duration_type": "seconds",
+          "easeType": "none"
+        },
+        "main": {
+          "type": "none",
+          "easeStrength": 3,
+          "duration_type": "seconds",
+          "easeType": "none"
+        },
+        "finish": {
+          "type": "none",
+          "easeStrength": 3,
+          "duration_type": "seconds",
+          "easeType": "none"
+        }
+      },
+      "displayText_format_1.sourceName_format": "Number",
+      "displayText": "%c",
+      "yOffset": 0,
+      "font": "Fira Sans Condensed Black",
+      "version": 8,
+      "subRegions": [
+        {
+          "type": "subbackground"
+        }
+      ],
+      "displayText_format_c_pad": false,
+      "displayText_format_1.sourceName_realm_name": "never",
+      "load": {
+        "use_size": true,
+        "use_level": true,
+        "talent": {
+          "multi": []
+        },
+        "level_operator": [
+          "<"
+        ],
+        "spec": {
+          "multi": []
+        },
+        "class": {
+          "multi": []
+        },
+        "level": [
+          "20"
+        ],
+        "ingroup": [],
+        "size": {
+          "single": "pvp",
+          "multi": {
+            "pvp": true
+          }
+        }
+      },
+      "displayText_format_p_format": "timed",
+      "displayText_format_p_time_legacy_floor": false,
+      "fontSize": 30,
+      "uid": ")ftXlACg(ZN",
+      "wordWrap": "WordWrap",
+      "shadowXOffset": 1,
+      "shadowYOffset": -1,
+      "xOffset": 0,
+      "displayText_format_1.sourceName_abbreviate_max": 8,
+      "regionType": "text",
+      "fixedWidth": 200,
+      "displayText_format_c_format": "Unit",
+      "url": "https://wago.io/LypllcBL5/8",
+      "displayText_format_1.sourceName_color": "class",
+      "displayText_format_c_pad_max": 8,
+      "displayText_format_c_color": true,
+      "selfPoint": "BOTTOM",
+      "semver": "1.0.7",
+      "authorOptions": [],
+      "displayText_format_c_abbreviate": false,
+      "tocversion": 11509,
+      "id": "ArenaGrandMaster-Dispeled-Say",
+      "displayText_format_1.sourceName_decimal_precision": 1,
+      "frameStrata": 1,
+      "anchorFrameType": "SCREEN",
+      "displayText_format_c_pad_mode": "left",
+      "config": [],
+      "justify": "LEFT",
+      "displayText_format_p_time_precision": 1,
+      "shadowColor": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "conditions": [],
+      "information": {
+        "showNilIsFalse": true
+      },
+      "displayText_format_c_realm_name": "never"
+    }
+  ],
+  "v": 1421
+}
