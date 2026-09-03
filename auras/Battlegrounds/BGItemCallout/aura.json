@@ -76,8 +76,19 @@
         "multi": []
       },
       "size": {
-        "multi": []
-      }
+        "single": "pvp",
+        "multi": {
+          "pvp": true
+        }
+      },
+      "use_size": true,
+      "use_level": true,
+      "level_operator": [
+        "<"
+      ],
+      "level": [
+        "20"
+      ]
     },
     "fullCircle": true,
     "backdropColor": [

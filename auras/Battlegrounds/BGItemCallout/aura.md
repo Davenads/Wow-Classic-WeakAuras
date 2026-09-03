@@ -16,6 +16,7 @@ name in their **class color**.
 | **Target flavor(s)** | Classic Era / SoD / HC (uses combat log + `SMARTRAID`/`SAY`) |
 | **WA version at export** | `v:1421` |
 | **Region type** | `dynamicgroup` of 10 `text` children (grows DOWN, screen-anchored, centered) |
+| **Load** | Instance Type = Battleground (`size = pvp`) **and** player level `< 20` — on the group and every child |
 | **wago URL** | n/a (imported from a shared string) |
 | **Import string** | `export.txt` — round-trip-verified (lossless), **pending in-game test** |
 | **Decoded view** | `aura.json` (regenerate after any `export.txt` change) |
@@ -82,19 +83,27 @@ Each child is a `text` region driven by a **Combat Log** trigger:
 No custom triggers, conditions, or action code — detection and messaging are all built in
 the WA UI (the children's action `custom` boxes are enabled but empty).
 
-## Known quirks / iteration hooks
+## Notes / iteration hooks
 
-- **No load gate.** The group loads everywhere (empty `load`), so it also fires in the open
-  world / dungeons whenever a hostile unit uses these items. A `Load → Instance type = PvP`
-  restriction would confine it to battlegrounds (same pattern used to gate PriestCooldowns'
-  Fade).
-- **Coverage gaps for a 19 kit** — notably missing **Free Action Potion** (6615, stun/root
-  immunity), stun grenades (Thermal/Iron Grenade), and Net-o-Matic (13099). Each would be a
-  cloned child.
-- **`_AURA_REMOVED` false positives** — "AGM down" fires on the shield's natural 20 s expiry
-  too, not only on an actual dispel.
+- **Load gate (corrected).** An earlier note here wrongly claimed there was no load gate —
+  that was based on reading only the group's `load`. In fact **every child** already loads
+  only in an Instance Type = Battleground (`size = pvp`) **and** at player level `< 20`. This
+  refactor also **mirrored that same gate onto the group container**, so the restriction is
+  now explicit at the group level too (visible in the group's Load tab) and the group unloads
+  entirely outside a BG / at level 20+ rather than loading empty.
+- **`_AURA_REMOVED` is intentional, not a false dispel.** The `ArenaGrandMaster-Dispeled`
+  pair fire on `SPELL_AURA_REMOVED` of 23506 and post `AGM down on <Name>`. This fires when
+  the shield ends for *any* reason (20 s expiry or fully absorbed) — which is the useful
+  signal ("the shield is gone, burst now"). The message says "down", not "dispelled", so it's
+  accurate; the child's `-Dispeled` id is just the original author's label. AGM's Aura of
+  Protection is a physical absorb (not magic-dispellable), so there is no cleaner combat-log
+  distinction to make here.
 - **Magic Dust (1090)** — wowhead maps 1090 to the mage Sleep line; confirm in-game that
-  Magic Dust's on-use logs 1090, or it may never fire.
+  Magic Dust's on-use logs 1090, or that child may never fire.
+- **Coverage (future enhancement, not part of this refactor).** A fuller 19 kit could add
+  **Free Action Potion** (6615, stun/root immunity), stun grenades (Thermal/Iron Grenade),
+  and Net-o-Matic (13099) as cloned children. Deferred pending a decision on which items and
+  their announce style.
 
 ## Testing notes
 
@@ -109,6 +118,14 @@ the WA UI (the children's action `custom` boxes are enabled but empty).
 
 ## Changelog
 
+- 2026-09-03 — **Refactor: harden the load gate + correct the review.** Every child already
+  loaded only in an Instance Type = Battleground (`size = pvp`) at level `< 20`; **mirrored
+  that gate onto the group container** so it's explicit at the group level and the group
+  unloads entirely outside a BG / at level 20+. Corrected the docs: the earlier "no load
+  gate" note was wrong (it read only the group `load`), and the `_AURA_REMOVED` "AGM down"
+  behavior is intentional/accurate (fires when the shield ends for any reason; AGM's absorb
+  isn't magic-dispellable). Rebuilt `export.txt`, regenerated `aura.json`, decode→encode→decode
+  **lossless**.
 - 2026-09-03 — **Refactor: remove dead `spellName` config.** Stripped the inert
   `spellName = "Goblin Sapper Charge"` / `use_spellName = false` pair from all 10
   combat-log triggers (20 keys) — it was never evaluated (detection is `use_spellId`).
