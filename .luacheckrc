@@ -20,6 +20,9 @@ globals = {
     -- Shared cross-icon state frame for WSG Callout Bars (a named global frame; children
     -- don't share aura_env, so the friendly-FC tracker lives here).
     "WSGCalloutHub",
+    -- Shared cross-child state frame for Betty's BG Item Callout (timestamps, corroboration,
+    -- addon bus). Children don't share aura_env, so the hub is a named global frame.
+    "BGICHub",
 }
 
 -- WoW + WeakAuras + Classic API surface (read-only). Not exhaustive — add IDs you use.

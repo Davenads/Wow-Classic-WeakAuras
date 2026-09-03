@@ -79,9 +79,17 @@ Each child is a `text` region driven by a **Combat Log** trigger:
   Resolves the caster's class + name from `GetPlayerInfoByGUID(state.sourceGUID)` and
   returns the name wrapped in the class color (`RAID_CLASS_COLORS`), falling back to the raw
   `sourceName` when the GUID isn't a cached player.
+- `code/init.lua` — **v2 Phase 0 hub scaffold** (added 2026-09-03), pasted into the **group's
+  Actions → On Init**. Creates the `BGICHub` named global frame once (children don't share
+  `aura_env`, so cross-child state needs a named global — same mechanism as `WSGCalloutHub`).
+  Sets up server-time helpers (`GetServerTime`), locked config defaults, empty state stores,
+  and registers the `BGIC` addon prefix with a **no-op receiver**. **Changes no behavior yet**
+  — the 10 children keep their existing triggers and built-in announces. Later phases route
+  announces through the hub (timestamps → teammates → corroboration).
 
-No custom triggers, conditions, or action code — detection and messaging are all built in
-the WA UI (the children's action `custom` boxes are enabled but empty).
+Detection and the live announces are still all built in the WA UI (the children's action
+`custom` boxes are enabled but empty). The only executable custom code today is the `%c` text
+function and the (inert) On Init hub scaffold.
 
 ## Notes / iteration hooks
 
@@ -115,9 +123,21 @@ the WA UI (the children's action `custom` boxes are enabled but empty).
    down on <Name>` fires (note: also on natural expiry).
 4. Confirm nothing fires for **friendly** uses (hostile-source filter).
 5. Confirm Magic Dust actually triggers (see quirk above).
+6. **Hub scaffold (v2 Phase 0):** after import, load a BG and confirm no Lua error on group
+   init; `/run print(BGICHub)` returns a frame and `/run print(BGICHub.now())` prints a server
+   epoch. Behavior must be **unchanged** from v1 (hub is inert — enemy callouts only).
 
 ## Changelog
 
+- 2026-09-03 — **v2 Phase 0: hub scaffold (no behavior change).** Added `code/init.lua` and
+  wired it into the **group's Actions → On Init**: creates the `BGICHub` named global frame
+  once (server-time helpers, locked config defaults, empty state stores, `BGIC` addon prefix
+  with a no-op receiver). Foundation for v2 (timestamps → teammate tracking → multi-witness
+  corroboration; see `.plans/bg-item-callout/`). Decisions locked: announce ally use in BG
+  chat, Structure A (hub + 10 children), on-demand corroboration reports, `minWitnesses = 2`.
+  Added `BGICHub` to `.luacheckrc` globals. The 10 children are untouched — enemy callouts
+  behave exactly as v1. Rebuilt `export.txt`, regenerated `aura.json`, decode→encode→decode
+  **lossless**. Lua 5.1 syntax OK. **Pending in-game test** (confirm no error on group init).
 - 2026-09-03 — **Refactor: harden the load gate + correct the review.** Every child already
   loaded only in an Instance Type = Battleground (`size = pvp`) at level `< 20`; **mirrored
   that gate onto the group container** so it's explicit at the group level and the group
