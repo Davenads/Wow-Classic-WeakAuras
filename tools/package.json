@@ -6,9 +6,11 @@
   "type": "commonjs",
   "scripts": {
     "decode": "node decode.js",
-    "encode": "node encode.js"
+    "encode": "node encode.js",
+    "test": "node bgic_test.cjs"
   },
   "dependencies": {
+    "fengari": "^0.1.5",
     "node-weakauras-parser": "^3.2.11"
   }
 }

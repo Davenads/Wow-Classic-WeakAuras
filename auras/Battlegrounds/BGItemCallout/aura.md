@@ -28,8 +28,13 @@ enemy-only (equipment, not a no-consume item).
 
 `export.txt` is the source of truth — imported verbatim from the shared string, unchanged.
 `decode → encode → decode` is **lossless** (`tools/cmp.js` → `LOSSLESS`). `code/custom_text.lua`
-passes a Lua 5.1 parse. **Not yet tested in-game** — this repo cannot run WoW; run
-`luacheck auras/Battlegrounds/BGItemCallout/code` before trusting the Lua.
+passes a Lua 5.1 parse. The **Phase 3a corroboration logic** in `code/init.lua` is exercised by a
+headless harness — `tools/test/` loads the real `init.lua` under a Lua VM (fengari) with the WoW
+API stubbed and asserts bucket keying + ±1 tolerance, send-once dedupe, self/AGM/schema/untracked
+filters, the ally-announce subset, sender-based witness dedup, per-match wipe, and pvp gating (run
+`npm test` in `tools/`; 33 assertions). That covers the **pure logic**; the remaining **in-game**
+unknowns (real spellIds firing, `sender` unspoofability in practice, `INSTANCE_CHAT` delivery
+scope, `WINDOW` tuning) are **not yet tested in-game** — this repo cannot run WoW.
 
 ## Purpose
 
