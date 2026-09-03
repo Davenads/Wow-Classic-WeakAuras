@@ -7,7 +7,10 @@ config removed, load gate hardened, docs). Watches the combat log for a fixed
 set of high-impact BG consumables/trinkets used by **hostile** players, then announces
 who used what — to your party/raid (`SMARTRAID`) and, for the priority "dispel this"
 items, to local `/say` when the enemy is within 40 yd. Every callout shows the enemy's
-name in their **class color**.
+name in their **class color**. **v2 (Phase 2) also calls out *allies*** who use the
+tracked consumables — detected in the `BGICHub` hub, announced to BG chat tagged `(ally)`,
+with your own casts excluded — for no-consume-premade accountability. The AGM trinket is
+enemy-only (equipment, not a no-consume item).
 
 | Field | Value |
 |---|---|
@@ -32,9 +35,13 @@ passes a Lua 5.1 parse. **Not yet tested in-game** — this repo cannot run WoW;
 
 In the 19 bracket a handful of engineering gadgets, potions, and the Arena Grand Master
 trinket swing fights hard. This aura turns each **enemy** use into a chat callout so the
-team can react (dispel a Swiftness Potion, focus a shielded target, etc.). Detection is by
-**spell ID** with a **hostile-source** filter, so it only fires on enemies, never on your
-own team.
+team can react (dispel a Swiftness Potion, focus a shielded target, etc.). Enemy detection is
+by **spell ID** with a **hostile-source** filter on the 10 children, so those callouts only
+fire on enemies. **v2 Phase 2** adds a parallel **ally** path in the hub: it watches the same
+combat log for **friendly** casts of the five true consumables (Swiftness, Leper Gnome, Rocket
+Boots, Resistance, Magic Dust), **excludes your own casts** (`AFFILIATION_MINE`), and announces
+them tagged `(ally)`. The children never touch allies and the hub never touches enemies, so
+there is no double-announce.
 
 ## Consumables covered
 
@@ -78,6 +85,14 @@ Each child is a `text` region driven by a **Combat Log** trigger:
   isn't up). Purely additive — the `message_type` channel and the `%1.sourceName` replacement
   are unchanged, so the only behavior change is the leading timestamp. Full `m/d/y` is reserved
   for the stored log/report (Phase 4), per the locked decisions.
+- **Ally callouts (v2 Phase 2, 2026-09-03).** The hub (`code/init.lua`) announces **friendly**
+  consumable use itself — it does **not** go through the children. Format mirrors the enemy
+  `SMARTRAID` line plus an `(ally)` tag: `[HH:MM:SS] Swiftness Potion used by <Ally> (ally)`,
+  routed via a `SMARTRAID`-equivalent channel picker (`INSTANCE_CHAT` in a BG). Only the five
+  true consumables get ally callouts; **AGM (23506) is excluded**; **your own casts are excluded**
+  (`AFFILIATION_MINE`). The wording per item mirrors the enemy child's `message` text (so
+  spellId 4060 reads "Leper Gnome used by …" to match child #3, regardless of the item table
+  label below).
 
 ## Custom code
 
@@ -85,23 +100,28 @@ Each child is a `text` region driven by a **Combat Log** trigger:
   Resolves the caster's class + name from `GetPlayerInfoByGUID(state.sourceGUID)` and
   returns the name wrapped in the class color (`RAID_CLASS_COLORS`), falling back to the raw
   `sourceName` when the GUID isn't a cached player.
-- `code/init.lua` — **v2 Phase 0 hub scaffold** (added 2026-09-03), pasted into the **group's
-  Actions → On Init**. Creates the `BGICHub` named global frame once (children don't share
-  `aura_env`, so cross-child state needs a named global — same mechanism as `WSGCalloutHub`).
-  Sets up server-time helpers (`GetServerTime`), locked config defaults, empty state stores,
-  and registers the `BGIC` addon prefix with a **no-op receiver**. **Changes no behavior yet**
-  — the 10 children keep their existing triggers and built-in announces. Later phases route
-  announces through the hub (timestamps → teammates → corroboration).
+- `code/init.lua` — **the `BGICHub` hub** (added v2 Phase 0, extended v2 Phase 2, 2026-09-03),
+  pasted into the **group's Actions → On Init**. Creates the `BGICHub` named global frame once
+  (children don't share `aura_env`, so cross-child state needs a named global — same mechanism as
+  `WSGCalloutHub`): server-time helpers (`GetServerTime`), locked config defaults, state stores,
+  and the `BGIC` addon prefix (receiver still a Phase 3 no-op). **Phase 2** added the **ally
+  path**: `refreshZone()` arms `COMBAT_LOG_EVENT_UNFILTERED` only inside a BG (`IsInInstance() ==
+  "pvp"`), and `onCombatLog()` matches friendly `SPELL_CAST_SUCCESS` of the five consumables in
+  `NS.allyItems` (AGM excluded), skips `AFFILIATION_MINE`, and `SendChatMessage`s the `(ally)`
+  callout via `smartChannel()`. The 10 children are still untouched — enemy callouts are 100%
+  as-was; the hub owns the ally callouts. Later phases add multi-witness corroboration on the bus.
 - `code/message_custom.lua` — **v2 Phase 1** (added 2026-09-03), the `%c` **chat-message**
   function pasted into each child's Send Chat Message → Message (stored in
   `actions.start.message_custom`), **identical in all 10 children**. Returns the server-synced
   `HH:MM:SS` timestamp via `BGICHub.stamp()` (local-time fallback). This is the message `%c`,
   distinct from the display `%c` in `custom_text.lua`.
 
-Detection is still all built in the WA UI. Executable custom code today: the `%c` display-text
-function (`custom_text.lua`), the `%c` chat-message timestamp function (`message_custom.lua`),
-and the On Init hub scaffold (`init.lua`). The children's action `custom` boxes (On Show custom
-Lua) remain enabled but empty — announces still use the built-in Send Chat Message.
+**Enemy** detection is still all built in the WA UI (the 10 children). **Ally** detection is now
+custom Lua in the hub (`init.lua`). Executable custom code today: the `%c` display-text function
+(`custom_text.lua`), the `%c` chat-message timestamp function (`message_custom.lua`), and the hub
+(`init.lua`, now including the ally combat-log path). The children's action `custom` boxes (On
+Show custom Lua) remain enabled but empty — enemy announces still use the built-in Send Chat
+Message; ally announces are sent by the hub via `SendChatMessage`.
 
 ## Notes / iteration hooks
 
@@ -133,7 +153,8 @@ Lua) remain enabled but empty — announces still use the built-in Send Chat Mes
    color.
 3. Enemy pops the Arena Grand Master trinket → AGM callout; when the shield drops, `AGM
    down on <Name>` fires (note: also on natural expiry).
-4. Confirm nothing fires for **friendly** uses (hostile-source filter).
+4. Confirm the **enemy children** never fire on friendly uses (hostile-source filter) — ally
+   use is handled separately by the hub (item 8), not the children.
 5. Confirm Magic Dust actually triggers (see quirk above).
 6. **Hub scaffold (v2 Phase 0):** after import, load a BG and confirm no Lua error on group
    init; `/run print(BGICHub)` returns a frame and `/run print(BGICHub.now())` prints a server
@@ -142,9 +163,31 @@ Lua) remain enabled but empty — announces still use the built-in Send Chat Mes
    the current time, e.g. `[21:14:07] Swiftness Potion used by <Name>`, on the same channel as
    before (SMARTRAID / `/say`). If `BGICHub` failed to init, the time still shows (local-time
    fallback). Confirm the time matches other players' clients (server-synced).
+8. **Ally callouts (v2 Phase 2):** in a BG, have a **teammate** use a tracked consumable
+   (Swiftness / Leper Gnome / Rocket Boots / Resistance / Magic Dust) → BG chat posts
+   `[HH:MM:SS] <Item> used by <Ally> (ally)`. Verify: (a) **your own** use of the same item
+   posts **nothing** (`AFFILIATION_MINE` excluded); (b) an ally **AGM** trinket posts nothing
+   (AGM is enemy-only); (c) the ally line lands in the same channel as enemy `SMARTRAID` calls
+   (BG/`INSTANCE_CHAT`) — if it doesn't, adjust `NS.smartChannel()`; (d) nothing fires outside a
+   BG (the watch only arms on `IsInInstance() == "pvp"`); (e) enemy callouts are unchanged.
 
 ## Changelog
 
+- 2026-09-03 — **v2 Phase 2: ally callouts (announce friendly consumable use).** Extended
+  `code/init.lua` (the `BGICHub` hub) with an ally-only combat-log path: `refreshZone()` arms
+  `COMBAT_LOG_EVENT_UNFILTERED` only inside a battleground, and `onCombatLog()` announces
+  **friendly** `SPELL_CAST_SUCCESS` of the five consumables (`NS.allyItems`: Swiftness 2379,
+  Leper Gnome 4060, Rocket Boots 8892, Resistance 2380, Magic Dust 1090) to BG chat tagged
+  `(ally)`, **excluding your own casts** (`AFFILIATION_MINE`) and **excluding AGM** (23506,
+  equipment not a no-consume item). Ally wording mirrors the enemy child `message` text; channel
+  via a `SMARTRAID`-equivalent `smartChannel()` (`INSTANCE_CHAT` in a BG). Architecture: the ally
+  path lives entirely in the hub — the 10 enemy children are **untouched** (no widened filters,
+  no self-exclusion needed, no nonsensical ally `DISPEL`/`AGM down` calls), so enemy callouts are
+  100% as v1 and there is no double-announce. Added `COMBATLOG_OBJECT_REACTION_FRIENDLY`,
+  `COMBATLOG_OBJECT_AFFILIATION_MINE`, and `LE_PARTY_CATEGORY_INSTANCE` to `.luacheckrc`
+  read_globals. Rebuilt `export.txt`, regenerated `aura.json`, decode→encode→decode **lossless**.
+  Lua 5.1 syntax OK; free globals all allowlisted. **Pending in-game test** (esp. the
+  `smartChannel()` routing and self/AGM exclusions — see testing note 8).
 - 2026-09-03 — **v2 Phase 1: server-synced timestamps on every callout.** Added
   `code/message_custom.lua` and wired a `%c` chat-message function into all 10 children's Send
   Chat Message (`actions.start.message_custom`), prefixing each message with `[%c]` →

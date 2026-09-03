@@ -60,13 +60,14 @@ read_globals = {
     -- Combat log
     "CombatLogGetCurrentEventInfo", "CombatLogGetCurrentEntry",
     -- Misc info
-    "GetTime", "InCombatLockdown", "IsInInstance", "IsInGroup", "IsInRaid",
+    "GetTime", "InCombatLockdown", "IsInInstance", "IsInGroup", "IsInRaid", "LE_PARTY_CATEGORY_INSTANCE",
     "GetNumGroupMembers", "UnitGroupRolesAssigned", "GetRaidTargetIndex",
     "GetShapeshiftForm", "GetShapeshiftFormInfo", "GetInstanceInfo", "GetZoneText",
     "GetRealZoneText", "GetSubZoneText", "PlaySound", "PlaySoundFile", "SOUNDKIT",
     "GetAreaSpiritHealerTime",
     -- Combat-log object flags
-    "COMBATLOG_OBJECT_REACTION_HOSTILE",
+    "COMBATLOG_OBJECT_REACTION_HOSTILE", "COMBATLOG_OBJECT_REACTION_FRIENDLY",
+    "COMBATLOG_OBJECT_AFFILIATION_MINE",
     -- Chat / CVars / output (announcer auras)
     "SendChatMessage", "UnitFactionGroup", "GetCVar", "SetCVar", "print",
     -- Frames / input (click-button auras)
