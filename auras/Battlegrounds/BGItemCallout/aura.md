@@ -56,9 +56,9 @@ Each child is a `text` region driven by a **Combat Log** trigger:
 
 - **Prefix/Suffix:** `SPELL` / `_CAST_SUCCESS` (the `ArenaGrandMaster-Dispeled` pair use
   `_AURA_REMOVED`).
-- **Match:** `use_spellId = true` on the spellId above (`use_spellName = false` — the
-  `spellName = "Goblin Sapper Charge"` present on every trigger is inert leftover template
-  data and is **not** evaluated).
+- **Match:** `use_spellId = true` on the spellId above. (The original also carried an inert
+  `spellName = "Goblin Sapper Charge"` / `use_spellName = false` pair on every trigger — dead
+  template data that was **not** evaluated; it was removed in this refactor.)
 - **Source filter:** `use_sourceFlags2 = true`, `Hostile` — enemy casters only.
 - **Duration:** `10` — each callout stays shown ~10 s after firing.
 - The three `-Say` children add a second trigger: **Range Check ≤ 40 yd** (player), gating
@@ -95,7 +95,6 @@ the WA UI (the children's action `custom` boxes are enabled but empty).
   too, not only on an actual dispel.
 - **Magic Dust (1090)** — wowhead maps 1090 to the mage Sleep line; confirm in-game that
   Magic Dust's on-use logs 1090, or it may never fire.
-- **Inert `spellName` leftovers** on every trigger — harmless but worth clearing.
 
 ## Testing notes
 
@@ -110,6 +109,11 @@ the WA UI (the children's action `custom` boxes are enabled but empty).
 
 ## Changelog
 
+- 2026-09-03 — **Refactor: remove dead `spellName` config.** Stripped the inert
+  `spellName = "Goblin Sapper Charge"` / `use_spellName = false` pair from all 10
+  combat-log triggers (20 keys) — it was never evaluated (detection is `use_spellId`).
+  `spellId` and every other field unchanged. Rebuilt `export.txt`, regenerated `aura.json`,
+  decode→encode→decode **lossless**.
 - 2026-09-03 — **Refactor: rename to `Betty's BG Item Callout (19 bracket)`** (was
   `Devmind's …`). Changed only the group `d.id`; children carry no `parent`/`controlledChildren`
   references (transmission format — the `c` array defines the group), so no child updates were

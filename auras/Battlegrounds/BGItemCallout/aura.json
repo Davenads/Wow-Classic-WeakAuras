@@ -181,15 +181,11 @@
             "event": "Combat Log",
             "names": [],
             "use_sourceFlags2": true,
-            "use_spellName": false,
             "spellIds": [],
             "use_spellId": true,
             "sourceFlags2": "Hostile",
             "unit": "player",
-            "subeventPrefix": "SPELL",
-            "spellName": [
-              "Goblin Sapper Charge"
-            ]
+            "subeventPrefix": "SPELL"
           },
           "untrigger": []
         },
@@ -345,15 +341,11 @@
             "event": "Combat Log",
             "names": [],
             "use_sourceFlags2": true,
-            "use_spellName": false,
             "spellIds": [],
             "use_spellId": true,
             "sourceFlags2": "Hostile",
             "unit": "player",
-            "subeventPrefix": "SPELL",
-            "spellName": [
-              "Goblin Sapper Charge"
-            ]
+            "subeventPrefix": "SPELL"
           },
           "untrigger": []
         },
@@ -522,15 +514,11 @@
             "event": "Combat Log",
             "names": [],
             "use_sourceFlags2": true,
-            "use_spellName": false,
             "spellIds": [],
             "use_spellId": true,
             "sourceFlags2": "Hostile",
             "unit": "player",
-            "subeventPrefix": "SPELL",
-            "spellName": [
-              "Goblin Sapper Charge"
-            ]
+            "subeventPrefix": "SPELL"
           },
           "untrigger": []
         },
@@ -686,15 +674,11 @@
             "event": "Combat Log",
             "names": [],
             "use_sourceFlags2": true,
-            "use_spellName": false,
             "spellIds": [],
             "use_spellId": true,
             "sourceFlags2": "Hostile",
             "unit": "player",
-            "subeventPrefix": "SPELL",
-            "spellName": [
-              "Goblin Sapper Charge"
-            ]
+            "subeventPrefix": "SPELL"
           },
           "untrigger": []
         },
@@ -850,15 +834,11 @@
             "event": "Combat Log",
             "names": [],
             "use_sourceFlags2": true,
-            "use_spellName": false,
             "spellIds": [],
             "use_spellId": true,
             "sourceFlags2": "Hostile",
             "unit": "player",
-            "subeventPrefix": "SPELL",
-            "spellName": [
-              "Goblin Sapper Charge"
-            ]
+            "subeventPrefix": "SPELL"
           },
           "untrigger": []
         },
@@ -1014,15 +994,11 @@
             "event": "Combat Log",
             "names": [],
             "use_sourceFlags2": true,
-            "use_spellName": false,
             "spellIds": [],
             "use_spellId": true,
             "sourceFlags2": "Hostile",
             "unit": "player",
-            "subeventPrefix": "SPELL",
-            "spellName": [
-              "Goblin Sapper Charge"
-            ]
+            "subeventPrefix": "SPELL"
           },
           "untrigger": []
         },
@@ -1178,15 +1154,11 @@
             "event": "Combat Log",
             "names": [],
             "use_sourceFlags2": true,
-            "use_spellName": false,
             "spellIds": [],
             "use_spellId": true,
             "sourceFlags2": "Hostile",
             "unit": "player",
-            "subeventPrefix": "SPELL",
-            "spellName": [
-              "Goblin Sapper Charge"
-            ]
+            "subeventPrefix": "SPELL"
           },
           "untrigger": []
         },
@@ -1342,15 +1314,11 @@
             "event": "Combat Log",
             "names": [],
             "use_sourceFlags2": true,
-            "use_spellName": false,
             "spellIds": [],
             "use_spellId": true,
             "sourceFlags2": "Hostile",
             "unit": "player",
-            "subeventPrefix": "SPELL",
-            "spellName": [
-              "Goblin Sapper Charge"
-            ]
+            "subeventPrefix": "SPELL"
           },
           "untrigger": []
         },
@@ -1519,15 +1487,11 @@
             "event": "Combat Log",
             "names": [],
             "use_sourceFlags2": true,
-            "use_spellName": false,
             "spellIds": [],
             "use_spellId": true,
             "sourceFlags2": "Hostile",
             "unit": "player",
-            "subeventPrefix": "SPELL",
-            "spellName": [
-              "Goblin Sapper Charge"
-            ]
+            "subeventPrefix": "SPELL"
           },
           "untrigger": []
         },
@@ -1683,15 +1647,11 @@
             "event": "Combat Log",
             "names": [],
             "use_sourceFlags2": true,
-            "use_spellName": false,
             "spellIds": [],
             "use_spellId": true,
             "sourceFlags2": "Hostile",
             "unit": "player",
-            "subeventPrefix": "SPELL",
-            "spellName": [
-              "Goblin Sapper Charge"
-            ]
+            "subeventPrefix": "SPELL"
           },
           "untrigger": []
         },
